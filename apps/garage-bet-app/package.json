@@ -2,7 +2,7 @@
   "name": "garage-bet-app",
   "version": "0.0.1",
   "private": true,
-  "main": "expo-router/entry",
+  "main": "./index.js",
   "scripts": {
     "eas-build-post-install": "cd ../../ && node tools/scripts/eas-build-post-install.mjs . apps/garage-bet-app",
     "android": "expo run:android",
@@ -10,9 +10,12 @@
   },
   "dependencies": {
     "@expo/metro-config": "*",
+    "@prisma/client": "^7.4.0",
     "@testing-library/react-native": "*",
     "expo": "*",
+    "expo-network": "^8.0.8",
     "expo-router": "^6.0.23",
+    "expo-secure-store": "~15.0.8",
     "expo-splash-screen": "*",
     "expo-status-bar": "*",
     "expo-system-ui": "*",
@@ -24,5 +27,8 @@
     "react-native-svg": "*",
     "react-native-svg-transformer": "*",
     "react-native-web": "*"
+  },
+  "devDependencies": {
+    "prisma": "^7.4.0"
   }
 }

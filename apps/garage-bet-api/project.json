@@ -5,6 +5,36 @@
   "projectType": "application",
   "tags": [],
   "targets": {
+    "prisma-generate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "yarn prisma generate --schema=apps/garage-bet-api/prisma/schema.prisma"
+      }
+    },
+    "prisma-migrate-dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "yarn prisma migrate dev --schema=apps/garage-bet-api/prisma/schema.prisma"
+      }
+    },
+    "prisma-migrate-deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "yarn prisma migrate deploy --schema=apps/garage-bet-api/prisma/schema.prisma"
+      }
+    },
+    "prisma-studio": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "yarn prisma studio --schema=apps/garage-bet-api/prisma/schema.prisma"
+      }
+    },
+    "prisma-seed-world-cup-group-stage": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node apps/garage-bet-api/prisma/seed-world-cup-group-stage.cjs"
+      }
+    },
     "build": {
       "executor": "nx:run-commands",
       "options": {
@@ -16,7 +46,8 @@
         "development": {
           "args": ["--node-env=development"]
         }
-      }
+      },
+      "dependsOn": ["prisma-generate"]
     },
     "prune-lockfile": {
       "dependsOn": ["build"],
