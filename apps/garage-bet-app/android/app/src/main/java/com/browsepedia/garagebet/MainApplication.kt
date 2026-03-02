@@ -1,4 +1,4 @@
-package com.garagebetapp
+package com.browsepedia.garagebet
 
 import android.app.Application
 import android.content.res.Configuration

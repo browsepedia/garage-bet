@@ -45,7 +45,7 @@ async function refreshAccessToken(): Promise<string | null> {
 export async function apiFetch(path: string, init: RequestInit = {}) {
   if (!path.startsWith('http') && !API_URL) {
     throw new Error(
-      'Missing API base URL. Set EXPO_PUBLIC_API_URL (for example http://127.0.0.1:3000/api).',
+      'Missing API base URL. Set EXPO_PUBLIC_API_URL (for example http://10.0.2.2:3000/api).',
     );
   }
 
@@ -123,7 +123,7 @@ function resolveApiUrl() {
   }
 
   if (__DEV__) {
-    return 'http://127.0.0.1:3000/api';
+    return 'http://10.0.2.2:3000/api';
   }
 
   return '';

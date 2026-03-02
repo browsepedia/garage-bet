@@ -59,7 +59,7 @@ export default function Register() {
           onPress={async () => {
             try {
               const res = await fetch(
-                'http://127.0.0.1:3000/api/auth/register',
+                'http://10.0.2.2:3000/api/auth/register',
                 {
                   method: 'POST',
                   body: JSON.stringify({
