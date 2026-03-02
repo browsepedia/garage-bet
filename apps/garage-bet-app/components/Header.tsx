@@ -1,13 +1,10 @@
 import { Menu as MenuIcon } from '@tamagui/lucide-icons';
 import { router } from 'expo-router';
-import { useState } from 'react';
 import { TouchableHighlight } from 'react-native';
 import { Avatar, View } from 'tamagui';
 import { useUserProfileQuery } from '../queries/user-profile.query';
 
 export default function Header() {
-  const [menuOpen, setMenuOpen] = useState(false);
-
   const { data: user } = useUserProfileQuery();
   const displayName =
     user?.name?.trim() || user?.email?.split('@')[0] || 'Garage Bet';

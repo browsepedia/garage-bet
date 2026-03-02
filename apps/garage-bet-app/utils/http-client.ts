@@ -126,5 +126,5 @@ function resolveApiUrl() {
     return 'http://10.0.2.2:3000/api';
   }
 
-  return '';
+  return 'https://garage-bet-api-5f371ca7b557.herokuapp.com/api';
 }

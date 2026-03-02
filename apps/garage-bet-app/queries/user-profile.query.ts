@@ -8,7 +8,6 @@ export function useUserProfileQuery() {
     queryFn: async () => {
       const data = await apiJson<UserProfileModel>('/me');
 
-      console.log('data', data);
       return data;
     },
   });

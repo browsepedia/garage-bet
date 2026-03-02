@@ -15,11 +15,6 @@
   "engines": {
     "node": ">=20.x"
   },
-  "resolutions": {
-    "@react-native-menu/menu": "1.2.2",
-    "react-native-ios-context-menu": "3.0.0-23",
-    "react-native-ios-utilities": "5.0.0-58"
-  },
   "devDependencies": {
     "@babel/runtime": "~7.27.6",
     "@eslint/js": "^9.8.0",
@@ -85,7 +80,6 @@
     "@prisma/adapter-pg": "^7.4.0",
     "@prisma/client": "^7.4.0",
     "@react-native-masked-view/masked-view": "^0.3.2",
-    "@react-native-menu/menu": "1.2.2",
     "@tamagui/animations-react-native": "^2.0.0-rc.12",
     "@tamagui/config": "^2.0.0-rc.12",
     "@tamagui/core": "^2.0.0-rc.12",
@@ -111,8 +105,6 @@
     "react-hook-form": "^7.71.1",
     "react-native": "0.81.5",
     "react-native-gesture-handler": "^2.30.0",
-    "react-native-ios-context-menu": "3.0.0-23",
-    "react-native-ios-utilities": "5.0.0-58",
     "react-native-reanimated": "^4.2.1",
     "react-native-safe-area-context": "^5.6.2",
     "react-native-screens": "4.16.0",
@@ -124,7 +116,6 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
     "sf-symbols-typescript": "^2.2.0",
-    "tamagui": "^2.0.0-rc.12",
-    "zeego": "^3.0.6"
+    "tamagui": "^2.0.0-rc.12"
   }
 }
