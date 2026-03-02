@@ -25,13 +25,14 @@ export default function AppLayout() {
   const [tokenHint, setTokenHint] = useState(false);
 
   // 1) Quick local check first (prevents calling /me if user has no tokens at all)
+
   useEffect(() => {
     (async () => {
       const ok = await hasAnyToken();
       setTokenHint(ok);
       setBootstrapped(true);
     })();
-  }, [segments.join('/')]);
+  }, [segments]);
 
   // 2) If we have tokens, confirm session by calling /me (this will auto-refresh via apiFetch)
   const meQuery = useQuery({
@@ -39,6 +40,14 @@ export default function AppLayout() {
     queryFn: () => apiJson<MeDto>('/me'),
     enabled: bootstrapped && tokenHint,
   });
+
+  console.log(
+    'AppLayout',
+    bootstrapped,
+    tokenHint,
+    meQuery.isPending,
+    meQuery.isError,
+  );
 
   // While bootstrapping or checking /me
   if (!bootstrapped || (tokenHint && meQuery.isLoading)) {
@@ -48,6 +57,8 @@ export default function AppLayout() {
       </View>
     );
   }
+
+  console.log('TEST');
 
   // No tokens at all → go login
   if (!tokenHint) {

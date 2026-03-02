@@ -1,4 +1,4 @@
-import { Chrome, Facebook } from '@tamagui/lucide-icons';
+import { Chrome } from '@tamagui/lucide-icons';
 import { router } from 'expo-router';
 import { ChangeEvent, useState } from 'react';
 import { TouchableOpacity } from 'react-native';
@@ -93,9 +93,6 @@ export default function Register() {
         </XStack>
 
         <XStack justifyContent="center" gap={'$4'}>
-          <Button flex={1} icon={Facebook} backgroundColor={'#1877F2'}>
-            <Text>Facebook</Text>
-          </Button>
           <Button flex={1} icon={Chrome} backgroundColor={'#EA4335'}>
             <Text>Google</Text>
           </Button>

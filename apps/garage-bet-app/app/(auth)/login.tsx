@@ -1,6 +1,6 @@
 import { LoginFormModel, LoginSchema } from '@garage-bet/models';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Chrome, Facebook } from '@tamagui/lucide-icons';
+import { Chrome } from '@tamagui/lucide-icons';
 import { router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import { Dimensions, TouchableOpacity } from 'react-native';
@@ -94,9 +94,6 @@ export default function Login() {
         </XStack>
 
         <XStack justifyContent="center" gap={'$4'}>
-          <Button flex={1} icon={Facebook} backgroundColor={'#1877F2'}>
-            <Text>Facebook</Text>
-          </Button>
           <Button flex={1} icon={Chrome} backgroundColor={'#EA4335'}>
             <Text>Google</Text>
           </Button>

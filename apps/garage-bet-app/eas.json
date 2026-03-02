@@ -1,8 +1,12 @@
 {
   "build": {
     "production": {
+      "ios": {
+        "autoIncrement": true
+      },
       "android": {
-        "buildType": "app-bundle"
+        "buildType": "app-bundle",
+        "autoIncrement": true
       }
     },
     "development": {
@@ -21,5 +25,8 @@
   },
   "submit": {
     "production": {}
+  },
+  "cli": {
+    "appVersionSource": "remote"
   }
 }

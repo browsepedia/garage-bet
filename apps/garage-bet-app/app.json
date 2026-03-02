@@ -3,6 +3,7 @@
     "name": "Garage Bet",
     "slug": "garage-bet",
     "version": "1.0.0",
+    "icon": "./assets/images/icon.png",
     "orientation": "portrait",
     "scheme": "garage-bet-app",
     "userInterfaceStyle": "automatic",
@@ -16,6 +17,7 @@
     },
     "android": {
       "adaptiveIcon": {
+        "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,

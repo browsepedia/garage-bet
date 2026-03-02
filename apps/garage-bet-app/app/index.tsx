@@ -30,6 +30,8 @@ export default function Home() {
     };
   }, []);
 
+  console.log('Home');
+
   return (
     <Screen
       style={{

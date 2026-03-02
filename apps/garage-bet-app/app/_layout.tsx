@@ -88,6 +88,8 @@ function makeQueryClient() {
         if ((error as any)?.status === 401) {
           router.push('/(auth)/login');
         }
+
+        console.log('query error', error);
       },
     }),
     mutationCache: new MutationCache({
