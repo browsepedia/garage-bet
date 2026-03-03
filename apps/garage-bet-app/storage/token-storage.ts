@@ -3,8 +3,6 @@ import * as SecureStore from 'expo-secure-store';
 const ACCESS_KEY = 'garage-bet-access-token';
 const REFRESH_KEY = 'garage-bet-refresh-token';
 const DEVICE_KEY = 'garage-bet-device-key';
-
-// iOS 26 requires explicit keychainService or SecureStore throws NSException at init
 const KEYCHAIN_OPTIONS: SecureStore.SecureStoreOptions = {
   keychainService: 'com.browsepedia.garagebet',
 };

@@ -1,28 +1,29 @@
 /**
- * This script is used to patch the '@nx/expo' package to work with EAS Build.
- * It is run as a eas-build-post-install script in the 'package.json' of expo app.
- * It is executed as 'node tools/scripts/eas-build-post-install.mjs <workspace root> <project root>'
- * It will create a symlink from the project's node_modules to the workspace's node_modules.
+ * EAS build post-install helper for monorepo apps.
+ *
+ * Responsibilities:
+ * 1) Ensure workspace node_modules exists (symlink to app node_modules when needed).
+ * 2) Keep setup minimal and deterministic (no node_modules source patching).
  */
 
-import { symlink, existsSync } from 'fs';
+import { existsSync, promises as fs } from 'fs';
 import { join } from 'path';
 
 const [workspaceRoot, projectRoot] = process.argv.slice(2);
 
-if (existsSync(join(workspaceRoot, 'node_modules'))) {
-  console.log('Symlink already exists');
-  process.exit(0);
+async function ensureWorkspaceNodeModules() {
+  const workspaceNodeModules = join(workspaceRoot, 'node_modules');
+  if (existsSync(workspaceNodeModules)) {
+    console.log('Workspace node_modules already exists');
+    return;
+  }
+
+  await fs.symlink(
+    join(projectRoot, 'node_modules'),
+    workspaceNodeModules,
+    'dir',
+  );
+  console.log('Workspace node_modules symlink created');
 }
 
-symlink(
-  join(projectRoot, 'node_modules'),
-  join(workspaceRoot, 'node_modules'),
-  'dir',
-  (err) => {
-    if (err) console.log(err);
-    else {
-      console.log('Symlink created');
-    }
-  },
-);
+await ensureWorkspaceNodeModules();

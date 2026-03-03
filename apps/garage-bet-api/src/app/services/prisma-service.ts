@@ -1,17 +1,17 @@
 // apps/garage-bet-api/src/prisma/prisma.service.ts
-import { INestApplication, Injectable, OnModuleInit } from "@nestjs/common";
-import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
-import { Pool } from "pg";
+import { INestApplication, Injectable, OnModuleInit } from '@nestjs/common';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '@prisma/client';
+import { Pool } from 'pg';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
   private static pool: Pool | null = null;
 
   constructor() {
-    const connectionString = process.env.DATABASE_URL;
+    const connectionString = process.env.PRISMA_DATABASE_URL;
     if (!connectionString) {
-      throw new Error("DATABASE_URL is not set");
+      throw new Error('DATABASE_URL is not set');
     }
 
     // Reuse pool across hot-reloads in dev
@@ -29,7 +29,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
   }
 
   async enableShutdownHooks(app: INestApplication) {
-    this.$on("error", async () => {
+    this.$on('error', async () => {
       await app.close();
     });
   }

@@ -1,12 +1,12 @@
-import "dotenv/config";
-import { defineConfig, env } from "@prisma/config";
+import { defineConfig, env } from '@prisma/config';
+import 'dotenv/config';
 
 export default defineConfig({
-  schema: "apps/garage-bet-api/prisma/schema.prisma",
+  schema: 'apps/garage-bet-api/prisma/schema.prisma',
   migrations: {
-    path: "apps/garage-bet-api/prisma/migrations",
+    path: 'apps/garage-bet-api/prisma/migrations',
   },
   datasource: {
-    url: env("DATABASE_URL"),
+    url: env('PRISMA_DATABASE_URL'),
   },
 });

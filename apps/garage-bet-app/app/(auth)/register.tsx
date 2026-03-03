@@ -5,12 +5,15 @@ import { TouchableOpacity } from 'react-native';
 import { Button, Text, XStack, YStack } from 'tamagui';
 import { Screen } from '../../components/Screen';
 import { ThemedInput } from '../../components/ThemedInput';
+import { useRegisterMutation } from '../../mutations/register.mutation';
 
 export default function Register() {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  const { mutateAsync: register, isPending: isLoading } = useRegisterMutation();
 
   return (
     <Screen
@@ -56,34 +59,7 @@ export default function Register() {
         <Button
           backgroundColor="$brand"
           size="$4"
-          onPress={async () => {
-            try {
-              const res = await fetch(
-                'http://10.0.2.2:3000/api/auth/register',
-                {
-                  method: 'POST',
-                  body: JSON.stringify({
-                    email: email,
-                    password: password,
-                    name: name,
-                  }),
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                },
-              );
-
-              console.log('res', await res.json());
-              if (!res.ok) {
-                throw new Error('Failed to register');
-              }
-              console.log('Registration successful');
-              const data = await res.json();
-              console.log(data);
-            } catch (err) {
-              console.error('Register API call failed:', err);
-            }
-          }}
+          onPress={() => register({ email, password, name })}
         >
           <Text color="$brandForeground">Register</Text>
         </Button>

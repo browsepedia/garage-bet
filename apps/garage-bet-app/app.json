@@ -7,14 +7,14 @@
     "orientation": "portrait",
     "scheme": "garage-bet-app",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
+    "jsEngine": "jsc",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.browsepedia.garagebet",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
-      },
-      "jsEngine": "jsc"
+      }
     },
     "android": {
       "adaptiveIcon": {
