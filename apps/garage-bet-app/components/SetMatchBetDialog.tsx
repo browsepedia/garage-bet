@@ -25,7 +25,15 @@ export default function SetMatchBetDialog({
   const [awayScore, setAwayScore] = useState(match.awayBetScore || 0);
 
   return (
-    <Dialog modal open>
+    <Dialog
+      modal
+      open
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          onClose();
+        }
+      }}
+    >
       <Dialog.Portal>
         <Dialog.Overlay
           backgroundColor="$background"
@@ -97,21 +105,19 @@ export default function SetMatchBetDialog({
             </XStack>
 
             <XStack justifyContent="flex-end" gap="$4">
-              <Dialog.Close displayWhenAdapted asChild>
-                <XStack gap="$4">
-                  <Button theme="blue" aria-label="Close" size="$3">
-                    Cancel
-                  </Button>
-                  <Button
-                    theme="blue"
-                    aria-label="Close"
-                    size="$3"
-                    onPress={onClose}
-                  >
-                    Set bet
-                  </Button>
-                </XStack>
-              </Dialog.Close>
+              <XStack gap="$4">
+                <Button theme="blue" aria-label="Close" size="$3" onPress={onClose}>
+                  Cancel
+                </Button>
+                <Button
+                  theme="blue"
+                  aria-label="Close"
+                  size="$3"
+                  onPress={onClose}
+                >
+                  Set bet
+                </Button>
+              </XStack>
             </XStack>
           </Dialog.Content>
         </Dialog.FocusScope>

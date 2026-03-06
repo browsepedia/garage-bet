@@ -102,7 +102,17 @@ export default function Login() {
         <YStack alignItems="center" gap={'$4'}>
           <Text>Don't have an account?</Text>
 
-          <TouchableOpacity onPress={() => router.replace('/(auth)/register')}>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            hitSlop={12}
+            onPress={() => router.replace('/(auth)/register')}
+            style={{
+              minHeight: 44,
+              minWidth: 80,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
             <Text>Register</Text>
           </TouchableOpacity>
         </YStack>

@@ -35,13 +35,9 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    onlineManager.setEventListener((setOnline) => {
-      setOnline(Boolean(isConnected));
-
-      return () => {
-        setOnline(false);
-      };
-    });
+    if (typeof isConnected === 'boolean') {
+      onlineManager.setOnline(isConnected);
+    }
   }, [isConnected]);
 
   return (
@@ -63,10 +59,7 @@ function Content() {
       backgroundColor={'$background'}
       style={{
         flex: 1,
-        paddingTop: insets.top,
         paddingBottom: insets.bottom,
-        paddingLeft: insets.left,
-        paddingRight: insets.right,
       }}
     >
       <StatusBar barStyle="light-content" />
@@ -86,16 +79,14 @@ function makeQueryClient() {
     queryCache: new QueryCache({
       onError: (error) => {
         if ((error as any)?.status === 401) {
-          router.push('/(auth)/login');
+          router.replace('/(auth)/login');
         }
-
-        console.log('query error', error);
       },
     }),
     mutationCache: new MutationCache({
       onError: (error) => {
         if ((error as any)?.status === 401) {
-          router.push('/(auth)/login');
+          router.replace('/(auth)/login');
         }
       },
     }),

@@ -8,10 +8,18 @@ const KEYCHAIN_OPTIONS: SecureStore.SecureStoreOptions = {
 };
 
 export async function getAccessToken() {
-  return SecureStore.getItemAsync(ACCESS_KEY, KEYCHAIN_OPTIONS);
+  try {
+    return await SecureStore.getItemAsync(ACCESS_KEY, KEYCHAIN_OPTIONS);
+  } catch {
+    return null;
+  }
 }
 export async function getRefreshToken() {
-  return SecureStore.getItemAsync(REFRESH_KEY, KEYCHAIN_OPTIONS);
+  try {
+    return await SecureStore.getItemAsync(REFRESH_KEY, KEYCHAIN_OPTIONS);
+  } catch {
+    return null;
+  }
 }
 export async function setTokens(tokens: {
   accessToken: string;
@@ -29,16 +37,28 @@ export async function setTokens(tokens: {
   );
 }
 export async function clearTokens() {
-  await SecureStore.deleteItemAsync(ACCESS_KEY, KEYCHAIN_OPTIONS);
-  await SecureStore.deleteItemAsync(REFRESH_KEY, KEYCHAIN_OPTIONS);
+  await Promise.allSettled([
+    SecureStore.deleteItemAsync(ACCESS_KEY, KEYCHAIN_OPTIONS),
+    SecureStore.deleteItemAsync(REFRESH_KEY, KEYCHAIN_OPTIONS),
+  ]);
 }
 
 // recommended: stable deviceId per install
 export async function getOrCreateDeviceId() {
-  let id = await SecureStore.getItemAsync(DEVICE_KEY, KEYCHAIN_OPTIONS);
+  let id: string | null = null;
+  try {
+    id = await SecureStore.getItemAsync(DEVICE_KEY, KEYCHAIN_OPTIONS);
+  } catch {
+    id = null;
+  }
+
   if (!id) {
     id = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
-    await SecureStore.setItemAsync(DEVICE_KEY, id, KEYCHAIN_OPTIONS);
+    try {
+      await SecureStore.setItemAsync(DEVICE_KEY, id, KEYCHAIN_OPTIONS);
+    } catch {
+      // Fall back to in-memory only value if secure storage is unavailable.
+    }
   }
   return id;
 }

@@ -35,7 +35,7 @@ const prisma = new PrismaClient({ adapter });
 const fixtures = [
   // Group A
   {
-    group: 'A',
+    group: 'A',  
     date: '2026-11-20',
     time: '19:00',
     home: 'Qatar',

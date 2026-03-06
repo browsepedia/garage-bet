@@ -51,8 +51,6 @@ export async function apiFetch(path: string, init: RequestInit = {}) {
 
   const url = path.startsWith('http') ? path : `${API_URL}${path}`;
 
-  console.log('apiFetch', url);
-
   const headers = new Headers(init.headers || {});
   if (!headers.has('Content-Type') && init.body)
     headers.set('Content-Type', 'application/json');

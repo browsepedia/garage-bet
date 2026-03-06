@@ -4,7 +4,7 @@ import { Redirect, Tabs, router, useSegments } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { Button, Text, YStack } from 'tamagui';
-import Header from '../../components/Header';
+import { HeaderAvatar, HeaderSettingsButton } from '../../components/Header';
 import {
   clearTokens,
   getAccessToken,
@@ -41,14 +41,6 @@ export default function AppLayout() {
     enabled: bootstrapped && tokenHint,
   });
 
-  console.log(
-    'AppLayout',
-    bootstrapped,
-    tokenHint,
-    meQuery.isPending,
-    meQuery.isError,
-  );
-
   // While bootstrapping or checking /me
   if (!bootstrapped || (tokenHint && meQuery.isLoading)) {
     return (
@@ -57,8 +49,6 @@ export default function AppLayout() {
       </View>
     );
   }
-
-  console.log('TEST');
 
   // No tokens at all → go login
   if (!tokenHint) {
@@ -113,7 +103,13 @@ export default function AppLayout() {
     <Tabs
       screenOptions={{
         headerShown: true,
-        header: () => <Header />,
+        headerStyle: {
+          backgroundColor: '#0A0F1C',
+        },
+        headerShadowVisible: false,
+        headerTitle: '',
+        headerLeft: () => <HeaderAvatar />,
+        headerRight: () => <HeaderSettingsButton />,
 
         tabBarStyle: {
           backgroundColor: '#0A0F1C',

@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronLeft } from '@tamagui/lucide-icons';
 import { router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
+import { TouchableOpacity } from 'react-native';
 import { Avatar, Button, H5, View, XStack, YStack } from 'tamagui';
 import { Screen } from '../components/Screen';
 import { ThemedInput } from '../components/ThemedInput';
@@ -26,17 +27,38 @@ export default function Settings() {
 
   const { mutateAsync: logout } = useLogout();
 
+  const onBackPress = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.replace('/(app)/home');
+  };
+
+  const onSave = handleSubmit(async () => {
+    return;
+  });
+
   return (
     <Screen>
       <XStack alignItems="center">
-        <Button
-          aria-label="Back"
-          size="$3"
-          backgroundColor="transparent"
-          onPress={() => router.back()}
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+          activeOpacity={0.6}
+          hitSlop={12}
+          onPress={onBackPress}
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: 999,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
           <ChevronLeft />
-        </Button>
+        </TouchableOpacity>
 
         <H5>Settings</H5>
       </XStack>
@@ -75,11 +97,7 @@ export default function Settings() {
             )}
           />
 
-          <Button
-            size="$3"
-            backgroundColor="$brand"
-            onPress={handleSubmit(() => {})}
-          >
+          <Button size="$3" backgroundColor="$brand" onPress={onSave}>
             Save
           </Button>
         </View>
