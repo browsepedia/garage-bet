@@ -1,10 +1,14 @@
 import { UserProfileModel, UserProfileSchema } from '@garage-bet/models';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Avatar } from '@tamagui/avatar';
+import { Button } from '@tamagui/button';
+import { View } from '@tamagui/core';
 import { ChevronLeft } from '@tamagui/lucide-icons';
+import { XStack, YStack } from '@tamagui/stacks';
+import { H5 } from '@tamagui/text';
 import { router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import { TouchableOpacity } from 'react-native';
-import { Avatar, Button, H5, View, XStack, YStack } from 'tamagui';
 import { Screen } from '../components/Screen';
 import { ThemedInput } from '../components/ThemedInput';
 import { useLogout } from '../mutations/logout.mutation';
@@ -55,6 +59,7 @@ export default function Settings() {
             borderRadius: 999,
             alignItems: 'center',
             justifyContent: 'center',
+            marginLeft: -16,
           }}
         >
           <ChevronLeft />
@@ -83,19 +88,21 @@ export default function Settings() {
             )}
           />
 
-          <Controller
-            control={control}
-            name="email"
-            render={({ field: { value, onChange, onBlur } }) => (
-              <ThemedInput
-                value={value}
-                onChange={onChange}
-                onBlur={onBlur}
-                keyboardType="email-address"
-                placeholder="Email"
-              />
-            )}
-          />
+          {user?.email && (
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <ThemedInput
+                  value={value}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  keyboardType="email-address"
+                  placeholder="Email"
+                />
+              )}
+            />
+          )}
 
           <Button size="$3" backgroundColor="$brand" onPress={onSave}>
             Save

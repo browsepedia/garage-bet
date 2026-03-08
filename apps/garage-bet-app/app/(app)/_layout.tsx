@@ -1,10 +1,12 @@
 import { Play, Trophy, Volleyball } from '@tamagui/lucide-icons';
+import { Button } from '@tamagui/button';
+import { Text, useTheme } from '@tamagui/core';
+import { YStack } from '@tamagui/stacks';
 import { useQuery } from '@tanstack/react-query';
-import { Redirect, Tabs, router, useSegments } from 'expo-router';
+import { Redirect, router, Tabs, useSegments } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import { Button, Text, YStack } from 'tamagui';
-import { HeaderAvatar, HeaderSettingsButton } from '../../components/Header';
+import Header from '../../components/Header';
 import {
   clearTokens,
   getAccessToken,
@@ -23,6 +25,8 @@ export default function AppLayout() {
   const segments = useSegments(); // optional, useful if you later do smarter routing
   const [bootstrapped, setBootstrapped] = useState(false);
   const [tokenHint, setTokenHint] = useState(false);
+  const theme = useTheme();
+  const appBackground = String(theme.background?.val ?? '#212A3E');
 
   // 1) Quick local check first (prevents calling /me if user has no tokens at all)
 
@@ -44,7 +48,14 @@ export default function AppLayout() {
   // While bootstrapping or checking /me
   if (!bootstrapped || (tokenHint && meQuery.isLoading)) {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: appBackground,
+        }}
+      >
         <ActivityIndicator />
       </View>
     );
@@ -73,7 +84,7 @@ export default function AppLayout() {
           alignItems: 'center',
           justifyContent: 'center',
           padding: 16,
-          backgroundColor: '#0A0F1C',
+          backgroundColor: appBackground,
         }}
       >
         <YStack gap="$3" alignItems="center" maxWidth={320}>
@@ -104,22 +115,26 @@ export default function AppLayout() {
       screenOptions={{
         headerShown: true,
         headerStyle: {
-          backgroundColor: '#0A0F1C',
+          backgroundColor: appBackground,
         },
+        header: () => <Header />,
         headerShadowVisible: false,
-        headerTitle: '',
-        headerLeft: () => <HeaderAvatar />,
-        headerRight: () => <HeaderSettingsButton />,
+        sceneStyle: {
+          backgroundColor: appBackground,
+        },
 
         tabBarStyle: {
-          backgroundColor: '#0A0F1C',
-          borderTopColor: '#1f2937',
+          backgroundColor: 'transparent',
+          borderTopColor: appBackground,
           borderTopWidth: 1,
           height: 60,
           paddingTop: 8,
           paddingBottom: 8,
           marginBottom: 0,
         },
+        tabBarBackground: () => (
+          <View style={{ flex: 1, backgroundColor: appBackground }} />
+        ),
         tabBarActiveTintColor: '#EA580C',
         tabBarInactiveTintColor: '#94a3b8',
         tabBarLabelStyle: {

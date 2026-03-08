@@ -1,10 +1,12 @@
 import { LoginFormModel, LoginSchema } from '@garage-bet/models';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@tamagui/button';
+import { Text } from '@tamagui/core';
+import { XStack, YStack } from '@tamagui/stacks';
 import { Chrome } from '@tamagui/lucide-icons';
 import { router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
-import { Dimensions, TouchableOpacity } from 'react-native';
-import { Button, Spinner, Text, XStack, YStack } from 'tamagui';
+import { ActivityIndicator, Dimensions, TouchableOpacity } from 'react-native';
 import { Screen } from '../../components/Screen';
 import { ThemedInput } from '../../components/ThemedInput';
 import { useLoginMutation } from '../../mutations/login.mutation';
@@ -83,7 +85,7 @@ export default function Login() {
 
         <Button backgroundColor="$brand" size="$4" onPress={handleLogin}>
           {isLoading ? (
-            <Spinner size="small" color="$brandForeground" />
+            <ActivityIndicator size="small" color="#ffffff" />
           ) : (
             <Text color="$brandForeground">Login</Text>
           )}

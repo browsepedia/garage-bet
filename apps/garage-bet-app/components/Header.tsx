@@ -1,7 +1,8 @@
 import { Menu as MenuIcon } from '@tamagui/lucide-icons';
+import { Avatar } from '@tamagui/avatar';
+import { useTheme, View } from '@tamagui/core';
 import { router } from 'expo-router';
 import { TouchableOpacity } from 'react-native';
-import { Avatar, View } from 'tamagui';
 import { useUserProfileQuery } from '../queries/user-profile.query';
 
 function useDisplayNameAndAvatar() {
@@ -52,10 +53,12 @@ export function HeaderSettingsButton() {
 
 export default function Header() {
   const { user, initialsAvatarUrl } = useDisplayNameAndAvatar();
+  const theme = useTheme();
+  const appBackground = String(theme.background?.val ?? '#212A3E');
 
   return (
     <View
-      backgroundColor="$background"
+      style={{ backgroundColor: appBackground }}
       paddingBottom={'$4'}
       paddingHorizontal={'$4'}
       flexDirection="row"

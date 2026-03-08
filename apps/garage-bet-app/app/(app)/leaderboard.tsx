@@ -1,4 +1,6 @@
 import { LeaderboardEntry } from '@garage-bet/models';
+import { XStack, YStack } from '@tamagui/stacks';
+import { Paragraph } from '@tamagui/text';
 import { useMemo, useRef } from 'react';
 import {
   ActivityIndicator,
@@ -8,7 +10,6 @@ import {
   ScrollView,
   View,
 } from 'react-native';
-import { Text, XStack, YStack } from 'tamagui';
 import { Screen } from '../../components/Screen';
 import { useLeaderboardQuery } from '../../queries/leaderboard.query';
 
@@ -51,18 +52,18 @@ export default function Leaderboard() {
   const leftListRef = useRef<FlatList<LeaderboardEntry>>(null);
 
   const renderHeaderCell = (label: string, width: number) => (
-    <Text
+    <Paragraph
+      color="$color9"
       width={width}
       height={HEADER_HEIGHT}
       lineHeight={HEADER_HEIGHT}
-      color="$color9"
       fontSize="$2"
       fontWeight="700"
       textTransform="uppercase"
       letterSpacing={0.4}
     >
       {label}
-    </Text>
+    </Paragraph>
   );
 
   const renderLeftRow = ({
@@ -81,18 +82,18 @@ export default function Leaderboard() {
         borderBottomColor="$borderColor"
         height={ROW_HEIGHT}
       >
-        <Text width={LEFT_POSITION_WIDTH} fontWeight="700">
+        <Paragraph width={LEFT_POSITION_WIDTH} fontWeight="700">
           {position}
-        </Text>
+        </Paragraph>
 
         <XStack width={LEFT_PLAYER_WIDTH} alignItems="center" gap="$2">
           <Image
             source={{ uri: item.avatarUrl }}
             style={{ width: 32, height: 32, borderRadius: 16 }}
           />
-          <Text flex={1} numberOfLines={1} ellipsizeMode="tail">
+          <Paragraph flex={1} numberOfLines={1} ellipsizeMode="tail">
             {item.name}
-          </Text>
+          </Paragraph>
         </XStack>
       </XStack>
     );
@@ -108,17 +109,17 @@ export default function Leaderboard() {
       >
         <View style={{ width: LEFT_TABLE_WIDTH }} />
 
-        <Text width={POINTS_WIDTH} fontWeight="700" color="$orange10">
+        <Paragraph width={POINTS_WIDTH} fontWeight="700" color="$orange10">
           {item.totalPoints}
-        </Text>
+        </Paragraph>
 
-        <Text width={RIGHT_COLUMN_WIDTH}>{item.totalWins}</Text>
-        <Text width={RIGHT_COLUMN_WIDTH}>{item.totalResults}</Text>
-        <Text width={RIGHT_COLUMN_WIDTH}>{item.totalLosses}</Text>
-        <Text width={RIGHT_COLUMN_WIDTH}>{item.betCount}</Text>
-        <Text width={RIGHT_COLUMN_WIDTH}>
+        <Paragraph width={RIGHT_COLUMN_WIDTH}>{item.totalWins}</Paragraph>
+        <Paragraph width={RIGHT_COLUMN_WIDTH}>{item.totalResults}</Paragraph>
+        <Paragraph width={RIGHT_COLUMN_WIDTH}>{item.totalLosses}</Paragraph>
+        <Paragraph width={RIGHT_COLUMN_WIDTH}>{item.betCount}</Paragraph>
+        <Paragraph width={RIGHT_COLUMN_WIDTH}>
           {Math.round(item.winRate * 100)}%
-        </Text>
+        </Paragraph>
       </XStack>
     );
   };
@@ -132,7 +133,7 @@ export default function Leaderboard() {
           </YStack>
         ) : error ? (
           <YStack flex={1} alignItems="center" justifyContent="center">
-            <Text>Error: {error.message}</Text>
+            <Paragraph>Error: {error.message}</Paragraph>
           </YStack>
         ) : (
           <View style={{ flex: 1 }}>
@@ -147,7 +148,7 @@ export default function Leaderboard() {
                   <View style={{ width: LEFT_TABLE_WIDTH }} />
                   {renderHeaderCell('P', POINTS_WIDTH)}
                   {horizontalColumns.map((column) => (
-                    <Text
+                    <Paragraph
                       key={column.key}
                       width={RIGHT_COLUMN_WIDTH}
                       color="$color9"
@@ -157,7 +158,7 @@ export default function Leaderboard() {
                       letterSpacing={0.4}
                     >
                       {column.label}
-                    </Text>
+                    </Paragraph>
                   ))}
                 </XStack>
 

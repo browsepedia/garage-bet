@@ -1,5 +1,7 @@
-import { useNetworkState } from 'expo-network';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import { TamaguiProvider, View } from '@tamagui/core';
+import { PortalProvider } from '@tamagui/portal';
 import {
   focusManager,
   MutationCache,
@@ -15,7 +17,6 @@ import {
   SafeAreaProvider,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import { TamaguiProvider, View } from 'tamagui';
 import config from '../tamagui.config';
 
 export default function RootLayout() {
@@ -24,9 +25,7 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
   const theme = colorScheme === 'dark' ? 'dark' : 'light';
 
-  const { isConnected } = useNetworkState();
-
-  // React Query focus/online handling for RN
+  // React Query focus handling for RN
   useEffect(() => {
     const sub = AppState.addEventListener('change', (state) => {
       focusManager.setFocused(state === 'active');
@@ -34,20 +33,23 @@ export default function RootLayout() {
     return () => sub.remove();
   }, []);
 
+  // Assume online - expo-network useNetworkState can crash on iOS TestFlight
   useEffect(() => {
-    if (typeof isConnected === 'boolean') {
-      onlineManager.setOnline(isConnected);
-    }
-  }, [isConnected]);
+    onlineManager.setOnline(true);
+  }, []);
 
   return (
-    <TamaguiProvider config={config} defaultTheme={'dark'} key={theme}>
-      <SafeAreaProvider>
-        <QueryClientProvider client={queryClient}>
-          <Content />
-        </QueryClientProvider>
-      </SafeAreaProvider>
-    </TamaguiProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <TamaguiProvider config={config} defaultTheme={'dark'} key={theme}>
+        <PortalProvider>
+          <SafeAreaProvider>
+            <QueryClientProvider client={queryClient}>
+              <Content />
+            </QueryClientProvider>
+          </SafeAreaProvider>
+        </PortalProvider>
+      </TamaguiProvider>
+    </GestureHandlerRootView>
   );
 }
 
@@ -59,6 +61,7 @@ function Content() {
       backgroundColor={'$background'}
       style={{
         flex: 1,
+        paddingTop: insets.top,
         paddingBottom: insets.bottom,
       }}
     >

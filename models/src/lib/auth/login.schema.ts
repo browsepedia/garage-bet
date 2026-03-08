@@ -6,6 +6,7 @@ export const LoginSchema = zod.object({
     .string()
     .min(1, 'Password is required')
     .min(5, 'Password must be at least 5 characters long'),
+  deviceId: zod.string().optional(),
 });
 
 export type LoginFormModel = zod.infer<typeof LoginSchema>;

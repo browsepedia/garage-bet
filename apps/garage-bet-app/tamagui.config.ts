@@ -1,5 +1,5 @@
 import { defaultConfig } from '@tamagui/config/v5';
-import { createTamagui } from 'tamagui';
+import { createTamagui } from '@tamagui/core';
 
 export const tamaguiConfig = createTamagui({
   ...defaultConfig,
@@ -25,11 +25,11 @@ export const tamaguiConfig = createTamagui({
       ...defaultConfig.themes.dark,
 
       borderColor: '#273042',
+      color: '#f1f5f9',
 
-      background: '#0A0F1C',
+      background: '#111418',
       backgroundHover: '#121A2B',
       placeholderColor: '#a1a1aa',
-      
 
       // Brand (slightly brighter for dark mode contrast)
       brand: '#EA580C',
@@ -40,10 +40,8 @@ export const tamaguiConfig = createTamagui({
   },
 
   useSystemColorMode: true,
-})
+});
 
 export default tamaguiConfig;
 
 export type Conf = typeof tamaguiConfig;
-
-

@@ -42,6 +42,7 @@ enum FriendshipStatus {
 model User {
     id        String  @id @default(cuid())
     email     String? @unique
+    deviceId  String? @unique
     username  String? @unique
     name      String?
     avatarUrl String?
@@ -57,6 +58,7 @@ model User {
     friendshipsReceived Friendship[] @relation("friendshipsReceived")
 
     @@index([email])
+    @@index([deviceId])
     @@index([username])
 }
 

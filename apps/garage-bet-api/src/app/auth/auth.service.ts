@@ -9,6 +9,10 @@ import { JwtService } from '@nestjs/jwt';
 import { createHash, randomBytes } from 'node:crypto';
 import { PrismaService } from '../services/prisma-service';
 
+type DeviceLoginInput = {
+  deviceId?: string;
+};
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -84,44 +88,107 @@ export class AuthService {
   }
 
   async register(dto: RegisterFormModel) {
-    if (!dto.email || !dto.password) {
-      throw new BadRequestException('Email and password are required');
+    if (!dto.deviceId) {
+      throw new BadRequestException('Device ID is required');
     }
 
-    const existingUser = await this.prisma.user.findUnique({
+    const existingUserByDevice = await this.prisma.user.findUnique({
+      where: { deviceId: dto.deviceId },
+    });
+
+    const existingUserByEmail = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
 
-    if (existingUser) {
+    if (
+      existingUserByEmail &&
+      (!existingUserByDevice ||
+        existingUserByEmail.id !== existingUserByDevice.id)
+    ) {
       throw new ConflictException('Email already registered');
     }
 
-    const user = await this.prisma.user.create({
-      data: {
-        email: dto.email,
-        name: dto.name,
-      },
-      select: this.userProfileSelect,
-    });
+    const user = existingUserByDevice
+      ? await this.prisma.user.update({
+          where: { id: existingUserByDevice.id },
+          data: {
+            email: dto.email,
+            name: dto.name,
+            deviceId: dto.deviceId,
+          },
+          select: this.userProfileSelect,
+        })
+      : await this.prisma.user.create({
+          data: {
+            email: dto.email,
+            name: dto.name,
+            deviceId: dto.deviceId,
+          },
+          select: this.userProfileSelect,
+        });
 
     const { accessToken, refreshToken } = await this.issueAuthTokens(user);
 
     return { user, accessToken, refreshToken };
   }
 
-  async login(dto: LoginFormModel) {
-    if (!dto.email || !dto.password) {
+  private async loginAnonymousByDeviceId(deviceId: string) {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { deviceId },
+      select: this.userProfileSelect,
+    });
+
+    const user =
+      existingUser ??
+      (await this.prisma.user.create({
+        data: {
+          deviceId,
+          name: 'Guest',
+        },
+        select: this.userProfileSelect,
+      }));
+
+    const { accessToken, refreshToken } = await this.issueAuthTokens(user);
+    return { accessToken, refreshToken };
+  }
+
+  async anonymousLogin(deviceId: string) {
+    if (!deviceId) {
+      throw new BadRequestException('Device ID is required');
+    }
+
+    return this.loginAnonymousByDeviceId(deviceId);
+  }
+
+  async login(dto: LoginFormModel & DeviceLoginInput) {
+    if (dto.deviceId && (!dto.email || !dto.password)) {
+      return this.anonymousLogin(dto.deviceId);
+    }
+
+    if (!dto.email || !dto.password || !dto.deviceId) {
       throw new BadRequestException('Email and password are required');
     }
 
     // TODO: Add password hash verification once password auth is modeled in Prisma.
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
-      select: this.userProfileSelect,
+      select: {
+        ...this.userProfileSelect,
+        deviceId: true,
+      },
     });
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
+    }
+
+    if (!user.deviceId) {
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { deviceId: dto.deviceId },
+      });
+    } else if (user.deviceId !== dto.deviceId) {
+      throw new UnauthorizedException('Device mismatch');
     }
 
     const { accessToken, refreshToken } = await this.issueAuthTokens(user);

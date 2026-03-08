@@ -2,13 +2,13 @@
   "babelrcRoots": ["*"],
   "presets": ["babel-preset-expo"],
   "plugins": [
-    "react-native-reanimated/plugin",
     [
       "@tamagui/babel-plugin",
       {
         "config": "./tamagui.config.ts",
         "components": ["tamagui"]
       }
-    ]
+    ],
+    "react-native-reanimated/plugin"
   ]
 }

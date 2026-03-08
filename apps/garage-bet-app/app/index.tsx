@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { ActivityIndicator } from 'react-native';
-import { Text } from 'tamagui';
+import { Text } from '@tamagui/core';
 import { Screen } from '../components/Screen';
 import { getAccessToken, getRefreshToken } from '../storage/token-storage';
 

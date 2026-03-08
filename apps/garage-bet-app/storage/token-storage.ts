@@ -1,4 +1,6 @@
+import * as Application from 'expo-application';
 import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 
 const ACCESS_KEY = 'garage-bet-access-token';
 const REFRESH_KEY = 'garage-bet-refresh-token';
@@ -43,8 +45,53 @@ export async function clearTokens() {
   ]);
 }
 
-// recommended: stable deviceId per install
+type ApplicationLike = {
+  androidId?: string | null;
+  iosIdForVendor?: string | null;
+  getAndroidId?: () => string | null;
+  getIosIdForVendorAsync?: () => Promise<string | null>;
+};
+
+async function getPersistentOsDeviceId() {
+  const app = Application as unknown as ApplicationLike;
+
+  if (Platform.OS === 'android') {
+    try {
+      const androidId =
+        (typeof app.getAndroidId === 'function' ? app.getAndroidId() : null) ??
+        app.androidId;
+      if (androidId) {
+        return `android:${androidId}`;
+      }
+    } catch {
+      // Ignore and fallback.
+    }
+  }
+
+  if (Platform.OS === 'ios') {
+    try {
+      const iosId =
+        (typeof app.getIosIdForVendorAsync === 'function'
+          ? await app.getIosIdForVendorAsync()
+          : null) ?? app.iosIdForVendor;
+      if (iosId) {
+        return `ios:${iosId}`;
+      }
+    } catch {
+      // Ignore and fallback.
+    }
+  }
+
+  return null;
+}
+
+// Prefer OS-level identifier so it survives app reinstalls.
 export async function getOrCreateDeviceId() {
+  const persistentOsId = await getPersistentOsDeviceId();
+  if (persistentOsId) {
+    return persistentOsId;
+  }
+
   let id: string | null = null;
   try {
     id = await SecureStore.getItemAsync(DEVICE_KEY, KEYCHAIN_OPTIONS);

@@ -1,36 +1,44 @@
 import { MatchData } from '@garage-bet/models';
+import { Button } from '@tamagui/button';
+import { Card } from '@tamagui/card';
+import { Text, View } from '@tamagui/core';
+import { Dialog } from '@tamagui/dialog';
 import { ChevronDown } from '@tamagui/lucide-icons';
-import React, { useMemo, useState } from 'react';
+import { ScrollView } from '@tamagui/scroll-view';
+import { XStack, YStack } from '@tamagui/stacks';
+import { H6 } from '@tamagui/text';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Modal, Pressable } from 'react-native';
-import {
-  Button,
-  Card,
-  Dialog,
-  H6,
-  ScrollView,
-  Text,
-  View,
-  XStack,
-  YStack,
-} from 'tamagui';
 
 export default function SetMatchBetDialog({
+  open,
   match,
-  onClose,
+  onOpenChange,
 }: {
-  match: MatchData;
-  onClose: () => void;
+  open: boolean;
+  match: MatchData | null;
+  onOpenChange: (open: boolean) => void;
 }) {
-  const [homeScore, setHomeScore] = useState(match.homeBetScore || 0);
-  const [awayScore, setAwayScore] = useState(match.awayBetScore || 0);
+  const [homeScore, setHomeScore] = useState(0);
+  const [awayScore, setAwayScore] = useState(0);
+
+  useEffect(() => {
+    if (!match) return;
+    setHomeScore(match.homeBetScore || 0);
+    setAwayScore(match.awayBetScore || 0);
+  }, [match]);
+
+  if (!match) {
+    return null;
+  }
 
   return (
     <Dialog
       modal
-      open
+      open={open}
       onOpenChange={(isOpen) => {
         if (!isOpen) {
-          onClose();
+          onOpenChange(false);
         }
       }}
     >
@@ -53,7 +61,8 @@ export default function SetMatchBetDialog({
 
         <Dialog.FocusScope focusOnIdle>
           <Dialog.Content
-            width={'100%'}
+            width="80%"
+            maxWidth={420}
             transition={[
               'quicker',
               {
@@ -106,14 +115,19 @@ export default function SetMatchBetDialog({
 
             <XStack justifyContent="flex-end" gap="$4">
               <XStack gap="$4">
-                <Button theme="blue" aria-label="Close" size="$3" onPress={onClose}>
+                <Button
+                  theme="blue"
+                  aria-label="Close"
+                  size="$3"
+                  onPress={() => onOpenChange(false)}
+                >
                   Cancel
                 </Button>
                 <Button
                   theme="blue"
                   aria-label="Close"
                   size="$3"
-                  onPress={onClose}
+                  onPress={() => onOpenChange(false)}
                 >
                   Set bet
                 </Button>

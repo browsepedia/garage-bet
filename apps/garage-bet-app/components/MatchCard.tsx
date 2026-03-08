@@ -1,13 +1,18 @@
 import { MatchData } from '@garage-bet/models';
-import { Button, Card, Circle, H6, Text, XStack, YStack } from 'tamagui';
+import { Button } from '@tamagui/button';
+import { Card } from '@tamagui/card';
+import { Text, View } from '@tamagui/core';
+import { H6 } from '@tamagui/text';
+import { XStack, YStack } from '@tamagui/stacks';
+import { memo } from 'react';
 import { formatInUserTimezone } from '../utils/format-date';
 
-export default function MatchCard({
+function MatchCard({
   match,
   onSetBetClick,
 }: {
   match: MatchData;
-  onSetBetClick: () => void;
+  onSetBetClick: (match: MatchData) => void;
 }) {
   return (
     <Card
@@ -18,8 +23,10 @@ export default function MatchCard({
       borderColor="$borderColor"
     >
       {match.betStatus !== 'UNSET' && match.betStatus !== 'PENDING' && (
-        <Circle
-          size={16}
+        <View
+          width={16}
+          height={16}
+          borderRadius={999}
           backgroundColor={
             match.betStatus === 'WON'
               ? '$green10'
@@ -76,13 +83,13 @@ export default function MatchCard({
         </YStack>
 
         {match.betStatus === 'PENDING' && (
-          <Button size="$2" theme="blue" onPress={onSetBetClick}>
+          <Button size="$2" theme="blue" onPress={() => onSetBetClick(match)}>
             <Text>Place bet</Text>
           </Button>
         )}
 
         {match.betStatus === 'SET' && (
-          <Button size="$2" theme="blue" onPress={onSetBetClick}>
+          <Button size="$2" theme="blue" onPress={() => onSetBetClick(match)}>
             <Text>Update bet</Text>
           </Button>
         )}
@@ -114,3 +121,5 @@ export default function MatchCard({
     </Card>
   );
 }
+
+export default memo(MatchCard);

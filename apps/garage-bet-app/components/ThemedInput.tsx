@@ -1,6 +1,10 @@
-import { Input, InputProps, useTheme } from 'tamagui';
+import { useTheme } from '@tamagui/core';
+import { Input } from '@tamagui/input';
+import type { ComponentProps } from 'react';
 
-export const ThemedInput = (props: InputProps) => {
+type ThemedInputProps = ComponentProps<typeof Input>;
+
+export const ThemedInput = (props: ThemedInputProps) => {
   const theme = useTheme();
 
   return (
