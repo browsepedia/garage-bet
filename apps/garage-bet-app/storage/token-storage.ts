@@ -1,4 +1,3 @@
-import * as Application from 'expo-application';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
@@ -53,6 +52,9 @@ type ApplicationLike = {
 };
 
 async function getPersistentOsDeviceId() {
+  // Dynamic import: expo-application can crash on iPhone 16 Pro at startup.
+  // Defer until auth flow so index screen (getAccessToken only) loads without it.
+  const Application = await import('expo-application');
   const app = Application as unknown as ApplicationLike;
 
   if (Platform.OS === 'android') {
