@@ -1,9 +1,8 @@
-import { Button } from '@tamagui/button';
-import { Text } from '@tamagui/core';
-import { YStack } from '@tamagui/stacks';
+import { Text } from 'react-native-paper';
+import { Button } from '../../components/Button';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { Screen } from '../../components/Screen';
 import { ThemedInput } from '../../components/ThemedInput';
 import { useRegisterMutation } from '../../mutations/register.mutation';
@@ -15,28 +14,8 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const { name } = useLocalSearchParams();
 
-  const { mutateAsync: register, isPending: isLoading } = useRegisterMutation();
+  const { mutateAsync: register } = useRegisterMutation();
   const deviceId = useDeviceId();
-
-  const getInputValue = (event: unknown) => {
-    if (typeof event === 'string') {
-      return event;
-    }
-
-    const nativeText = (event as { nativeEvent?: { text?: string } })
-      ?.nativeEvent?.text;
-    if (typeof nativeText === 'string') {
-      return nativeText;
-    }
-
-    const targetValue = (event as { target?: { value?: string } })?.target
-      ?.value;
-    if (typeof targetValue === 'string') {
-      return targetValue;
-    }
-
-    return '';
-  };
 
   return (
     <Screen
@@ -44,41 +23,41 @@ export default function Register() {
         justifyContent: 'center',
       }}
     >
-      <YStack gap={'$4'}>
-        <Text fontSize={'$8'} fontWeight="bold">
+      <View style={{ gap: 16 }}>
+        <Text variant="headlineLarge" style={{ fontWeight: 'bold' }}>
           Register
         </Text>
         <ThemedInput
           placeholder="Email"
           value={email}
-          onChange={(event) => setEmail(getInputValue(event))}
+          onChangeText={setEmail}
         />
 
         <ThemedInput
           placeholder="Password"
           value={password}
-          onChange={(event) => setPassword(getInputValue(event))}
+          onChangeText={setPassword}
         />
 
         <ThemedInput
           placeholder="Confirm Password"
           value={confirmPassword}
-          onChange={(event) => setConfirmPassword(getInputValue(event))}
+          onChangeText={setConfirmPassword}
         />
 
-        <YStack justifyContent="center" gap={'$4'}>
+        <View style={{ justifyContent: 'center', gap: 16 }}>
           <Button
-            backgroundColor="$brand"
-            size="$4"
+            mode="contained"
             onPress={() =>
               register({ email, password, name: name as string, deviceId })
             }
+            style={{ backgroundColor: '#EA580C' }}
           >
             Register
           </Button>
-        </YStack>
+        </View>
 
-        <YStack alignItems="center" gap={'$4'}>
+        <View style={{ alignItems: 'center', gap: 16 }}>
           <Text>Already have an account?</Text>
 
           <TouchableOpacity
@@ -94,8 +73,8 @@ export default function Register() {
           >
             <Text>Login</Text>
           </TouchableOpacity>
-        </YStack>
-      </YStack>
+        </View>
+      </View>
     </Screen>
   );
 }

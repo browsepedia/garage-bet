@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { ActivityIndicator } from 'react-native';
-import { Text } from '@tamagui/core';
+import { Text } from 'react-native-paper';
 import { Screen } from '../components/Screen';
 import { getAccessToken, getRefreshToken } from '../storage/token-storage';
 
@@ -38,7 +38,7 @@ export default function Home() {
       }}
     >
       <ActivityIndicator />
-      <Text marginTop="$3">Checking session...</Text>
+      <Text style={{ marginTop: 12 }}>Checking session...</Text>
     </Screen>
   );
 }

@@ -1,11 +1,9 @@
 import { MatchData } from '@garage-bet/models';
-import { Button } from '@tamagui/button';
-import { Card } from '@tamagui/card';
-import { Text, View } from '@tamagui/core';
-import { H6 } from '@tamagui/text';
-import { XStack, YStack } from '@tamagui/stacks';
 import { memo } from 'react';
+import { View } from 'react-native';
+import { Card, Text, useTheme } from 'react-native-paper';
 import { formatInUserTimezone } from '../utils/format-date';
+import { Button } from './Button';
 
 function MatchCard({
   match,
@@ -14,110 +12,175 @@ function MatchCard({
   match: MatchData;
   onSetBetClick: (match: MatchData) => void;
 }) {
+  const statusColor =
+    match.betStatus === 'WON'
+      ? '#22c55e'
+      : match.betStatus === 'LOST'
+        ? '#ef4444'
+        : '#eab308';
+
+  const theme = useTheme();
+
   return (
     <Card
-      position="relative"
-      padding="$4"
-      size="$4"
-      borderWidth={1}
-      borderColor="$borderColor"
+      mode="contained"
+      style={{
+        marginBottom: 16,
+        padding: 16,
+        borderWidth: 1,
+        borderColor: '#3f3f46',
+        backgroundColor: '#13161a',
+      }}
     >
       {match.betStatus !== 'UNSET' && match.betStatus !== 'PENDING' && (
         <View
-          width={16}
-          height={16}
-          borderRadius={999}
-          backgroundColor={
-            match.betStatus === 'WON'
-              ? '$green10'
-              : match.betStatus === 'LOST'
-                ? '$red10'
-                : '$yellow10'
-          }
-          position="absolute"
-          top={'$2'}
-          right={'$2'}
+          style={{
+            width: 16,
+            height: 16,
+            borderRadius: 999,
+            backgroundColor: statusColor,
+            position: 'absolute',
+            top: 8,
+            right: 8,
+          }}
         />
       )}
-      <XStack justifyContent="space-between" gap={16} alignItems="center">
-        <H6 textAlign="right" flex={1}>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          gap: 16,
+          alignItems: 'center',
+        }}
+      >
+        <Text variant="titleMedium" style={{ flex: 1, textAlign: 'right' }}>
           {match.homeTeam}
-        </H6>
-        <Text width={16} textAlign="center">
-          -
         </Text>
-        <H6 textAlign="left" flex={1}>
+        <Text style={{ width: 16, textAlign: 'center' }}>-</Text>
+        <Text variant="titleMedium" style={{ flex: 1, textAlign: 'left' }}>
           {match.awayTeam}
-        </H6>
-      </XStack>
-
-      <XStack justifyContent="space-between" gap={16} alignItems="center">
-        <H6 textAlign="right" flex={1}>
-          {match.homeScore}
-        </H6>
-        <Text width={16} textAlign="center">
-          -
         </Text>
-        <H6 textAlign="left" flex={1}>
+      </View>
+
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          gap: 16,
+          alignItems: 'center',
+        }}
+      >
+        <Text variant="titleMedium" style={{ flex: 1, textAlign: 'right' }}>
+          {match.homeScore}
+        </Text>
+        <Text style={{ width: 16, textAlign: 'center' }}>-</Text>
+        <Text variant="titleMedium" style={{ flex: 1, textAlign: 'left' }}>
           {match.awayScore}
-        </H6>
-      </XStack>
+        </Text>
+      </View>
 
-      <XStack
-        justifyContent="space-between"
-        gap={16}
-        alignItems="center"
-      ></XStack>
+      {match.betStatus !== 'UNSET' && match.betStatus !== 'PENDING' && (
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            gap: 16,
+            alignItems: 'center',
+          }}
+        >
+          <Text
+            variant="titleMedium"
+            style={{
+              flex: 1,
+              textAlign: 'right',
+              color: theme.colors.onSurfaceDisabled,
+            }}
+          >
+            {match.homeScore}
+          </Text>
+          <Text
+            style={{
+              width: 16,
+              textAlign: 'center',
+              color: theme.colors.onSurfaceDisabled,
+            }}
+          >
+            -
+          </Text>
+          <Text
+            variant="titleMedium"
+            style={{
+              flex: 1,
+              textAlign: 'left',
+              color: theme.colors.onSurfaceDisabled,
+            }}
+          >
+            {match.awayScore}
+          </Text>
+        </View>
+      )}
 
-      <XStack justifyContent="space-between" gap={16} alignItems="flex-end">
-        <YStack justifyContent="flex-start" alignItems="flex-start">
-          <Text textAlign="center" fontSize="$1" color="$color">
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          gap: 16,
+          alignItems: 'flex-end',
+          marginTop: 8,
+        }}
+      >
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <Text variant="bodySmall" style={{ color: '#a1a1aa' }}>
             {formatInUserTimezone(match.kickoffAt, 'dd MMM yyyy HH:mm')}
           </Text>
-          <Text textAlign="center" fontSize="$1" color="$color">
+          <Text variant="bodySmall" style={{ color: '#a1a1aa' }}>
             {match.competition}
           </Text>
-          <Text textAlign="center" fontSize="$1" color="$color">
+          <Text variant="bodySmall" style={{ color: '#a1a1aa' }}>
             {match.stage}
           </Text>
-        </YStack>
+        </View>
 
         {match.betStatus === 'PENDING' && (
-          <Button size="$2" theme="blue" onPress={() => onSetBetClick(match)}>
-            <Text>Place bet</Text>
-          </Button>
+          <View style={{ flexShrink: 0 }}>
+            <Button mode="contained" onPress={() => onSetBetClick(match)}>
+              Place bet
+            </Button>
+          </View>
         )}
 
         {match.betStatus === 'SET' && (
-          <Button size="$2" theme="blue" onPress={() => onSetBetClick(match)}>
-            <Text>Update bet</Text>
-          </Button>
+          <View style={{ flexShrink: 0 }}>
+            <Button mode="contained" onPress={() => onSetBetClick(match)}>
+              Update bet
+            </Button>
+          </View>
         )}
 
         {match.betStatus === 'UNSET' && (
-          <Text textAlign="center" fontSize="$1" color="$color">
+          <Text variant="bodySmall" style={{ color: '#a1a1aa' }}>
             Unset
           </Text>
         )}
 
         {match.betStatus === 'WON' && (
-          <Text textAlign="center" fontSize="$1" color="$color">
+          <Text variant="bodySmall" style={{ color: '#a1a1aa' }}>
             Won
           </Text>
         )}
 
         {match.betStatus === 'LOST' && (
-          <Text textAlign="center" fontSize="$1" color="$color">
+          <Text variant="bodySmall" style={{ color: '#a1a1aa' }}>
             Lost
           </Text>
         )}
 
         {match.betStatus === 'RESULT' && (
-          <Text textAlign="center" fontSize="$1" color="$color">
+          <Text variant="bodySmall" style={{ color: '#a1a1aa' }}>
             Result
           </Text>
         )}
-      </XStack>
+      </View>
     </Card>
   );
 }

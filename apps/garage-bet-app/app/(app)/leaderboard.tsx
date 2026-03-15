@@ -1,6 +1,5 @@
 import { LeaderboardEntry } from '@garage-bet/models';
-import { XStack, YStack } from '@tamagui/stacks';
-import { Paragraph } from '@tamagui/text';
+import { Text } from 'react-native-paper';
 import { useMemo, useRef } from 'react';
 import {
   ActivityIndicator,
@@ -52,18 +51,20 @@ export default function Leaderboard() {
   const leftListRef = useRef<FlatList<LeaderboardEntry>>(null);
 
   const renderHeaderCell = (label: string, width: number) => (
-    <Paragraph
-      color="$color9"
-      width={width}
-      height={HEADER_HEIGHT}
-      lineHeight={HEADER_HEIGHT}
-      fontSize="$2"
-      fontWeight="700"
-      textTransform="uppercase"
-      letterSpacing={0.4}
+    <Text
+      style={{
+        color: '#94a3b8',
+        width,
+        height: HEADER_HEIGHT,
+        lineHeight: HEADER_HEIGHT,
+        fontSize: 12,
+        fontWeight: '700',
+        textTransform: 'uppercase',
+        letterSpacing: 0.4,
+      }}
     >
       {label}
-    </Paragraph>
+    </Text>
   );
 
   const renderLeftRow = ({
@@ -76,91 +77,127 @@ export default function Leaderboard() {
     const position = index + 1;
 
     return (
-      <XStack
-        alignItems="center"
-        borderBottomWidth={1}
-        borderBottomColor="$borderColor"
-        height={ROW_HEIGHT}
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          borderBottomWidth: 1,
+          borderBottomColor: '#273042',
+          height: ROW_HEIGHT,
+        }}
       >
-        <Paragraph width={LEFT_POSITION_WIDTH} fontWeight="700">
+        <Text style={{ width: LEFT_POSITION_WIDTH, fontWeight: '700' }}>
           {position}
-        </Paragraph>
+        </Text>
 
-        <XStack width={LEFT_PLAYER_WIDTH} alignItems="center" gap="$2">
+        <View
+          style={{
+            width: LEFT_PLAYER_WIDTH,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
           <Image
             source={{ uri: item.avatarUrl }}
             style={{ width: 32, height: 32, borderRadius: 16 }}
           />
-          <Paragraph flex={1} numberOfLines={1} ellipsizeMode="tail">
+          <Text
+            style={{ flex: 1 }}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
             {item.name}
-          </Paragraph>
-        </XStack>
-      </XStack>
+          </Text>
+        </View>
+      </View>
     );
   };
 
   const renderMainRow = ({ item }: { item: LeaderboardEntry }) => {
     return (
-      <XStack
-        alignItems="center"
-        borderBottomWidth={1}
-        borderBottomColor="$borderColor"
-        height={ROW_HEIGHT}
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          borderBottomWidth: 1,
+          borderBottomColor: '#273042',
+          height: ROW_HEIGHT,
+        }}
       >
         <View style={{ width: LEFT_TABLE_WIDTH }} />
 
-        <Paragraph width={POINTS_WIDTH} fontWeight="700" color="$orange10">
+        <Text
+          style={{ width: POINTS_WIDTH, fontWeight: '700', color: '#EA580C' }}
+        >
           {item.totalPoints}
-        </Paragraph>
+        </Text>
 
-        <Paragraph width={RIGHT_COLUMN_WIDTH}>{item.totalWins}</Paragraph>
-        <Paragraph width={RIGHT_COLUMN_WIDTH}>{item.totalResults}</Paragraph>
-        <Paragraph width={RIGHT_COLUMN_WIDTH}>{item.totalLosses}</Paragraph>
-        <Paragraph width={RIGHT_COLUMN_WIDTH}>{item.betCount}</Paragraph>
-        <Paragraph width={RIGHT_COLUMN_WIDTH}>
+        <Text style={{ width: RIGHT_COLUMN_WIDTH }}>{item.totalWins}</Text>
+        <Text style={{ width: RIGHT_COLUMN_WIDTH }}>{item.totalResults}</Text>
+        <Text style={{ width: RIGHT_COLUMN_WIDTH }}>{item.totalLosses}</Text>
+        <Text style={{ width: RIGHT_COLUMN_WIDTH }}>{item.betCount}</Text>
+        <Text style={{ width: RIGHT_COLUMN_WIDTH }}>
           {Math.round(item.winRate * 100)}%
-        </Paragraph>
-      </XStack>
+        </Text>
+      </View>
     );
   };
 
   return (
     <Screen>
-      <YStack flex={1} paddingTop="$2">
+      <View style={{ flex: 1, paddingTop: 8 }}>
         {isLoading ? (
-          <YStack flex={1} alignItems="center" justifyContent="center">
+          <View
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
             <ActivityIndicator />
-          </YStack>
+          </View>
         ) : error ? (
-          <YStack flex={1} alignItems="center" justifyContent="center">
-            <Paragraph>Error: {error.message}</Paragraph>
-          </YStack>
+          <View
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Text>Error: {error.message}</Text>
+          </View>
         ) : (
           <View style={{ flex: 1 }}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View style={{ width: FULL_TABLE_WIDTH, flex: 1 }}>
-                <XStack
-                  alignItems="center"
-                  borderBottomWidth={1}
-                  borderBottomColor="$borderColor"
-                  height={HEADER_HEIGHT}
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    borderBottomWidth: 1,
+                    borderBottomColor: '#273042',
+                    height: HEADER_HEIGHT,
+                  }}
                 >
                   <View style={{ width: LEFT_TABLE_WIDTH }} />
                   {renderHeaderCell('P', POINTS_WIDTH)}
                   {horizontalColumns.map((column) => (
-                    <Paragraph
+                    <Text
                       key={column.key}
-                      width={RIGHT_COLUMN_WIDTH}
-                      color="$color9"
-                      fontSize="$2"
-                      fontWeight="700"
-                      textTransform="uppercase"
-                      letterSpacing={0.4}
+                      style={{
+                        width: RIGHT_COLUMN_WIDTH,
+                        color: '#94a3b8',
+                        fontSize: 12,
+                        fontWeight: '700',
+                        textTransform: 'uppercase',
+                        letterSpacing: 0.4,
+                      }}
                     >
                       {column.label}
-                    </Paragraph>
+                    </Text>
                   ))}
-                </XStack>
+                </View>
 
                 <FlatList
                   data={entries}
@@ -196,24 +233,29 @@ export default function Leaderboard() {
               </View>
             </ScrollView>
 
-            <YStack
-              pointerEvents="none"
-              position="absolute"
-              left={0}
-              top={0}
-              bottom={0}
-              width={LEFT_TABLE_WIDTH}
-              backgroundColor="$background"
+            <View
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                bottom: 0,
+                width: LEFT_TABLE_WIDTH,
+                backgroundColor: '#111418',
+                pointerEvents: 'none',
+              }}
             >
-              <XStack
-                alignItems="center"
-                borderBottomWidth={1}
-                borderBottomColor="$borderColor"
-                height={HEADER_HEIGHT}
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  borderBottomWidth: 1,
+                  borderBottomColor: '#273042',
+                  height: HEADER_HEIGHT,
+                }}
               >
                 {renderHeaderCell('Pos', LEFT_POSITION_WIDTH)}
                 {renderHeaderCell('Player', LEFT_PLAYER_WIDTH)}
-              </XStack>
+              </View>
               <FlatList
                 ref={leftListRef}
                 data={entries}
@@ -224,10 +266,10 @@ export default function Leaderboard() {
                   isFetchingNextPage ? <View style={{ height: 36 }} /> : null
                 }
               />
-            </YStack>
+            </View>
           </View>
         )}
-      </YStack>
+      </View>
     </Screen>
   );
 }

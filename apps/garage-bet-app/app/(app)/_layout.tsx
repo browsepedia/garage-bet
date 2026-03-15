@@ -1,7 +1,5 @@
-import { Play, Trophy, Volleyball } from '@tamagui/lucide-icons';
-import { Button } from '@tamagui/button';
-import { Text, useTheme } from '@tamagui/core';
-import { YStack } from '@tamagui/stacks';
+import { Text } from 'react-native-paper';
+import { Button } from '../../components/Button';
 import { useQuery } from '@tanstack/react-query';
 import { Redirect, router, Tabs, useSegments } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -13,6 +11,8 @@ import {
   getRefreshToken,
 } from '../../storage/token-storage';
 import { ApiError, apiJson } from '../../utils/http-client';
+import { useTheme } from 'react-native-paper';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 type MeDto = { id: string; email: string };
 
@@ -22,13 +22,11 @@ async function hasAnyToken() {
 }
 
 export default function AppLayout() {
-  const segments = useSegments(); // optional, useful if you later do smarter routing
+  const segments = useSegments();
   const [bootstrapped, setBootstrapped] = useState(false);
   const [tokenHint, setTokenHint] = useState(false);
   const theme = useTheme();
-  const appBackground = String(theme.background?.val ?? '#212A3E');
-
-  // 1) Quick local check first (prevents calling /me if user has no tokens at all)
+  const appBackground = theme.colors.background;
 
   useEffect(() => {
     (async () => {
@@ -38,14 +36,12 @@ export default function AppLayout() {
     })();
   }, [segments]);
 
-  // 2) If we have tokens, confirm session by calling /me (this will auto-refresh via apiFetch)
   const meQuery = useQuery({
     queryKey: ['me'],
     queryFn: () => apiJson<MeDto>('/me'),
     enabled: bootstrapped && tokenHint,
   });
 
-  // While bootstrapping or checking /me
   if (!bootstrapped || (tokenHint && meQuery.isLoading)) {
     return (
       <View
@@ -61,12 +57,10 @@ export default function AppLayout() {
     );
   }
 
-  // No tokens at all → go login
   if (!tokenHint) {
     return <Redirect href="/(auth)/login" />;
   }
 
-  // Tokens exist but /me failed with 401 (refresh failed or revoked) → go login
   if (meQuery.isError) {
     if (meQuery.error instanceof ApiError && meQuery.error.status === 401) {
       return <Redirect href="/(auth)/login" />;
@@ -87,16 +81,14 @@ export default function AppLayout() {
           backgroundColor: appBackground,
         }}
       >
-        <YStack gap="$3" alignItems="center" maxWidth={320}>
-          <Text fontSize="$6" fontWeight="700">
+        <View style={{ alignItems: 'center', maxWidth: 320, gap: 12 }}>
+          <Text variant="headlineSmall" style={{ fontWeight: '700' }}>
             Could not load session
           </Text>
-          <Text textAlign="center" opacity={0.8}>
-            {message}
-          </Text>
+          <Text style={{ textAlign: 'center', opacity: 0.8 }}>{message}</Text>
           <Button onPress={() => meQuery.refetch()}>Try again</Button>
           <Button
-            chromeless
+            mode="text"
             onPress={async () => {
               await clearTokens();
               router.replace('/(auth)/login');
@@ -104,12 +96,11 @@ export default function AppLayout() {
           >
             Go to login
           </Button>
-        </YStack>
+        </View>
       </View>
     );
   }
 
-  // Auth OK
   return (
     <Tabs
       screenOptions={{
@@ -122,7 +113,6 @@ export default function AppLayout() {
         sceneStyle: {
           backgroundColor: appBackground,
         },
-
         tabBarStyle: {
           backgroundColor: 'transparent',
           borderTopColor: appBackground,
@@ -147,7 +137,9 @@ export default function AppLayout() {
         name="home"
         options={{
           title: 'Live',
-          tabBarIcon: ({ color, size }) => <Play color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="play" size={size} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
@@ -155,7 +147,7 @@ export default function AppLayout() {
         options={{
           title: 'Matches',
           tabBarIcon: ({ color, size }) => (
-            <Volleyball color={color} size={size} />
+            <MaterialCommunityIcons name="volleyball" size={size} color={color} />
           ),
         }}
       />
@@ -163,7 +155,9 @@ export default function AppLayout() {
         name="leaderboard"
         options={{
           title: 'Leaderboard',
-          tabBarIcon: ({ color, size }) => <Trophy color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="trophy" size={size} color={color} />
+          ),
         }}
       />
     </Tabs>

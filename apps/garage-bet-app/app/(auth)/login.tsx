@@ -1,12 +1,11 @@
 import { LoginFormModel, LoginSchema } from '@garage-bet/models';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@tamagui/button';
-import { Text } from '@tamagui/core';
-import { XStack, YStack } from '@tamagui/stacks';
-import { Chrome } from '@tamagui/lucide-icons';
+import { Text } from 'react-native-paper';
+import { Button } from '../../components/Button';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
-import { ActivityIndicator, Dimensions, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, Dimensions, TouchableOpacity, View } from 'react-native';
 import { Screen } from '../../components/Screen';
 import { ThemedInput } from '../../components/ThemedInput';
 import { useLoginMutation } from '../../mutations/login.mutation';
@@ -34,8 +33,8 @@ export default function Login() {
         paddingTop: Dimensions.get('window').height * 0.2,
       }}
     >
-      <YStack gap={'$4'}>
-        <Text fontSize={'$8'} fontWeight="bold">
+      <View style={{ gap: 16 }}>
+        <Text variant="headlineLarge" style={{ fontWeight: 'bold' }}>
           Login
         </Text>
         <Controller
@@ -44,7 +43,7 @@ export default function Login() {
           render={({ field: { value, onChange, onBlur } }) => (
             <ThemedInput
               value={value}
-              onChange={onChange}
+              onChangeText={onChange}
               onBlur={onBlur}
               autoCapitalize="none"
               keyboardType="email-address"
@@ -58,7 +57,7 @@ export default function Login() {
           render={({ field: { value, onChange, onBlur } }) => (
             <ThemedInput
               value={value}
-              onChange={onChange}
+              onChangeText={onChange}
               onBlur={onBlur}
               secureTextEntry
               placeholder="••••••••"
@@ -67,41 +66,53 @@ export default function Login() {
         />
 
         {Object.keys(errors).length > 0 && (
-          <YStack>
+          <View>
             {Object.keys(errors).map((key) => (
-              <XStack
-                padding={'$2'}
-                paddingHorizontal={'$4'}
+              <View
                 key={key}
-                backgroundColor="$red1"
+                style={{
+                  padding: 8,
+                  paddingHorizontal: 16,
+                  backgroundColor: '#7f1d1d',
+                }}
               >
-                <Text color="$red10">
+                <Text style={{ color: '#fca5a5' }}>
                   {errors[key as keyof typeof errors]?.message}
                 </Text>
-              </XStack>
+              </View>
             ))}
-          </YStack>
+          </View>
         )}
 
-        <Button backgroundColor="$brand" size="$4" onPress={handleLogin}>
+        <Button
+          mode="contained"
+          onPress={handleLogin}
+          style={{ backgroundColor: '#EA580C' }}
+        >
           {isLoading ? (
             <ActivityIndicator size="small" color="#ffffff" />
           ) : (
-            <Text color="$brandForeground">Login</Text>
+            'Login'
           )}
         </Button>
 
-        <XStack justifyContent="center">
+        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
           <Text>or</Text>
-        </XStack>
+        </View>
 
-        <XStack justifyContent="center" gap={'$4'}>
-          <Button flex={1} icon={Chrome} backgroundColor={'#EA4335'}>
-            <Text>Google</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 16 }}>
+          <Button
+            mode="contained"
+            icon={() => (
+              <MaterialCommunityIcons name="google" size={20} color="#fff" />
+            )}
+            style={{ flex: 1, backgroundColor: '#EA4335' }}
+          >
+            Google
           </Button>
-        </XStack>
+        </View>
 
-        <YStack alignItems="center" gap={'$4'}>
+        <View style={{ alignItems: 'center', gap: 16 }}>
           <Text>Don't have an account?</Text>
 
           <TouchableOpacity
@@ -117,8 +128,8 @@ export default function Login() {
           >
             <Text>Register</Text>
           </TouchableOpacity>
-        </YStack>
-      </YStack>
+        </View>
+      </View>
     </Screen>
   );
 }

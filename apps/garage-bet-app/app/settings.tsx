@@ -1,14 +1,11 @@
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { UserProfileModel, UserProfileSchema } from '@garage-bet/models';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Avatar } from '@tamagui/avatar';
-import { Button } from '@tamagui/button';
-import { View } from '@tamagui/core';
-import { ChevronLeft } from '@tamagui/lucide-icons';
-import { XStack, YStack } from '@tamagui/stacks';
-import { H5 } from '@tamagui/text';
 import { router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
+import { Avatar, Text } from 'react-native-paper';
+import { Button } from '../components/Button';
 import { Screen } from '../components/Screen';
 import { ThemedInput } from '../components/ThemedInput';
 import { useLogout } from '../mutations/logout.mutation';
@@ -46,7 +43,7 @@ export default function Settings() {
 
   return (
     <Screen>
-      <XStack alignItems="center">
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <TouchableOpacity
           accessibilityRole="button"
           accessibilityLabel="Back"
@@ -62,26 +59,37 @@ export default function Settings() {
             marginLeft: -16,
           }}
         >
-          <ChevronLeft />
+          <MaterialCommunityIcons
+            name="chevron-left"
+            size={24}
+            color="#f1f5f9"
+          />
         </TouchableOpacity>
 
-        <H5>Settings</H5>
-      </XStack>
+        <Text variant="headlineSmall">Settings</Text>
+      </View>
 
-      <YStack alignItems="center" gap={'$4'} paddingTop={'$8'} flex={1}>
-        <Avatar circular size="$12">
-          <Avatar.Image src={user?.avatarUrl || initialsAvatarUrl} />
-          <Avatar.Fallback backgroundColor="$brand" />
-        </Avatar>
+      <View
+        style={{
+          alignItems: 'center',
+          gap: 16,
+          paddingTop: 32,
+          flex: 1,
+        }}
+      >
+        <Avatar.Image
+          size={96}
+          source={{ uri: user?.avatarUrl || initialsAvatarUrl }}
+        />
 
-        <View flex={1} width={'100%'} gap={'$4'}>
+        <View style={{ flex: 1, width: '100%', gap: 16 }}>
           <Controller
             control={control}
             name="name"
             render={({ field: { value, onChange, onBlur } }) => (
               <ThemedInput
                 value={value}
-                onChange={onChange}
+                onChangeText={onChange}
                 onBlur={onBlur}
                 placeholder="Name"
               />
@@ -95,7 +103,7 @@ export default function Settings() {
               render={({ field: { value, onChange, onBlur } }) => (
                 <ThemedInput
                   value={value}
-                  onChange={onChange}
+                  onChangeText={onChange}
                   onBlur={onBlur}
                   keyboardType="email-address"
                   placeholder="Email"
@@ -104,21 +112,24 @@ export default function Settings() {
             />
           )}
 
-          <Button size="$3" backgroundColor="$brand" onPress={onSave}>
+          <Button
+            mode="contained"
+            onPress={onSave}
+            style={{ backgroundColor: '#EA580C' }}
+          >
             Save
           </Button>
         </View>
 
         <Button
-          size="$3"
-          backgroundColor="$red5"
-          width={'100%'}
-          variant="outlined"
+          mode="outlined"
           onPress={() => logout()}
+          style={{ width: '100%', borderColor: '#ef4444' }}
+          textColor="#ef4444"
         >
           Logout
         </Button>
-      </YStack>
+      </View>
     </Screen>
   );
 }

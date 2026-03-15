@@ -1,9 +1,8 @@
-import { Button } from '@tamagui/button';
-import { Text } from '@tamagui/core';
-import { YStack } from '@tamagui/stacks';
+import { Text } from 'react-native-paper';
+import { Button } from '../../components/Button';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { Screen } from '../../components/Screen';
 import { ThemedInput } from '../../components/ThemedInput';
 import { useAnonymousRegisterMutation } from '../../mutations/annonymous-register.mutation';
@@ -33,8 +32,7 @@ export default function Register() {
     return '';
   };
 
-  const { mutateAsync: anonymousRegister, isPending: isLoading } =
-    useAnonymousRegisterMutation();
+  const { mutateAsync: anonymousRegister } = useAnonymousRegisterMutation();
 
   return (
     <Screen
@@ -42,37 +40,36 @@ export default function Register() {
         justifyContent: 'center',
       }}
     >
-      <YStack gap={'$4'}>
-        <Text fontSize={'$8'} fontWeight="bold">
+      <View style={{ gap: 16 }}>
+        <Text variant="headlineLarge" style={{ fontWeight: 'bold' }}>
           Register
         </Text>
         <ThemedInput
           placeholder="Name"
           value={name}
-          onChange={(event) => setName(getInputValue(event))}
+          onChangeText={(text) => setName(text)}
         />
 
-        <YStack justifyContent="center" gap={'$4'}>
+        <View style={{ justifyContent: 'center', gap: 16 }}>
           <Button
-            backgroundColor="$brand"
-            size="$4"
+            mode="contained"
             onPress={() =>
               router.replace(`/(auth)/register-with-email?name=${name}`)
             }
+            style={{ backgroundColor: '#EA580C' }}
           >
             Continue with email
           </Button>
 
           <Button
-            size="$4"
-            variant="outlined"
+            mode="outlined"
             onPress={() => anonymousRegister({ deviceId, name })}
           >
             Continue without email
           </Button>
-        </YStack>
+        </View>
 
-        <YStack alignItems="center" gap={'$4'}>
+        <View style={{ alignItems: 'center', gap: 16 }}>
           <Text>Already have an account?</Text>
 
           <TouchableOpacity
@@ -88,8 +85,8 @@ export default function Register() {
           >
             <Text>Login</Text>
           </TouchableOpacity>
-        </YStack>
-      </YStack>
+        </View>
+      </View>
     </Screen>
   );
 }

@@ -8,7 +8,7 @@
     "scheme": "garage-bet-app",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": false,
-    "jsEngine": "jsc",
+    "jsEngine": "hermes",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.browsepedia.garagebet",
@@ -32,6 +32,7 @@
       [
         "expo-splash-screen",
         {
+          "image": "./assets/images/icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"

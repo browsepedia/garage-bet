@@ -1,8 +1,27 @@
-import { styled, View } from '@tamagui/core';
+import type { StyleProp, ViewStyle } from 'react-native';
+import { View } from 'react-native';
+import { useTheme } from 'react-native-paper';
 
-export const Screen = styled(View, {
-  name: 'Screen',
-  flex: 1,
-  paddingHorizontal: '$4',
-  backgroundColor: '$background',
-});
+type ScreenProps = {
+  children: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
+};
+
+export const Screen = ({ children, style }: ScreenProps) => {
+  const theme = useTheme();
+
+  return (
+    <View
+      style={[
+        {
+          flex: 1,
+          paddingHorizontal: 16,
+          backgroundColor: theme.colors.background,
+        },
+        style,
+      ]}
+    >
+      {children}
+    </View>
+  );
+};

@@ -1,14 +1,9 @@
 import { MatchData } from '@garage-bet/models';
-import { Button } from '@tamagui/button';
-import { Card } from '@tamagui/card';
-import { Text, View } from '@tamagui/core';
-import { Dialog } from '@tamagui/dialog';
-import { ChevronDown } from '@tamagui/lucide-icons';
-import { ScrollView } from '@tamagui/scroll-view';
-import { XStack, YStack } from '@tamagui/stacks';
-import { H6 } from '@tamagui/text';
-import React, { useEffect, useMemo, useState } from 'react';
-import { Modal, Pressable } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View } from 'react-native';
+import { Button, Dialog, Text, useTheme } from 'react-native-paper';
+import { useSetBetMutation } from '../mutations/set-bet.mutation';
+import { NumberSelectExpo } from './NumberSelectExpo';
 
 export default function SetMatchBetDialog({
   open,
@@ -22,194 +17,103 @@ export default function SetMatchBetDialog({
   const [homeScore, setHomeScore] = useState(0);
   const [awayScore, setAwayScore] = useState(0);
 
+  const theme = useTheme();
+  const { mutateAsync: setBet } = useSetBetMutation();
+
   useEffect(() => {
     if (!match) return;
-    setHomeScore(match.homeBetScore || 0);
-    setAwayScore(match.awayBetScore || 0);
+    setHomeScore(match.homeBetScore ?? 0);
+    setAwayScore(match.awayBetScore ?? 0);
   }, [match]);
 
   if (!match) {
     return null;
   }
 
+  const onSetBet = () => {
+    setBet({
+      matchId: match.id,
+      homeScore,
+      awayScore,
+    });
+    onOpenChange(false);
+  };
+
   return (
     <Dialog
-      modal
-      open={open}
-      onOpenChange={(isOpen) => {
-        if (!isOpen) {
-          onOpenChange(false);
-        }
+      visible={open}
+      onDismiss={() => onOpenChange(false)}
+      style={{
+        borderWidth: 1,
+        borderColor: '#3f3f46',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 8,
       }}
     >
-      <Dialog.Portal>
-        <Dialog.Overlay
-          backgroundColor="$background"
-          opacity={0.5}
-          animateOnly={['transform', 'opacity']}
-          transition={[
-            'quicker',
-            {
-              opacity: {
-                overshootClamping: true,
-              },
-            },
-          ]}
-          enterStyle={{ opacity: 0 }}
-          exitStyle={{ opacity: 0 }}
-        />
-
-        <Dialog.FocusScope focusOnIdle>
-          <Dialog.Content
-            width="80%"
-            maxWidth={420}
-            transition={[
-              'quicker',
-              {
-                opacity: {
-                  overshootClamping: true,
-                },
-              },
-            ]}
-            enterStyle={{ x: 0, y: 20, opacity: 0 }}
-            exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
-            gap="$4"
-          >
-            <Dialog.Title size={'$6'} textAlign="center">
-              Set bet
-            </Dialog.Title>
-
-            <XStack justifyContent="space-between" gap={16} alignItems="center">
-              <H6 textAlign="right" flex={1}>
-                {match.homeTeam}
-              </H6>
-              <Text width={16} textAlign="center">
-                -
-              </Text>
-              <H6 textAlign="left" flex={1}>
-                {match.awayTeam}
-              </H6>
-            </XStack>
-
-            <XStack justifyContent="space-between" gap={16} alignItems="center">
-              <View flex={1}>
-                <NumberSelectExpo
-                  value={homeScore}
-                  onChange={setHomeScore}
-                  label="Home team score"
-                  textAlign="right"
-                />
-              </View>
-              <Text width={16} textAlign="center">
-                -
-              </Text>
-              <View flex={1}>
-                <NumberSelectExpo
-                  value={awayScore}
-                  onChange={setAwayScore}
-                  label="Away team score"
-                  textAlign="left"
-                />
-              </View>
-            </XStack>
-
-            <XStack justifyContent="flex-end" gap="$4">
-              <XStack gap="$4">
-                <Button
-                  theme="blue"
-                  aria-label="Close"
-                  size="$3"
-                  onPress={() => onOpenChange(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  theme="blue"
-                  aria-label="Close"
-                  size="$3"
-                  onPress={() => onOpenChange(false)}
-                >
-                  Set bet
-                </Button>
-              </XStack>
-            </XStack>
-          </Dialog.Content>
-        </Dialog.FocusScope>
-      </Dialog.Portal>
-    </Dialog>
-  );
-}
-
-export function NumberSelectExpo({
-  value,
-  onChange,
-  label = 'Select',
-  textAlign = 'right',
-}: {
-  value: number;
-  onChange: (value: number) => void;
-  label: string;
-  textAlign: 'right' | 'left';
-}) {
-  const [open, setOpen] = useState(false);
-
-  const options = useMemo(() => Array.from({ length: 11 }, (_, i) => i), []);
-
-  return (
-    <>
-      <Button
-        backgroundColor="$background"
-        size="$3"
-        onPress={() => setOpen(true)}
-        iconAfter={ChevronDown}
-      >
-        <Text flex={1} textAlign={textAlign}>
-          {' '}
-          {value || '0'}
-        </Text>
-      </Button>
-
-      <Modal
-        visible={open}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setOpen(false)}
-      >
-        {/* Overlay */}
-        <Pressable
-          style={{ flex: 1, justifyContent: 'center', padding: 16 }}
-          onPress={() => setOpen(false)}
+      <Dialog.Title>Set bet</Dialog.Title>
+      <Dialog.Content>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            gap: 16,
+            alignItems: 'center',
+          }}
         >
-          {/* Stop overlay press from closing when tapping content */}
-          <Pressable>
-            <Card padding="$4" borderWidth={1} borderColor="$borderColor">
-              <H6 marginBottom="$3">{label}</H6>
+          <Text variant="titleMedium" style={{ flex: 1, textAlign: 'right' }}>
+            {match.homeTeam}
+          </Text>
+          <Text style={{ width: 16, textAlign: 'center' }}>-</Text>
+          <Text variant="titleMedium" style={{ flex: 1, textAlign: 'left' }}>
+            {match.awayTeam}
+          </Text>
+        </View>
 
-              <ScrollView height={320}>
-                <YStack gap="$2">
-                  {options.map((opt) => (
-                    <Button
-                      theme={opt === value ? 'blue' : 'gray'}
-                      key={opt}
-                      size="$3"
-                      onPress={() => {
-                        onChange(opt);
-                        setOpen(false);
-                      }}
-                    >
-                      <Text>{opt}</Text>
-                    </Button>
-                  ))}
-                </YStack>
-              </ScrollView>
-
-              <Button marginTop="$3" chromeless onPress={() => setOpen(false)}>
-                Cancel
-              </Button>
-            </Card>
-          </Pressable>
-        </Pressable>
-      </Modal>
-    </>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            gap: 16,
+            alignItems: 'center',
+            marginTop: 16,
+          }}
+        >
+          <View style={{ flex: 1 }}>
+            <NumberSelectExpo
+              value={homeScore}
+              onChange={setHomeScore}
+              label="Home team score"
+              textAlign="right"
+            />
+          </View>
+          <Text style={{ width: 16, textAlign: 'center' }}>-</Text>
+          <View style={{ flex: 1 }}>
+            <NumberSelectExpo
+              value={awayScore}
+              onChange={setAwayScore}
+              label="Away team score"
+              textAlign="left"
+            />
+          </View>
+        </View>
+      </Dialog.Content>
+      <Dialog.Actions
+        style={{ justifyContent: 'space-between', alignItems: 'center' }}
+      >
+        <Button
+          onPress={() => onOpenChange(false)}
+          mode="contained"
+          style={{ backgroundColor: theme.colors.error }}
+        >
+          Cancel
+        </Button>
+        <Button mode="contained" onPress={onSetBet}>
+          Set bet
+        </Button>
+      </Dialog.Actions>
+    </Dialog>
   );
 }

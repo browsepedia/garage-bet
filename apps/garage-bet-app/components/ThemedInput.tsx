@@ -1,16 +1,18 @@
-import { useTheme } from '@tamagui/core';
-import { Input } from '@tamagui/input';
 import type { ComponentProps } from 'react';
+import { TextInput } from 'react-native-paper';
 
-type ThemedInputProps = ComponentProps<typeof Input>;
+type ThemedInputProps = Omit<
+  ComponentProps<typeof TextInput>,
+  'mode' | 'theme'
+>;
 
 export const ThemedInput = (props: ThemedInputProps) => {
-  const theme = useTheme();
-
   return (
-    <Input
-      placeholderTextColor="$placeholderColor"
-      backgroundColor={theme.backgroundHover}
+    <TextInput
+      mode="outlined"
+      placeholderTextColor="#a1a1aa"
+      outlineColor="#273042"
+      activeOutlineColor="#EA580C"
       {...props}
     />
   );

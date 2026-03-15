@@ -1,9 +1,10 @@
-import { Menu as MenuIcon } from '@tamagui/lucide-icons';
-import { Avatar } from '@tamagui/avatar';
-import { useTheme, View } from '@tamagui/core';
+import { Avatar } from 'react-native-paper';
+import { View } from 'react-native';
 import { router } from 'expo-router';
 import { TouchableOpacity } from 'react-native';
 import { useUserProfileQuery } from '../queries/user-profile.query';
+import { useTheme } from 'react-native-paper';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 function useDisplayNameAndAvatar() {
   const { data: user } = useUserProfileQuery();
@@ -20,11 +21,11 @@ export function HeaderAvatar() {
   const { user, initialsAvatarUrl } = useDisplayNameAndAvatar();
 
   return (
-    <View marginLeft="$2">
-      <Avatar circular size="$5">
-        <Avatar.Image src={user?.avatarUrl || initialsAvatarUrl} />
-        <Avatar.Fallback backgroundColor="$red1" />
-      </Avatar>
+    <View style={{ marginLeft: 8 }}>
+      <Avatar.Image
+        size={40}
+        source={{ uri: user?.avatarUrl || initialsAvatarUrl }}
+      />
     </View>
   );
 }
@@ -46,7 +47,7 @@ export function HeaderSettingsButton() {
         marginRight: 8,
       }}
     >
-      <MenuIcon />
+      <MaterialCommunityIcons name="menu" size={24} color="#f1f5f9" />
     </TouchableOpacity>
   );
 }
@@ -54,21 +55,23 @@ export function HeaderSettingsButton() {
 export default function Header() {
   const { user, initialsAvatarUrl } = useDisplayNameAndAvatar();
   const theme = useTheme();
-  const appBackground = String(theme.background?.val ?? '#212A3E');
+  const appBackground = theme.colors.background;
 
   return (
     <View
-      style={{ backgroundColor: appBackground }}
-      paddingBottom={'$4'}
-      paddingHorizontal={'$4'}
-      flexDirection="row"
-      justifyContent="space-between"
-      alignItems="center"
+      style={{
+        backgroundColor: appBackground,
+        paddingBottom: 16,
+        paddingHorizontal: 16,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}
     >
-      <Avatar circular size="$5">
-        <Avatar.Image src={user?.avatarUrl || initialsAvatarUrl} />
-        <Avatar.Fallback backgroundColor="$red1" />
-      </Avatar>
+      <Avatar.Image
+        size={40}
+        source={{ uri: user?.avatarUrl || initialsAvatarUrl }}
+      />
 
       <HeaderSettingsButton />
     </View>

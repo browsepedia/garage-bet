@@ -11,6 +11,13 @@ export function useSetBetMutation() {
         method: 'POST',
         body: JSON.stringify(input),
       });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['matches'] });
+    },
+    onError: (error) => {
+      console.error(error);
     },
   });
 }

@@ -1,8 +1,6 @@
 import { MatchData } from '@garage-bet/models';
-import { ScrollView } from '@tamagui/scroll-view';
-import { YStack } from '@tamagui/stacks';
 import { useCallback, useState } from 'react';
-import { RefreshControl } from 'react-native';
+import { RefreshControl, ScrollView, View } from 'react-native';
 import MatchCard from '../../components/MatchCard';
 import { Screen } from '../../components/Screen';
 import SetMatchBetDialog from '../../components/SetMatchBetDialog';
@@ -30,15 +28,15 @@ export default function Matches() {
           />
         }
       >
-        <YStack gap={16}>
+        <View>
           {matches.map((match) => (
             <MatchCard
-              onSetBetClick={onSetBetClick}
               key={match.id}
               match={match}
+              onSetBetClick={onSetBetClick}
             />
           ))}
-        </YStack>
+        </View>
       </ScrollView>
       <SetMatchBetDialog
         open={isSetBetDialogOpen}
