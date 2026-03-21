@@ -3,7 +3,7 @@ import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
 type LoginRequestBody = LoginFormModel & { deviceId?: string };
-type AnonymousLoginBody = { deviceId: string };
+type AnonymousLoginBody = { deviceId: string; name?: string };
 
 @Controller('auth')
 export class AuthController {
@@ -25,6 +25,6 @@ export class AuthController {
 
   @Post('anonymous')
   anonymousLogin(@Body() dto: AnonymousLoginBody) {
-    return this.service.anonymousLogin(dto.deviceId);
+    return this.service.anonymousLogin(dto.deviceId, dto.name);
   }
 }

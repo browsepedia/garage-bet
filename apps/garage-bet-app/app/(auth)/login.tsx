@@ -1,11 +1,16 @@
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { LoginFormModel, LoginSchema } from '@garage-bet/models';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Text } from 'react-native-paper';
-import { Button } from '../../components/Button';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
-import { ActivityIndicator, Dimensions, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Dimensions,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { Text } from 'react-native-paper';
+import { Button } from '../../components/Button';
 import { Screen } from '../../components/Screen';
 import { ThemedInput } from '../../components/ThemedInput';
 import { useLoginMutation } from '../../mutations/login.mutation';
@@ -100,7 +105,9 @@ export default function Login() {
           <Text>or</Text>
         </View>
 
-        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 16 }}>
+        <View
+          style={{ flexDirection: 'row', justifyContent: 'center', gap: 16 }}
+        >
           <Button
             mode="contained"
             icon={() => (

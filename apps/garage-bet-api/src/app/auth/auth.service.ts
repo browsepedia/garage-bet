@@ -6,8 +6,11 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { createHash, randomBytes } from 'node:crypto';
+import { createHash, randomBytes, scrypt, timingSafeEqual } from 'node:crypto';
+import { promisify } from 'node:util';
 import { PrismaService } from '../services/prisma-service';
+
+const scryptAsync = promisify(scrypt);
 
 type DeviceLoginInput = {
   deviceId?: string;
@@ -47,6 +50,24 @@ export class AuthService {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 30);
     return expiresAt;
+  }
+
+  private async hashPassword(password: string): Promise<string> {
+    const salt = randomBytes(16).toString('hex');
+    const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+    return `${salt}:${buf.toString('hex')}`;
+  }
+
+  private async verifyPassword(
+    password: string,
+    stored: string,
+  ): Promise<boolean> {
+    const [salt, keyHex] = stored.split(':');
+    if (!salt || !keyHex) return false;
+    const keyBuf = (await scryptAsync(password, salt, 64)) as Buffer;
+    const storedBuf = Buffer.from(keyHex, 'hex');
+    if (keyBuf.length !== storedBuf.length) return false;
+    return timingSafeEqual(keyBuf, storedBuf);
   }
 
   private async issueAuthTokens(user: { id: string; email: string | null }) {
@@ -92,6 +113,8 @@ export class AuthService {
       throw new BadRequestException('Device ID is required');
     }
 
+    const passwordHash = await this.hashPassword(dto.password);
+
     const existingUserByDevice = await this.prisma.user.findUnique({
       where: { deviceId: dto.deviceId },
     });
@@ -113,8 +136,9 @@ export class AuthService {
           where: { id: existingUserByDevice.id },
           data: {
             email: dto.email,
-            name: dto.name,
+            name: dto.name ?? existingUserByDevice.name,
             deviceId: dto.deviceId,
+            passwordHash,
           },
           select: this.userProfileSelect,
         })
@@ -123,6 +147,7 @@ export class AuthService {
             email: dto.email,
             name: dto.name,
             deviceId: dto.deviceId,
+            passwordHash,
           },
           select: this.userProfileSelect,
         });
@@ -132,18 +157,25 @@ export class AuthService {
     return { user, accessToken, refreshToken };
   }
 
-  private async loginAnonymousByDeviceId(deviceId: string) {
+  private async loginAnonymousByDeviceId(
+    deviceId: string,
+    displayName?: string,
+  ) {
     const existingUser = await this.prisma.user.findUnique({
       where: { deviceId },
       select: this.userProfileSelect,
     });
+
+    const trimmedName = displayName?.trim();
+    const nameForNewUser =
+      trimmedName && trimmedName.length > 0 ? trimmedName : 'Guest';
 
     const user =
       existingUser ??
       (await this.prisma.user.create({
         data: {
           deviceId,
-          name: 'Guest',
+          name: nameForNewUser,
         },
         select: this.userProfileSelect,
       }));
@@ -152,12 +184,12 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async anonymousLogin(deviceId: string) {
+  async anonymousLogin(deviceId: string, displayName?: string) {
     if (!deviceId) {
       throw new BadRequestException('Device ID is required');
     }
 
-    return this.loginAnonymousByDeviceId(deviceId);
+    return this.loginAnonymousByDeviceId(deviceId, displayName);
   }
 
   async login(dto: LoginFormModel & DeviceLoginInput) {
@@ -169,16 +201,28 @@ export class AuthService {
       throw new BadRequestException('Email and password are required');
     }
 
-    // TODO: Add password hash verification once password auth is modeled in Prisma.
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
       select: {
         ...this.userProfileSelect,
         deviceId: true,
+        passwordHash: true,
       },
     });
 
     if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    if (!user.passwordHash) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const passwordOk = await this.verifyPassword(
+      dto.password,
+      user.passwordHash,
+    );
+    if (!passwordOk) {
       throw new UnauthorizedException('Invalid credentials');
     }
 

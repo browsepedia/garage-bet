@@ -1,21 +1,67 @@
+import { RegisterSchema } from '@garage-bet/models';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useMemo, useState } from 'react';
+import { TouchableOpacity, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Button } from '../../components/Button';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
-import { TouchableOpacity, View } from 'react-native';
 import { Screen } from '../../components/Screen';
 import { ThemedInput } from '../../components/ThemedInput';
 import { useRegisterMutation } from '../../mutations/register.mutation';
 import { useDeviceId } from '../../utils/use-device-id.hook';
 
-export default function Register() {
+export default function RegisterWithEmail() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const { name } = useLocalSearchParams();
+  const [formError, setFormError] = useState<string | null>(null);
 
-  const { mutateAsync: register } = useRegisterMutation();
+  const { name: nameParam } = useLocalSearchParams<{ name?: string | string[] }>();
+  const displayName = useMemo(() => {
+    const raw = Array.isArray(nameParam) ? nameParam[0] : nameParam;
+    if (!raw) return undefined;
+    try {
+      return decodeURIComponent(raw);
+    } catch {
+      return raw;
+    }
+  }, [nameParam]);
+
+  const { mutateAsync: register, isPending } = useRegisterMutation();
   const deviceId = useDeviceId();
+
+  const canSubmit =
+    Boolean(deviceId) &&
+    Boolean(email.trim()) &&
+    Boolean(password) &&
+    password === confirmPassword;
+
+  const onRegister = async () => {
+    setFormError(null);
+
+    const parsed = RegisterSchema.safeParse({
+      email: email.trim(),
+      password,
+      name: displayName,
+      deviceId,
+    });
+
+    if (!parsed.success) {
+      const first = parsed.error.issues[0];
+      setFormError(first?.message ?? 'Invalid input');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setFormError('Passwords do not match');
+      return;
+    }
+
+    try {
+      await register(parsed.data);
+    } catch {
+      setFormError('Registration failed. Try again or use a different email.');
+    }
+  };
 
   return (
     <Screen
@@ -27,30 +73,50 @@ export default function Register() {
         <Text variant="headlineLarge" style={{ fontWeight: 'bold' }}>
           Register
         </Text>
+        {displayName ? (
+          <Text variant="bodyMedium" style={{ color: '#a1a1aa' }}>
+            Name: {displayName}
+          </Text>
+        ) : null}
         <ThemedInput
           placeholder="Email"
           value={email}
           onChangeText={setEmail}
+          autoCapitalize="none"
+          keyboardType="email-address"
         />
 
         <ThemedInput
           placeholder="Password"
           value={password}
           onChangeText={setPassword}
+          secureTextEntry
         />
 
         <ThemedInput
           placeholder="Confirm Password"
           value={confirmPassword}
           onChangeText={setConfirmPassword}
+          secureTextEntry
         />
+
+        {formError ? (
+          <View
+            style={{
+              padding: 8,
+              paddingHorizontal: 16,
+              backgroundColor: '#7f1d1d',
+            }}
+          >
+            <Text style={{ color: '#fca5a5' }}>{formError}</Text>
+          </View>
+        ) : null}
 
         <View style={{ justifyContent: 'center', gap: 16 }}>
           <Button
             mode="contained"
-            onPress={() =>
-              register({ email, password, name: name as string, deviceId })
-            }
+            disabled={!canSubmit || isPending}
+            onPress={onRegister}
             style={{ backgroundColor: '#EA580C' }}
           >
             Register

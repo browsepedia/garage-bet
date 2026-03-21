@@ -1,8 +1,8 @@
-import { Text } from 'react-native-paper';
-import { Button } from '../../components/Button';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { TouchableOpacity, View } from 'react-native';
+import { Text } from 'react-native-paper';
+import { Button } from '../../components/Button';
 import { Screen } from '../../components/Screen';
 import { ThemedInput } from '../../components/ThemedInput';
 import { useAnonymousRegisterMutation } from '../../mutations/annonymous-register.mutation';
@@ -12,27 +12,8 @@ export default function Register() {
   const [name, setName] = useState('');
   const deviceId = useDeviceId();
 
-  const getInputValue = (event: unknown) => {
-    if (typeof event === 'string') {
-      return event;
-    }
-
-    const nativeText = (event as { nativeEvent?: { text?: string } })
-      ?.nativeEvent?.text;
-    if (typeof nativeText === 'string') {
-      return nativeText;
-    }
-
-    const targetValue = (event as { target?: { value?: string } })?.target
-      ?.value;
-    if (typeof targetValue === 'string') {
-      return targetValue;
-    }
-
-    return '';
-  };
-
   const { mutateAsync: anonymousRegister } = useAnonymousRegisterMutation();
+  const canSubmit = Boolean(name.trim()) && Boolean(deviceId);
 
   return (
     <Screen
@@ -53,20 +34,36 @@ export default function Register() {
         <View style={{ justifyContent: 'center', gap: 16 }}>
           <Button
             mode="contained"
+            disabled={!canSubmit}
             onPress={() =>
-              router.replace(`/(auth)/register-with-email?name=${name}`)
+              router.replace(
+                `/(auth)/register-with-email?name=${encodeURIComponent(name.trim())}`,
+              )
             }
             style={{ backgroundColor: '#EA580C' }}
           >
             Continue with email
           </Button>
 
+          <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+            <Text>or</Text>
+          </View>
+
           <Button
+            disabled={!canSubmit}
             mode="outlined"
-            onPress={() => anonymousRegister({ deviceId, name })}
+            onPress={() => anonymousRegister({ deviceId, name: name.trim() })}
           >
             Continue without email
           </Button>
+
+          <Text
+            variant="bodyMedium"
+            style={{ color: '#a1a1aa', textAlign: 'center' }}
+          >
+            Without an email you will not receive email notifications and
+            reminders.
+          </Text>
         </View>
 
         <View style={{ alignItems: 'center', gap: 16 }}>

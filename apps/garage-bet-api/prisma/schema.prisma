@@ -40,19 +40,21 @@ enum FriendshipStatus {
 }
 
 model User {
-    id        String  @id @default(cuid())
-    email     String? @unique
-    deviceId  String? @unique
-    username  String? @unique
-    name      String?
-    avatarUrl String?
+    id           String  @id @default(cuid())
+    email        String? @unique
+    deviceId     String? @unique
+    username     String? @unique
+    name         String?
+    avatarUrl    String?
+    passwordHash String?
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    accounts      AuthAccount[]
-    refreshTokens RefreshToken[]
-    bets          Bet[]
+    accounts          AuthAccount[]
+    refreshTokens     RefreshToken[]
+    bets              Bet[]
+    finalPlayerBets   FinalPlayerBet[]
 
     friendshipsSent     Friendship[] @relation("friendshipsSent")
     friendshipsReceived Friendship[] @relation("friendshipsReceived")
@@ -113,6 +115,9 @@ model Team {
     homeMatches Match[] @relation("homeTeam")
     awayMatches Match[] @relation("awayTeam")
 
+    seasonFinalHomeFor Season[] @relation("SeasonFinalHome")
+    seasonFinalAwayFor Season[] @relation("SeasonFinalAway")
+
     @@unique([name])
 }
 
@@ -133,13 +138,24 @@ model Season {
     name          String
     year          Int?
 
+    /// Actual finalists + result (set by admin when known). Used to score FinalPlayerBet.
+    finalHomeTeamId String?
+    finalAwayTeamId String?
+    finalHomeScore  Int?
+    finalAwayScore  Int?
+    finalBettingOpen Boolean @default(true)
+
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
     competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
 
-    teams   SeasonTeam[]
-    matches Match[]
+    finalHomeTeam Team? @relation("SeasonFinalHome", fields: [finalHomeTeamId], references: [id], onDelete: SetNull)
+    finalAwayTeam Team? @relation("SeasonFinalAway", fields: [finalAwayTeamId], references: [id], onDelete: SetNull)
+
+    teams           SeasonTeam[]
+    matches         Match[]
+    finalPlayerBets FinalPlayerBet[]
 
     @@unique([competitionId, name])
     @@index([competitionId])
@@ -207,6 +223,27 @@ model Bet {
     @@unique([matchId, userId])
     @@index([userId])
     @@index([matchId])
+}
+
+/// One prediction per user per season (championship edition): finalists + score.
+model FinalPlayerBet {
+    id                    String @id @default(cuid())
+    seasonId              String
+    userId                String
+    predictedHomeTeamId   String
+    predictedAwayTeamId   String
+    predictedHomeScore    Int
+    predictedAwayScore    Int
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([seasonId, userId])
+    @@index([seasonId])
+    @@index([userId])
 }
 
 model Friendship {

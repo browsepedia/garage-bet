@@ -2,20 +2,20 @@ import {
   AnonymousRegisterFormModel,
   LoginResponseModel,
 } from '@garage-bet/models';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { router } from 'expo-router';
 import { setTokens } from '../storage/token-storage';
 import { apiJson } from '../utils/http-client';
 
 export function useAnonymousRegisterMutation() {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (input: AnonymousRegisterFormModel) => {
-      const data = await apiJson<LoginResponseModel>(
-        '/auth/anonymous-register',
-        {
-          method: 'POST',
-          body: JSON.stringify(input),
-        },
-      );
+      const data = await apiJson<LoginResponseModel>('/auth/anonymous', {
+        method: 'POST',
+        body: JSON.stringify(input),
+      });
 
       await setTokens({
         accessToken: data.accessToken,
@@ -23,6 +23,10 @@ export function useAnonymousRegisterMutation() {
       });
 
       return data;
+    },
+    onSuccess: async () => {
+      router.replace('/(app)/home');
+      await queryClient.invalidateQueries({ queryKey: ['me'] });
     },
   });
 }

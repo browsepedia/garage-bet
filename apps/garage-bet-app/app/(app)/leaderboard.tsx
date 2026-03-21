@@ -19,11 +19,12 @@ const LEFT_TABLE_WIDTH = LEFT_POSITION_WIDTH + LEFT_PLAYER_WIDTH;
 
 const RIGHT_COLUMN_WIDTH = 40;
 const FULL_TABLE_WIDTH =
-  LEFT_TABLE_WIDTH + POINTS_WIDTH + RIGHT_COLUMN_WIDTH * 5;
+  LEFT_TABLE_WIDTH + POINTS_WIDTH + RIGHT_COLUMN_WIDTH * 6;
 const HEADER_HEIGHT = 36;
 const ROW_HEIGHT = 48;
 
 const horizontalColumns = [
+  { key: 'finalBetPoints', label: 'F' },
   { key: 'totalWins', label: 'W' },
   { key: 'totalResults', label: 'R' },
   { key: 'totalLosses', label: 'L' },
@@ -133,6 +134,9 @@ export default function Leaderboard() {
           {item.totalPoints}
         </Text>
 
+        <Text style={{ width: RIGHT_COLUMN_WIDTH }}>
+          {item.finalBetPoints}
+        </Text>
         <Text style={{ width: RIGHT_COLUMN_WIDTH }}>{item.totalWins}</Text>
         <Text style={{ width: RIGHT_COLUMN_WIDTH }}>{item.totalResults}</Text>
         <Text style={{ width: RIGHT_COLUMN_WIDTH }}>{item.totalLosses}</Text>

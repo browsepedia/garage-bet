@@ -2,16 +2,15 @@ import type { ComponentProps } from 'react';
 import { Button as PaperButton, useTheme } from 'react-native-paper';
 import type { AppTheme } from '../theme';
 
-const compactModes = ['contained', 'contained-tonal', 'elevated'] as const;
+export type ButtonProps = ComponentProps<typeof PaperButton> & {
+  compact?: boolean;
+};
 
-export function Button(props: ComponentProps<typeof PaperButton>) {
+export function Button({ compact = false, ...props }: ButtonProps) {
   const theme = useTheme<AppTheme>();
   const overrides = theme.components?.Button;
-  const isCompact =
-    props.mode &&
-    compactModes.includes(props.mode as (typeof compactModes)[number]);
 
-  if (!overrides || !isCompact) {
+  if (!overrides || !compact) {
     return <PaperButton {...props} />;
   }
 

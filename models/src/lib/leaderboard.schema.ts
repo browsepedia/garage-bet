@@ -9,6 +9,8 @@ export const LeaderboardEntrySchema = zod.object({
   totalLosses: zod.number(),
   totalResults: zod.number(),
   betCount: zod.number(),
+  /** Points from championship final prediction (0–10 per season when settled). */
+  finalBetPoints: zod.number(),
   winRate: zod.number(), // totalPoints /(totalBets * 3)
 });
 

@@ -106,11 +106,12 @@ export default function SetMatchBetDialog({
         <Button
           onPress={() => onOpenChange(false)}
           mode="contained"
+          compact
           style={{ backgroundColor: theme.colors.error }}
         >
           Cancel
         </Button>
-        <Button mode="contained" onPress={onSetBet}>
+        <Button mode="contained" compact onPress={onSetBet}>
           Set bet
         </Button>
       </Dialog.Actions>

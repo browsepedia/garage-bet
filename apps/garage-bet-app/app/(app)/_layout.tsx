@@ -160,6 +160,15 @@ export default function AppLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="final-bet"
+        options={{
+          title: 'Final',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="flag-checkered" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

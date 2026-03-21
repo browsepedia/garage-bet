@@ -1,6 +1,7 @@
 import { LeaderboardEntry } from '@garage-bet/models';
 import { Injectable } from '@nestjs/common';
 import { MatchStatus } from '@prisma/client';
+import { scoreFinalBet } from '../final-bets/final-bet-scoring';
 import { PrismaService } from '../services/prisma-service';
 
 const PAGE_SIZE = 50;
@@ -59,10 +60,48 @@ export class LeaderboardService {
             totalLosses: 0,
             totalResults: 0,
             betCount: 0,
+            finalBetPoints: 0,
           },
         ];
       }),
     );
+
+    const finalBets = await this.prisma.finalPlayerBet.findMany({
+      include: { season: true },
+    });
+
+    for (const fb of finalBets) {
+      const s = fb.season;
+      if (
+        !s.finalHomeTeamId ||
+        !s.finalAwayTeamId ||
+        s.finalHomeScore === null ||
+        s.finalHomeScore === undefined ||
+        s.finalAwayScore === null ||
+        s.finalAwayScore === undefined
+      ) {
+        continue;
+      }
+      const pts = scoreFinalBet(
+        {
+          predictedHomeTeamId: fb.predictedHomeTeamId,
+          predictedAwayTeamId: fb.predictedAwayTeamId,
+          predictedHomeScore: fb.predictedHomeScore,
+          predictedAwayScore: fb.predictedAwayScore,
+        },
+        {
+          finalHomeTeamId: s.finalHomeTeamId,
+          finalAwayTeamId: s.finalAwayTeamId,
+          finalHomeScore: s.finalHomeScore,
+          finalAwayScore: s.finalAwayScore,
+        },
+      );
+      const stats = byUser.get(fb.userId);
+      if (stats) {
+        stats.finalBetPoints += pts;
+        stats.totalPoints += pts;
+      }
+    }
 
     for (const user of users) {
       const stats = byUser.get(user.id);

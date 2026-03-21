@@ -143,7 +143,7 @@ function MatchCard({
 
         {match.betStatus === 'PENDING' && (
           <View style={{ flexShrink: 0 }}>
-            <Button mode="contained" onPress={() => onSetBetClick(match)}>
+            <Button mode="contained" compact onPress={() => onSetBetClick(match)}>
               Place bet
             </Button>
           </View>
@@ -151,7 +151,7 @@ function MatchCard({
 
         {match.betStatus === 'SET' && (
           <View style={{ flexShrink: 0 }}>
-            <Button mode="contained" onPress={() => onSetBetClick(match)}>
+            <Button mode="contained" compact onPress={() => onSetBetClick(match)}>
               Update bet
             </Button>
           </View>
