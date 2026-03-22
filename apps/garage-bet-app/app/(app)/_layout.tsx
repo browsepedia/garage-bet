@@ -1,9 +1,10 @@
-import { Text } from 'react-native-paper';
-import { Button } from '../../components/Button';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useQuery } from '@tanstack/react-query';
 import { Redirect, router, Tabs, useSegments } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
+import { Text, useTheme } from 'react-native-paper';
+import { Button } from '../../components/Button';
 import { ExpoPushTokenSync } from '../../components/ExpoPushTokenSync';
 import Header from '../../components/Header';
 import {
@@ -12,8 +13,6 @@ import {
   getRefreshToken,
 } from '../../storage/token-storage';
 import { ApiError, apiJson } from '../../utils/http-client';
-import { useTheme } from 'react-native-paper';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 type MeDto = { id: string; email: string };
 
@@ -105,74 +104,82 @@ export default function AppLayout() {
   return (
     <>
       <ExpoPushTokenSync enabled={Boolean(meQuery.data?.id)} />
-    <Tabs
-      screenOptions={{
-        headerShown: true,
-        headerStyle: {
-          backgroundColor: appBackground,
-        },
-        header: () => <Header />,
-        headerShadowVisible: false,
-        sceneStyle: {
-          backgroundColor: appBackground,
-        },
-        tabBarStyle: {
-          backgroundColor: 'transparent',
-          borderTopColor: appBackground,
-          borderTopWidth: 1,
-          height: 60,
-          paddingTop: 8,
-          paddingBottom: 8,
-          marginBottom: 0,
-        },
-        tabBarBackground: () => (
-          <View style={{ flex: 1, backgroundColor: appBackground }} />
-        ),
-        tabBarActiveTintColor: '#EA580C',
-        tabBarInactiveTintColor: '#94a3b8',
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600',
-        },
-      }}
-    >
-      <Tabs.Screen
-        name="home"
-        options={{
-          title: 'Live',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="play" size={size} color={color} />
+      <Tabs
+        screenOptions={{
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: appBackground,
+          },
+          header: () => <Header />,
+          headerShadowVisible: false,
+          sceneStyle: {
+            backgroundColor: appBackground,
+          },
+          tabBarStyle: {
+            backgroundColor: 'transparent',
+            borderTopColor: appBackground,
+            borderTopWidth: 1,
+            height: 60,
+            paddingTop: 8,
+            paddingBottom: 8,
+            marginBottom: 0,
+          },
+          tabBarBackground: () => (
+            <View style={{ flex: 1, backgroundColor: appBackground }} />
           ),
+          tabBarActiveTintColor: '#EA580C',
+          tabBarInactiveTintColor: '#94a3b8',
+          tabBarLabelStyle: {
+            fontSize: 12,
+            fontWeight: '600',
+          },
         }}
-      />
+      >
+        <Tabs.Screen
+          name="home"
+          options={{
+            title: 'Live',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="play" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="matches"
+          options={{
+            title: 'Matches',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons
+                name="volleyball"
+                size={size}
+                color={color}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="leaderboard"
+          options={{
+            title: 'Leaderboard',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="trophy" size={size} color={color} />
+            ),
+          }}
+        />
       <Tabs.Screen
-        name="matches"
+        name="final-bets"
         options={{
-          title: 'Matches',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="volleyball" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="leaderboard"
-        options={{
-          title: 'Leaderboard',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="trophy" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="final-bet"
-        options={{
-          title: 'Final',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="flag-checkered" size={size} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
+            title: 'Final Bets',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons
+                name="flag-checkered"
+                size={size}
+                color={color}
+              />
+            ),
+          }}
+        />
+      </Tabs>
     </>
   );
 }

@@ -15,6 +15,9 @@ export function useUpsertFinalBetMutation(seasonId: string | null) {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['final-bet', seasonId] });
+      await queryClient.invalidateQueries({
+        queryKey: ['final-bets-list', seasonId],
+      });
       await queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
     },
   });

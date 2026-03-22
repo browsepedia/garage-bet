@@ -1,10 +1,7 @@
-import { Avatar } from 'react-native-paper';
-import { View } from 'react-native';
 import { router } from 'expo-router';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, View, ViewStyle } from 'react-native';
+import { Avatar, useTheme } from 'react-native-paper';
 import { useUserProfileQuery } from '../queries/user-profile.query';
-import { useTheme } from 'react-native-paper';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 function useDisplayNameAndAvatar() {
   const { data: user } = useUserProfileQuery();
@@ -17,43 +14,36 @@ function useDisplayNameAndAvatar() {
   return { user, initialsAvatarUrl };
 }
 
-export function HeaderAvatar() {
+function openSettings() {
+  router.push('/settings');
+}
+
+function ProfileAvatarButton({ style }: { style?: ViewStyle }) {
   const { user, initialsAvatarUrl } = useDisplayNameAndAvatar();
 
   return (
-    <View style={{ marginLeft: 8 }}>
-      <Avatar.Image
-        size={40}
-        source={{ uri: user?.avatarUrl || initialsAvatarUrl }}
-      />
+    <View style={style}>
+      <TouchableOpacity
+        accessibilityRole="button"
+        accessibilityLabel="Open settings"
+        hitSlop={12}
+        activeOpacity={0.6}
+        onPress={openSettings}
+      >
+        <Avatar.Image
+          size={40}
+          source={{ uri: user?.avatarUrl || initialsAvatarUrl }}
+        />
+      </TouchableOpacity>
     </View>
   );
 }
 
-export function HeaderSettingsButton() {
-  return (
-    <TouchableOpacity
-      accessibilityRole="button"
-      accessibilityLabel="Open settings"
-      hitSlop={12}
-      activeOpacity={0.6}
-      onPress={() => router.push('/settings')}
-      style={{
-        width: 44,
-        height: 44,
-        borderRadius: 999,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: 8,
-      }}
-    >
-      <MaterialCommunityIcons name="menu" size={24} color="#f1f5f9" />
-    </TouchableOpacity>
-  );
+export function HeaderAvatar() {
+  return <ProfileAvatarButton style={{ marginLeft: 8 }} />;
 }
 
 export default function Header() {
-  const { user, initialsAvatarUrl } = useDisplayNameAndAvatar();
   const theme = useTheme();
   const appBackground = theme.colors.background;
 
@@ -64,16 +54,11 @@ export default function Header() {
         paddingBottom: 16,
         paddingHorizontal: 16,
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-start',
         alignItems: 'center',
       }}
     >
-      <Avatar.Image
-        size={40}
-        source={{ uri: user?.avatarUrl || initialsAvatarUrl }}
-      />
-
-      <HeaderSettingsButton />
+      <ProfileAvatarButton />
     </View>
   );
 }
