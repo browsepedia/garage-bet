@@ -42,6 +42,118 @@ export class FinalBetsService {
     });
   }
 
+  async listFinalBetsForSeason(
+    seasonId: string,
+    authorizationHeader?: string,
+  ) {
+    await this.authService.me(authorizationHeader);
+
+    const season = await this.prisma.season.findUnique({
+      where: { id: seasonId },
+      select: {
+        id: true,
+        finalHomeTeamId: true,
+        finalAwayTeamId: true,
+        finalHomeScore: true,
+        finalAwayScore: true,
+      },
+    });
+
+    if (!season) {
+      throw new NotFoundException('Season not found');
+    }
+
+    const bets = await this.prisma.finalPlayerBet.findMany({
+      where: { seasonId },
+      include: {
+        user: { select: { id: true, name: true, email: true, avatarUrl: true } },
+      },
+      orderBy: { updatedAt: 'desc' },
+    });
+
+    const teamIds = new Set<string>();
+    for (const b of bets) {
+      teamIds.add(b.predictedHomeTeamId);
+      teamIds.add(b.predictedAwayTeamId);
+    }
+
+    const teams =
+      teamIds.size === 0
+        ? []
+        : await this.prisma.team.findMany({
+            where: { id: { in: [...teamIds] } },
+            select: { id: true, name: true },
+          });
+    const teamById = new Map(teams.map((t) => [t.id, t]));
+
+    const actual =
+      season.finalHomeTeamId &&
+      season.finalAwayTeamId &&
+      season.finalHomeScore !== null &&
+      season.finalHomeScore !== undefined &&
+      season.finalAwayScore !== null &&
+      season.finalAwayScore !== undefined
+        ? {
+            finalHomeTeamId: season.finalHomeTeamId,
+            finalAwayTeamId: season.finalAwayTeamId,
+            finalHomeScore: season.finalHomeScore,
+            finalAwayScore: season.finalAwayScore,
+          }
+        : null;
+
+    const rows = bets.map((bet) => {
+      const homeTeam = teamById.get(bet.predictedHomeTeamId);
+      const awayTeam = teamById.get(bet.predictedAwayTeamId);
+      const displayName =
+        bet.user.name?.trim() ||
+        bet.user.email?.split('@')[0] ||
+        `User ${bet.user.id.slice(0, 6)}`;
+      const avatarUrl =
+        bet.user.avatarUrl ||
+        `https://ui-avatars.com/api/?name=${encodeURIComponent(
+          displayName,
+        )}&background=EA580C&color=ffffff&bold=true`;
+
+      let awardedPoints: number | null = null;
+      if (actual) {
+        awardedPoints = scoreFinalBet(
+          {
+            predictedHomeTeamId: bet.predictedHomeTeamId,
+            predictedAwayTeamId: bet.predictedAwayTeamId,
+            predictedHomeScore: bet.predictedHomeScore,
+            predictedAwayScore: bet.predictedAwayScore,
+          },
+          {
+            finalHomeTeamId: actual.finalHomeTeamId,
+            finalAwayTeamId: actual.finalAwayTeamId,
+            finalHomeScore: actual.finalHomeScore,
+            finalAwayScore: actual.finalAwayScore,
+          },
+        );
+      }
+
+      return {
+        userId: bet.userId,
+        displayName,
+        avatarUrl,
+        predictedHomeTeamName: homeTeam?.name ?? '—',
+        predictedAwayTeamName: awayTeam?.name ?? '—',
+        predictedHomeScore: bet.predictedHomeScore,
+        predictedAwayScore: bet.predictedAwayScore,
+        updatedAt: bet.updatedAt.toISOString(),
+        awardedPoints,
+      };
+    });
+
+    rows.sort((a, b) =>
+      a.displayName.localeCompare(b.displayName, undefined, {
+        sensitivity: 'base',
+      }),
+    );
+
+    return rows;
+  }
+
   async getFinalBetForSeason(seasonId: string, authorizationHeader?: string) {
     const user = await this.authService.me(authorizationHeader);
 

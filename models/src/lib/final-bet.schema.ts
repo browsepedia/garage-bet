@@ -60,3 +60,17 @@ export const UpsertFinalBetPayloadSchema = zod.object({
 });
 
 export type UpsertFinalBetPayload = zod.infer<typeof UpsertFinalBetPayloadSchema>;
+
+export const FinalBetListItemSchema = zod.object({
+  userId: zod.string(),
+  displayName: zod.string(),
+  avatarUrl: zod.string(),
+  predictedHomeTeamName: zod.string(),
+  predictedAwayTeamName: zod.string(),
+  predictedHomeScore: zod.number(),
+  predictedAwayScore: zod.number(),
+  updatedAt: zod.string(),
+  awardedPoints: zod.number().nullable(),
+});
+
+export type FinalBetListItem = zod.infer<typeof FinalBetListItemSchema>;
