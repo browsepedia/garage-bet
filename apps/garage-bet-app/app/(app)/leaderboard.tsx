@@ -1,6 +1,5 @@
 import { LeaderboardEntry } from '@garage-bet/models';
-import { Text } from 'react-native-paper';
-import { useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -9,28 +8,29 @@ import {
   ScrollView,
   View,
 } from 'react-native';
+import { Text } from 'react-native-paper';
 import { Screen } from '../../components/Screen';
 import { useLeaderboardQuery } from '../../queries/leaderboard.query';
 
-const LEFT_POSITION_WIDTH = 40;
-const LEFT_PLAYER_WIDTH = 160;
-const POINTS_WIDTH = 40;
-const LEFT_TABLE_WIDTH = LEFT_POSITION_WIDTH + LEFT_PLAYER_WIDTH;
+const COL_POS = 40;
+const COL_PLAYER = 168;
+const COL_STAT = 40;
+const COL_WR = 44;
 
-const RIGHT_COLUMN_WIDTH = 40;
-const FULL_TABLE_WIDTH =
-  LEFT_TABLE_WIDTH + POINTS_WIDTH + RIGHT_COLUMN_WIDTH * 6;
+const TABLE_WIDTH = COL_POS + COL_PLAYER + COL_STAT * 5 + COL_WR + COL_STAT; // P,W,R,L,T + WR + FB
+
 const HEADER_HEIGHT = 36;
 const ROW_HEIGHT = 48;
 
-const horizontalColumns = [
-  { key: 'finalBetPoints', label: 'F' },
-  { key: 'totalWins', label: 'W' },
-  { key: 'totalResults', label: 'R' },
-  { key: 'totalLosses', label: 'L' },
-  { key: 'betCount', label: 'T' },
-  { key: 'winRate', label: 'WR' },
-] as const;
+const headerTextStyle = {
+  color: '#94a3b8',
+  height: HEADER_HEIGHT,
+  lineHeight: HEADER_HEIGHT,
+  fontSize: 12,
+  fontWeight: '700' as const,
+  textTransform: 'uppercase' as const,
+  letterSpacing: 0.4,
+};
 
 export default function Leaderboard() {
   const {
@@ -49,26 +49,29 @@ export default function Leaderboard() {
     [data?.pages],
   );
 
-  const leftListRef = useRef<FlatList<LeaderboardEntry>>(null);
-
-  const renderHeaderCell = (label: string, width: number) => (
-    <Text
+  const renderHeader = () => (
+    <View
       style={{
-        color: '#94a3b8',
-        width,
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderBottomWidth: 1,
+        borderBottomColor: '#273042',
         height: HEADER_HEIGHT,
-        lineHeight: HEADER_HEIGHT,
-        fontSize: 12,
-        fontWeight: '700',
-        textTransform: 'uppercase',
-        letterSpacing: 0.4,
       }}
     >
-      {label}
-    </Text>
+      <Text style={{ ...headerTextStyle, width: COL_POS }}>#</Text>
+      <Text style={{ ...headerTextStyle, width: COL_PLAYER }}>Player</Text>
+      <Text style={{ ...headerTextStyle, width: COL_STAT }}>P</Text>
+      <Text style={{ ...headerTextStyle, width: COL_STAT }}>W</Text>
+      <Text style={{ ...headerTextStyle, width: COL_STAT }}>R</Text>
+      <Text style={{ ...headerTextStyle, width: COL_STAT }}>L</Text>
+      <Text style={{ ...headerTextStyle, width: COL_STAT }}>T</Text>
+      <Text style={{ ...headerTextStyle, width: COL_WR }}>WR</Text>
+      <Text style={{ ...headerTextStyle, width: COL_STAT }}>FB</Text>
+    </View>
   );
 
-  const renderLeftRow = ({
+  const renderRow = ({
     item,
     index,
   }: {
@@ -87,13 +90,11 @@ export default function Leaderboard() {
           height: ROW_HEIGHT,
         }}
       >
-        <Text style={{ width: LEFT_POSITION_WIDTH, fontWeight: '700' }}>
-          {position}
-        </Text>
+        <Text style={{ width: COL_POS, fontWeight: '700' }}>{position}</Text>
 
         <View
           style={{
-            width: LEFT_PLAYER_WIDTH,
+            width: COL_PLAYER,
             flexDirection: 'row',
             alignItems: 'center',
             gap: 8,
@@ -103,47 +104,20 @@ export default function Leaderboard() {
             source={{ uri: item.avatarUrl }}
             style={{ width: 32, height: 32, borderRadius: 16 }}
           />
-          <Text
-            style={{ flex: 1 }}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
+          <Text style={{ flex: 1 }} numberOfLines={1} ellipsizeMode="tail">
             {item.name}
           </Text>
         </View>
-      </View>
-    );
-  };
 
-  const renderMainRow = ({ item }: { item: LeaderboardEntry }) => {
-    return (
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          borderBottomWidth: 1,
-          borderBottomColor: '#273042',
-          height: ROW_HEIGHT,
-        }}
-      >
-        <View style={{ width: LEFT_TABLE_WIDTH }} />
-
-        <Text
-          style={{ width: POINTS_WIDTH, fontWeight: '700', color: '#EA580C' }}
-        >
+        <Text style={{ width: COL_STAT, fontWeight: '700', color: '#EA580C' }}>
           {item.totalPoints}
         </Text>
-
-        <Text style={{ width: RIGHT_COLUMN_WIDTH }}>
-          {item.finalBetPoints}
-        </Text>
-        <Text style={{ width: RIGHT_COLUMN_WIDTH }}>{item.totalWins}</Text>
-        <Text style={{ width: RIGHT_COLUMN_WIDTH }}>{item.totalResults}</Text>
-        <Text style={{ width: RIGHT_COLUMN_WIDTH }}>{item.totalLosses}</Text>
-        <Text style={{ width: RIGHT_COLUMN_WIDTH }}>{item.betCount}</Text>
-        <Text style={{ width: RIGHT_COLUMN_WIDTH }}>
-          {Math.round(item.winRate * 100)}%
-        </Text>
+        <Text style={{ width: COL_STAT }}>{item.totalWins}</Text>
+        <Text style={{ width: COL_STAT }}>{item.totalResults}</Text>
+        <Text style={{ width: COL_STAT }}>{item.totalLosses}</Text>
+        <Text style={{ width: COL_STAT }}>{item.betCount}</Text>
+        <Text style={{ width: COL_WR }}>{Math.round(item.winRate * 100)}%</Text>
+        <Text style={{ width: COL_STAT }}>{item.finalBetPoints}</Text>
       </View>
     );
   };
@@ -172,106 +146,42 @@ export default function Leaderboard() {
             <Text>Error: {error.message}</Text>
           </View>
         ) : (
-          <View style={{ flex: 1 }}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View style={{ width: FULL_TABLE_WIDTH, flex: 1 }}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    borderBottomWidth: 1,
-                    borderBottomColor: '#273042',
-                    height: HEADER_HEIGHT,
-                  }}
-                >
-                  <View style={{ width: LEFT_TABLE_WIDTH }} />
-                  {renderHeaderCell('P', POINTS_WIDTH)}
-                  {horizontalColumns.map((column) => (
-                    <Text
-                      key={column.key}
-                      style={{
-                        width: RIGHT_COLUMN_WIDTH,
-                        color: '#94a3b8',
-                        fontSize: 12,
-                        fontWeight: '700',
-                        textTransform: 'uppercase',
-                        letterSpacing: 0.4,
-                      }}
-                    >
-                      {column.label}
-                    </Text>
-                  ))}
-                </View>
-
-                <FlatList
-                  data={entries}
-                  keyExtractor={(item) => item.userId}
-                  renderItem={renderMainRow}
-                  refreshControl={
-                    <RefreshControl
-                      refreshing={Boolean(isRefetching) && !isLoading}
-                      onRefresh={refetch}
-                    />
-                  }
-                  onScroll={(event) => {
-                    leftListRef.current?.scrollToOffset({
-                      offset: event.nativeEvent.contentOffset.y,
-                      animated: false,
-                    });
-                  }}
-                  scrollEventThrottle={16}
-                  onEndReached={() => {
-                    if (hasNextPage && !isFetchingNextPage) {
-                      fetchNextPage();
-                    }
-                  }}
-                  onEndReachedThreshold={0.4}
-                  ListFooterComponent={
-                    isFetchingNextPage ? (
-                      <View style={{ paddingVertical: 12 }}>
-                        <ActivityIndicator />
-                      </View>
-                    ) : null
-                  }
-                />
-              </View>
-            </ScrollView>
-
-            <View
-              style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                bottom: 0,
-                width: LEFT_TABLE_WIDTH,
-                backgroundColor: '#111418',
-                pointerEvents: 'none',
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  borderBottomWidth: 1,
-                  borderBottomColor: '#273042',
-                  height: HEADER_HEIGHT,
-                }}
-              >
-                {renderHeaderCell('Pos', LEFT_POSITION_WIDTH)}
-                {renderHeaderCell('Player', LEFT_PLAYER_WIDTH)}
-              </View>
+          <ScrollView
+            horizontal
+            nestedScrollEnabled
+            showsHorizontalScrollIndicator={false}
+            style={{ flex: 1 }}
+            contentContainerStyle={{ flexGrow: 1 }}
+          >
+            <View style={{ width: TABLE_WIDTH, flex: 1 }}>
+              {renderHeader()}
               <FlatList
-                ref={leftListRef}
                 data={entries}
                 keyExtractor={(item) => item.userId}
-                renderItem={renderLeftRow}
-                scrollEnabled={false}
+                renderItem={renderRow}
+                nestedScrollEnabled
+                refreshControl={
+                  <RefreshControl
+                    refreshing={Boolean(isRefetching) && !isLoading}
+                    onRefresh={refetch}
+                  />
+                }
+                onEndReached={() => {
+                  if (hasNextPage && !isFetchingNextPage) {
+                    fetchNextPage();
+                  }
+                }}
+                onEndReachedThreshold={0.4}
                 ListFooterComponent={
-                  isFetchingNextPage ? <View style={{ height: 36 }} /> : null
+                  isFetchingNextPage ? (
+                    <View style={{ paddingVertical: 12 }}>
+                      <ActivityIndicator />
+                    </View>
+                  ) : null
                 }
               />
             </View>
-          </View>
+          </ScrollView>
         )}
       </View>
     </Screen>

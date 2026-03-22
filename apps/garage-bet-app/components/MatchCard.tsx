@@ -32,7 +32,7 @@ function MatchCard({
         backgroundColor: '#13161a',
       }}
     >
-      {match.betStatus !== 'UNSET' && match.betStatus !== 'PENDING' && (
+      {match.betStatus !== 'UNSET' && (
         <View
           style={{
             width: 16,
@@ -79,7 +79,7 @@ function MatchCard({
         </Text>
       </View>
 
-      {match.betStatus !== 'UNSET' && match.betStatus !== 'PENDING' && (
+      {match.betStatus !== 'UNSET' && (
         <View
           style={{
             flexDirection: 'row',
@@ -141,7 +141,7 @@ function MatchCard({
           </Text>
         </View>
 
-        {match.betStatus === 'PENDING' && (
+        {match.betStatus === 'UNSET' && match.status !== 'FINISHED' && (
           <View style={{ flexShrink: 0 }}>
             <Button mode="contained" compact onPress={() => onSetBetClick(match)}>
               Place bet
@@ -157,7 +157,7 @@ function MatchCard({
           </View>
         )}
 
-        {match.betStatus === 'UNSET' && (
+        {match.betStatus === 'UNSET' && match.status === 'FINISHED' && (
           <Text variant="bodySmall" style={{ color: '#a1a1aa' }}>
             Unset
           </Text>

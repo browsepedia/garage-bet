@@ -1,4 +1,4 @@
-import { Controller, Get, Headers } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 import { AuthService } from './auth/auth.service';
 
@@ -17,5 +17,13 @@ export class AppController {
   @Get('me')
   getMe(@Headers('authorization') authorization?: string) {
     return this.authService.me(authorization);
+  }
+
+  @Post('me/push-token')
+  registerPushToken(
+    @Headers('authorization') authorization: string | undefined,
+    @Body() body: { deviceId: string; expoPushToken: string },
+  ) {
+    return this.authService.registerExpoPushToken(authorization, body);
   }
 }

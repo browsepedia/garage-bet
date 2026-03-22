@@ -18,7 +18,7 @@ export const MatchDataSchema = zod.object({
   seasonId: zod.string(),
   homeBetScore: zod.number(),
   awayBetScore: zod.number(),
-  betStatus: zod.enum(['WON', 'LOST', 'RESULT', 'UNSET', 'PENDING', 'SET']),
+  betStatus: zod.enum(['WON', 'LOST', 'RESULT', 'UNSET', 'SET']),
 });
 
 export type MatchData = zod.infer<typeof MatchDataSchema>;

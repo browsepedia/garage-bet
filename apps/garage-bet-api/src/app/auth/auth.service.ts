@@ -2,7 +2,9 @@ import { LoginFormModel, RegisterFormModel } from '@garage-bet/models';
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -85,6 +87,72 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
+  /** Returns userId that owns this device, if any. */
+  private async findUserIdByDeviceId(deviceId: string): Promise<string | null> {
+    const row = await this.prisma.userDevice.findUnique({
+      where: { deviceId },
+      select: { userId: true },
+    });
+    return row?.userId ?? null;
+  }
+
+  /**
+   * Links device to user if new; no-op if already linked to same user.
+   * Fails if device belongs to another account.
+   */
+  private async linkDeviceToUser(userId: string, deviceId: string) {
+    const existing = await this.prisma.userDevice.findUnique({
+      where: { deviceId },
+      select: { userId: true },
+    });
+    if (existing) {
+      if (existing.userId === userId) {
+        return;
+      }
+      throw new UnauthorizedException(
+        'This device is registered to a different account.',
+      );
+    }
+    await this.prisma.userDevice.create({
+      data: { userId, deviceId },
+    });
+  }
+
+  /**
+   * Stores Expo push token for a device row that already belongs to the user.
+   */
+  async registerExpoPushToken(
+    authorizationHeader: string | undefined,
+    body: { deviceId: string; expoPushToken: string },
+  ) {
+    const user = await this.me(authorizationHeader);
+    const deviceId = body.deviceId?.trim();
+    const expoPushToken = body.expoPushToken?.trim();
+    if (!deviceId || !expoPushToken) {
+      throw new BadRequestException('deviceId and expoPushToken are required');
+    }
+
+    const row = await this.prisma.userDevice.findUnique({
+      where: { deviceId },
+      select: { userId: true },
+    });
+    if (!row || row.userId !== user.id) {
+      throw new ForbiddenException(
+        'This device is not linked to your account.',
+      );
+    }
+
+    await this.prisma.userDevice.update({
+      where: { deviceId },
+      data: {
+        expoPushToken,
+        expoPushTokenUpdatedAt: new Date(),
+      },
+    });
+
+    return { ok: true as const };
+  }
+
   async me(authorizationHeader?: string) {
     const token = this.extractBearerToken(authorizationHeader);
     if (!token) {
@@ -113,88 +181,148 @@ export class AuthService {
       throw new BadRequestException('Device ID is required');
     }
 
-    const passwordHash = await this.hashPassword(dto.password);
-
-    const existingUserByDevice = await this.prisma.user.findUnique({
-      where: { deviceId: dto.deviceId },
-    });
+    const deviceOwnerId = await this.findUserIdByDeviceId(dto.deviceId);
+    if (deviceOwnerId) {
+      throw new ConflictException(
+        'This device is already registered. Log in or use another device.',
+      );
+    }
 
     const existingUserByEmail = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
-
-    if (
-      existingUserByEmail &&
-      (!existingUserByDevice ||
-        existingUserByEmail.id !== existingUserByDevice.id)
-    ) {
+    if (existingUserByEmail) {
       throw new ConflictException('Email already registered');
     }
 
-    const user = existingUserByDevice
-      ? await this.prisma.user.update({
-          where: { id: existingUserByDevice.id },
-          data: {
-            email: dto.email,
-            name: dto.name ?? existingUserByDevice.name,
-            deviceId: dto.deviceId,
-            passwordHash,
-          },
-          select: this.userProfileSelect,
-        })
-      : await this.prisma.user.create({
-          data: {
-            email: dto.email,
-            name: dto.name,
-            deviceId: dto.deviceId,
-            passwordHash,
-          },
-          select: this.userProfileSelect,
-        });
+    const passwordHash = await this.hashPassword(dto.password);
+
+    const user = await this.prisma.user.create({
+      data: {
+        email: dto.email,
+        name: dto.name,
+        passwordHash,
+        devices: {
+          create: { deviceId: dto.deviceId },
+        },
+      },
+      select: this.userProfileSelect,
+    });
 
     const { accessToken, refreshToken } = await this.issueAuthTokens(user);
 
     return { user, accessToken, refreshToken };
   }
 
-  private async loginAnonymousByDeviceId(
-    deviceId: string,
-    displayName?: string,
-  ) {
-    const existingUser = await this.prisma.user.findUnique({
-      where: { deviceId },
-      select: this.userProfileSelect,
-    });
+  /**
+   * Device-only registration — one device per account; fails if device already registered.
+   */
+  async registerDeviceAccount(deviceId: string, displayName?: string) {
+    if (!deviceId) {
+      throw new BadRequestException('Device ID is required');
+    }
+
+    const existingOwner = await this.findUserIdByDeviceId(deviceId);
+    if (existingOwner) {
+      throw new ConflictException(
+        'This device is already registered. Log in instead.',
+      );
+    }
 
     const trimmedName = displayName?.trim();
-    const nameForNewUser =
-      trimmedName && trimmedName.length > 0 ? trimmedName : 'Guest';
-
-    const user =
-      existingUser ??
-      (await this.prisma.user.create({
-        data: {
-          deviceId,
-          name: nameForNewUser,
+    const user = await this.prisma.user.create({
+      data: {
+        ...(trimmedName && trimmedName.length > 0
+          ? { name: trimmedName }
+          : {}),
+        devices: {
+          create: { deviceId },
         },
-        select: this.userProfileSelect,
-      }));
+      },
+      select: this.userProfileSelect,
+    });
 
     const { accessToken, refreshToken } = await this.issueAuthTokens(user);
     return { accessToken, refreshToken };
   }
 
-  async anonymousLogin(deviceId: string, displayName?: string) {
+  /**
+   * Device-only login — this device must already be linked to an account.
+   */
+  async loginDeviceAccount(deviceId: string, displayName?: string) {
     if (!deviceId) {
       throw new BadRequestException('Device ID is required');
     }
 
-    return this.loginAnonymousByDeviceId(deviceId, displayName);
+    const userId = await this.findUserIdByDeviceId(deviceId);
+    if (!userId) {
+      throw new NotFoundException(
+        'No account for this device. Register on this device first.',
+      );
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: this.userProfileSelect,
+    });
+    if (!user) {
+      throw new NotFoundException(
+        'No account for this device. Register on this device first.',
+      );
+    }
+
+    const trimmed = displayName?.trim();
+    if (trimmed && trimmed.length > 0 && user.name !== trimmed) {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { name: trimmed },
+      });
+    }
+
+    const { accessToken, refreshToken } = await this.issueAuthTokens(user);
+    return { accessToken, refreshToken };
+  }
+
+  /**
+   * Silent bootstrap for the mobile app: issue tokens only if this device belongs to a
+   * user without email (device-only account). Email/password accounts must sign in explicitly.
+   */
+  async autoLoginDeviceOnlyUser(deviceId: string) {
+    if (!deviceId) {
+      throw new BadRequestException('Device ID is required');
+    }
+
+    const userId = await this.findUserIdByDeviceId(deviceId);
+    if (!userId) {
+      throw new NotFoundException(
+        'No account for this device. Register on this device first.',
+      );
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: this.userProfileSelect,
+    });
+    if (!user) {
+      throw new NotFoundException(
+        'No account for this device. Register on this device first.',
+      );
+    }
+
+    const hasEmail = Boolean(user.email?.trim());
+    if (hasEmail) {
+      throw new ForbiddenException(
+        'This account uses email sign-in. Please log in with your email.',
+      );
+    }
+
+    const { accessToken, refreshToken } = await this.issueAuthTokens(user);
+    return { accessToken, refreshToken };
   }
 
   async login(dto: LoginFormModel & DeviceLoginInput) {
     if (dto.deviceId && (!dto.email || !dto.password)) {
-      return this.anonymousLogin(dto.deviceId);
+      return this.loginDeviceAccount(dto.deviceId);
     }
 
     if (!dto.email || !dto.password || !dto.deviceId) {
@@ -205,7 +333,6 @@ export class AuthService {
       where: { email: dto.email },
       select: {
         ...this.userProfileSelect,
-        deviceId: true,
         passwordHash: true,
       },
     });
@@ -226,14 +353,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    if (!user.deviceId) {
-      await this.prisma.user.update({
-        where: { id: user.id },
-        data: { deviceId: dto.deviceId },
-      });
-    } else if (user.deviceId !== dto.deviceId) {
-      throw new UnauthorizedException('Device mismatch');
-    }
+    await this.linkDeviceToUser(user.id, dto.deviceId);
 
     const { accessToken, refreshToken } = await this.issueAuthTokens(user);
 

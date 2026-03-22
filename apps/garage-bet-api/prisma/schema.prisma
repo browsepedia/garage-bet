@@ -42,8 +42,6 @@ enum FriendshipStatus {
 model User {
     id           String  @id @default(cuid())
     email        String? @unique
-    deviceId     String? @unique
-    username     String? @unique
     name         String?
     avatarUrl    String?
     passwordHash String?
@@ -55,13 +53,27 @@ model User {
     refreshTokens     RefreshToken[]
     bets              Bet[]
     finalPlayerBets   FinalPlayerBet[]
+    devices           UserDevice[]
 
     friendshipsSent     Friendship[] @relation("friendshipsSent")
     friendshipsReceived Friendship[] @relation("friendshipsReceived")
 
     @@index([email])
-    @@index([deviceId])
-    @@index([username])
+}
+
+/// One row per physical device; a user may have many devices (push / reminders).
+model UserDevice {
+    id        String   @id @default(cuid())
+    userId    String
+    deviceId  String   @unique
+    /// Expo push token for this device (Expo Push API / FCM / APNs via Expo).
+    expoPushToken          String?
+    expoPushTokenUpdatedAt DateTime?
+    createdAt              DateTime @default(now())
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
 }
 
 model AuthAccount {

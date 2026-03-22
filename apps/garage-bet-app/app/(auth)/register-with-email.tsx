@@ -1,11 +1,12 @@
 import { RegisterSchema } from '@garage-bet/models';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { router } from 'expo-router';
+import { useState } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Button } from '../../components/Button';
 import { Screen } from '../../components/Screen';
 import { ThemedInput } from '../../components/ThemedInput';
+import { ApiError } from '../../utils/http-client';
 import { useRegisterMutation } from '../../mutations/register.mutation';
 import { useDeviceId } from '../../utils/use-device-id.hook';
 
@@ -14,17 +15,6 @@ export default function RegisterWithEmail() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
-
-  const { name: nameParam } = useLocalSearchParams<{ name?: string | string[] }>();
-  const displayName = useMemo(() => {
-    const raw = Array.isArray(nameParam) ? nameParam[0] : nameParam;
-    if (!raw) return undefined;
-    try {
-      return decodeURIComponent(raw);
-    } catch {
-      return raw;
-    }
-  }, [nameParam]);
 
   const { mutateAsync: register, isPending } = useRegisterMutation();
   const deviceId = useDeviceId();
@@ -41,7 +31,6 @@ export default function RegisterWithEmail() {
     const parsed = RegisterSchema.safeParse({
       email: email.trim(),
       password,
-      name: displayName,
       deviceId,
     });
 
@@ -58,8 +47,12 @@ export default function RegisterWithEmail() {
 
     try {
       await register(parsed.data);
-    } catch {
-      setFormError('Registration failed. Try again or use a different email.');
+    } catch (e: unknown) {
+      if (e instanceof ApiError) {
+        setFormError(e.message);
+      } else {
+        setFormError('Registration failed. Try again or use a different email.');
+      }
     }
   };
 
@@ -73,11 +66,6 @@ export default function RegisterWithEmail() {
         <Text variant="headlineLarge" style={{ fontWeight: 'bold' }}>
           Register
         </Text>
-        {displayName ? (
-          <Text variant="bodyMedium" style={{ color: '#a1a1aa' }}>
-            Name: {displayName}
-          </Text>
-        ) : null}
         <ThemedInput
           placeholder="Email"
           value={email}

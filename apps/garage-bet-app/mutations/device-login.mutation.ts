@@ -1,20 +1,18 @@
-import {
-  AnonymousRegisterFormModel,
-  LoginResponseModel,
-} from '@garage-bet/models';
+import { LoginResponseModel } from '@garage-bet/models';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { setTokens } from '../storage/token-storage';
+import { getOrCreateDeviceId, setTokens } from '../storage/token-storage';
 import { apiJson } from '../utils/http-client';
 
-export function useAnonymousRegisterMutation() {
+export function useDeviceLoginMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (input: AnonymousRegisterFormModel) => {
-      const data = await apiJson<LoginResponseModel>('/auth/anonymous', {
+    mutationFn: async () => {
+      const deviceId = await getOrCreateDeviceId();
+      const data = await apiJson<LoginResponseModel>('/auth/device/login', {
         method: 'POST',
-        body: JSON.stringify(input),
+        body: JSON.stringify({ deviceId }),
       });
 
       await setTokens({

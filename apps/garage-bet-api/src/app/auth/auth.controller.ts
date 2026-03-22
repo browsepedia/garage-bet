@@ -1,9 +1,9 @@
 import { LoginFormModel, RegisterFormModel } from '@garage-bet/models';
-import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
 type LoginRequestBody = LoginFormModel & { deviceId?: string };
-type AnonymousLoginBody = { deviceId: string; name?: string };
+type DeviceAuthBody = { deviceId: string; name?: string };
 
 @Controller('auth')
 export class AuthController {
@@ -16,15 +16,27 @@ export class AuthController {
 
   @Post('login')
   login(@Body() dto: LoginRequestBody) {
-    try {
-      return this.service.login(dto);
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
+    return this.service.login(dto);
   }
 
-  @Post('anonymous')
-  anonymousLogin(@Body() dto: AnonymousLoginBody) {
-    return this.service.anonymousLogin(dto.deviceId, dto.name);
+  /** Device-only account: device must not already be registered. */
+  @Post('device/register')
+  registerDevice(@Body() dto: DeviceAuthBody) {
+    return this.service.registerDeviceAccount(dto.deviceId, dto.name);
+  }
+
+  /** Device-only account: device must already be registered (same device). */
+  @Post('device/login')
+  deviceLogin(@Body() dto: DeviceAuthBody) {
+    return this.service.loginDeviceAccount(dto.deviceId, dto.name);
+  }
+
+  /**
+   * App cold start: returns tokens only for device-only users (no email).
+   * Returns 403 if the device is linked to an email account (must use email login).
+   */
+  @Post('device/auto')
+  deviceAutoLogin(@Body() dto: { deviceId: string }) {
+    return this.service.autoLoginDeviceOnlyUser(dto.deviceId);
   }
 }

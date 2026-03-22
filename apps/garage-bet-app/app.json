@@ -7,7 +7,7 @@
     "orientation": "portrait",
     "scheme": "garage-bet-app",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "jsEngine": "hermes",
     "ios": {
       "supportsTablet": true,
@@ -29,6 +29,14 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#EA580C",
+          "defaultChannel": "default"
+        }
+      ],
       [
         "expo-splash-screen",
         {

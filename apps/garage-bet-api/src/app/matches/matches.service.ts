@@ -76,7 +76,7 @@ function getBetStatus(
   result: { homeScore: number; awayScore: number },
 ): MatchData['betStatus'] {
   if (!bet) {
-    return matchStatus === MatchStatus.FINISHED ? 'UNSET' : 'PENDING';
+    return 'UNSET';
   }
 
   if (matchStatus !== MatchStatus.FINISHED) {

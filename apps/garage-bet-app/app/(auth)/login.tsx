@@ -2,6 +2,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { LoginFormModel, LoginSchema } from '@garage-bet/models';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   ActivityIndicator,
@@ -13,10 +14,14 @@ import { Text } from 'react-native-paper';
 import { Button } from '../../components/Button';
 import { Screen } from '../../components/Screen';
 import { ThemedInput } from '../../components/ThemedInput';
+import { useDeviceLoginMutation } from '../../mutations/device-login.mutation';
 import { useLoginMutation } from '../../mutations/login.mutation';
 
 export default function Login() {
+  const [deviceLoginError, setDeviceLoginError] = useState<string | null>(null);
   const { mutateAsync: login, isPending: isLoading } = useLoginMutation();
+  const { mutateAsync: deviceLogin, isPending: isDeviceLoginLoading } =
+    useDeviceLoginMutation();
 
   const {
     control,
@@ -98,6 +103,43 @@ export default function Login() {
             <ActivityIndicator size="small" color="#ffffff" />
           ) : (
             'Login'
+          )}
+        </Button>
+
+        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+          <Text>or</Text>
+        </View>
+
+        {deviceLoginError ? (
+          <View
+            style={{
+              padding: 8,
+              paddingHorizontal: 16,
+              backgroundColor: '#7f1d1d',
+            }}
+          >
+            <Text style={{ color: '#fca5a5' }}>{deviceLoginError}</Text>
+          </View>
+        ) : null}
+
+        <Button
+          mode="outlined"
+          disabled={isDeviceLoginLoading}
+          onPress={async () => {
+            setDeviceLoginError(null);
+            try {
+              await deviceLogin();
+            } catch (e: unknown) {
+              setDeviceLoginError(
+                e instanceof Error ? e.message : 'Device login failed.',
+              );
+            }
+          }}
+        >
+          {isDeviceLoginLoading ? (
+            <ActivityIndicator size="small" />
+          ) : (
+            'Device login (same device)'
           )}
         </Button>
 

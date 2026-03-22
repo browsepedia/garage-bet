@@ -4,6 +4,8 @@ import { Platform } from 'react-native';
 const ACCESS_KEY = 'garage-bet-access-token';
 const REFRESH_KEY = 'garage-bet-refresh-token';
 const DEVICE_KEY = 'garage-bet-device-key';
+/** Last `{deviceId}:{expoPushToken}` successfully sent to the API (avoids duplicate POSTs). */
+const PUSH_TOKEN_SYNC_KEY = 'garage-bet-push-token-sync';
 const KEYCHAIN_OPTIONS: SecureStore.SecureStoreOptions = {
   keychainService: 'com.browsepedia.garagebet',
 };
@@ -41,7 +43,28 @@ export async function clearTokens() {
   await Promise.allSettled([
     SecureStore.deleteItemAsync(ACCESS_KEY, KEYCHAIN_OPTIONS),
     SecureStore.deleteItemAsync(REFRESH_KEY, KEYCHAIN_OPTIONS),
+    SecureStore.deleteItemAsync(PUSH_TOKEN_SYNC_KEY, KEYCHAIN_OPTIONS),
   ]);
+}
+
+export async function getLastSyncedExpoPushSignature() {
+  try {
+    return await SecureStore.getItemAsync(PUSH_TOKEN_SYNC_KEY, KEYCHAIN_OPTIONS);
+  } catch {
+    return null;
+  }
+}
+
+export async function setLastSyncedExpoPushSignature(signature: string) {
+  try {
+    await SecureStore.setItemAsync(
+      PUSH_TOKEN_SYNC_KEY,
+      signature,
+      KEYCHAIN_OPTIONS,
+    );
+  } catch {
+    // ignore
+  }
 }
 
 type ApplicationLike = {

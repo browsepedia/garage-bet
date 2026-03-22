@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Redirect, router, Tabs, useSegments } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
+import { ExpoPushTokenSync } from '../../components/ExpoPushTokenSync';
 import Header from '../../components/Header';
 import {
   clearTokens,
@@ -102,6 +103,8 @@ export default function AppLayout() {
   }
 
   return (
+    <>
+      <ExpoPushTokenSync enabled={Boolean(meQuery.data?.id)} />
     <Tabs
       screenOptions={{
         headerShown: true,
@@ -170,5 +173,6 @@ export default function AppLayout() {
         }}
       />
     </Tabs>
+    </>
   );
 }

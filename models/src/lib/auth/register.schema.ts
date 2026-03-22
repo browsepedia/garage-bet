@@ -19,11 +19,10 @@ export const RegisterSchema = zod.object({
 
 export type RegisterFormModel = zod.infer<typeof RegisterSchema>;
 
-export const AnonymousRegisterSchema = zod.object({
+/** Device-only account: one device per user; optional display name. */
+export const DeviceRegisterSchema = zod.object({
   deviceId: zod.string().min(1, 'Device ID is required'),
-  name: zod.string(),
+  name: zod.string().optional(),
 });
 
-export type AnonymousRegisterFormModel = zod.infer<
-  typeof AnonymousRegisterSchema
->;
+export type DeviceRegisterFormModel = zod.infer<typeof DeviceRegisterSchema>;

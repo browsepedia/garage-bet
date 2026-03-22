@@ -4,16 +4,16 @@ import { TouchableOpacity, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Button } from '../../components/Button';
 import { Screen } from '../../components/Screen';
-import { ThemedInput } from '../../components/ThemedInput';
-import { useAnonymousRegisterMutation } from '../../mutations/annonymous-register.mutation';
+import { useDeviceRegisterMutation } from '../../mutations/device-register.mutation';
 import { useDeviceId } from '../../utils/use-device-id.hook';
 
 export default function Register() {
-  const [name, setName] = useState('');
+  const [deviceError, setDeviceError] = useState<string | null>(null);
   const deviceId = useDeviceId();
 
-  const { mutateAsync: anonymousRegister } = useAnonymousRegisterMutation();
-  const canSubmit = Boolean(name.trim()) && Boolean(deviceId);
+  const { mutateAsync: registerDevice, isPending: isDeviceRegistering } =
+    useDeviceRegisterMutation();
+  const canSubmit = Boolean(deviceId);
 
   return (
     <Screen
@@ -25,21 +25,12 @@ export default function Register() {
         <Text variant="headlineLarge" style={{ fontWeight: 'bold' }}>
           Register
         </Text>
-        <ThemedInput
-          placeholder="Name"
-          value={name}
-          onChangeText={(text) => setName(text)}
-        />
 
         <View style={{ justifyContent: 'center', gap: 16 }}>
           <Button
             mode="contained"
             disabled={!canSubmit}
-            onPress={() =>
-              router.replace(
-                `/(auth)/register-with-email?name=${encodeURIComponent(name.trim())}`,
-              )
-            }
+            onPress={() => router.replace('/(auth)/register-with-email')}
             style={{ backgroundColor: '#EA580C' }}
           >
             Continue with email
@@ -49,20 +40,42 @@ export default function Register() {
             <Text>or</Text>
           </View>
 
+          {deviceError ? (
+            <View
+              style={{
+                padding: 8,
+                paddingHorizontal: 16,
+                backgroundColor: '#7f1d1d',
+              }}
+            >
+              <Text style={{ color: '#fca5a5' }}>{deviceError}</Text>
+            </View>
+          ) : null}
+
           <Button
-            disabled={!canSubmit}
+            disabled={!canSubmit || isDeviceRegistering}
             mode="outlined"
-            onPress={() => anonymousRegister({ deviceId, name: name.trim() })}
+            onPress={async () => {
+              if (!deviceId) return;
+              setDeviceError(null);
+              try {
+                await registerDevice({ deviceId });
+              } catch (e: unknown) {
+                const msg =
+                  e instanceof Error ? e.message : 'Registration failed.';
+                setDeviceError(msg);
+              }
+            }}
           >
-            Continue without email
+            Continue with device only
           </Button>
 
           <Text
             variant="bodyMedium"
             style={{ color: '#a1a1aa', textAlign: 'center' }}
           >
-            Without an email you will not receive email notifications and
-            reminders.
+            Device-only accounts are tied to this phone. Without an email you
+            will not receive email notifications and reminders.
           </Text>
         </View>
 
