@@ -35,8 +35,8 @@ const prisma = new PrismaClient({ adapter });
 const fixtures = [
   // Group A
   {
-    group: 'A',  
-    date: '2026-11-20',
+    group: 'A',
+    date: '2026-03-23',
     time: '19:00',
     home: 'Qatar',
     away: 'Ecuador',
@@ -45,7 +45,7 @@ const fixtures = [
   },
   {
     group: 'A',
-    date: '2026-11-21',
+    date: '2026-03-24',
     time: '19:00',
     home: 'Senegal',
     away: 'Netherlands',
@@ -54,7 +54,7 @@ const fixtures = [
   },
   {
     group: 'A',
-    date: '2026-11-25',
+    date: '2026-03-28',
     time: '16:00',
     home: 'Qatar',
     away: 'Senegal',
@@ -63,7 +63,7 @@ const fixtures = [
   },
   {
     group: 'A',
-    date: '2026-11-25',
+    date: '2026-03-28',
     time: '19:00',
     home: 'Netherlands',
     away: 'Ecuador',
@@ -72,7 +72,7 @@ const fixtures = [
   },
   {
     group: 'A',
-    date: '2026-11-29',
+    date: '2026-04-01',
     time: '18:00',
     home: 'Netherlands',
     away: 'Qatar',
@@ -81,7 +81,7 @@ const fixtures = [
   },
   {
     group: 'A',
-    date: '2026-11-29',
+    date: '2026-04-01',
     time: '18:00',
     home: 'Ecuador',
     away: 'Senegal',
@@ -92,7 +92,7 @@ const fixtures = [
   // Group B
   {
     group: 'B',
-    date: '2026-11-21',
+    date: '2026-03-24',
     time: '16:00',
     home: 'England',
     away: 'Iran',
@@ -101,7 +101,7 @@ const fixtures = [
   },
   {
     group: 'B',
-    date: '2026-11-21',
+    date: '2026-03-24',
     time: '22:00',
     home: 'USA',
     away: 'Wales',
@@ -110,7 +110,7 @@ const fixtures = [
   },
   {
     group: 'B',
-    date: '2026-11-25',
+    date: '2026-03-28',
     time: '13:00',
     home: 'Wales',
     away: 'Iran',
@@ -119,7 +119,7 @@ const fixtures = [
   },
   {
     group: 'B',
-    date: '2026-11-25',
+    date: '2026-03-28',
     time: '22:00',
     home: 'England',
     away: 'USA',
@@ -128,7 +128,7 @@ const fixtures = [
   },
   {
     group: 'B',
-    date: '2026-11-29',
+    date: '2026-04-01',
     time: '22:00',
     home: 'Wales',
     away: 'England',
@@ -137,7 +137,7 @@ const fixtures = [
   },
   {
     group: 'B',
-    date: '2026-11-29',
+    date: '2026-04-01',
     time: '22:00',
     home: 'Iran',
     away: 'USA',
@@ -148,7 +148,7 @@ const fixtures = [
   // Group C
   {
     group: 'C',
-    date: '2026-11-22',
+    date: '2026-03-25',
     time: '13:00',
     home: 'Argentina',
     away: 'Saudi Arabia',
@@ -157,7 +157,7 @@ const fixtures = [
   },
   {
     group: 'C',
-    date: '2026-11-22',
+    date: '2026-03-25',
     time: '19:00',
     home: 'Mexico',
     away: 'Poland',
@@ -166,7 +166,7 @@ const fixtures = [
   },
   {
     group: 'C',
-    date: '2026-11-26',
+    date: '2026-03-29',
     time: '16:00',
     home: 'Poland',
     away: 'Saudi Arabia',
@@ -175,7 +175,7 @@ const fixtures = [
   },
   {
     group: 'C',
-    date: '2026-11-26',
+    date: '2026-03-29',
     time: '22:00',
     home: 'Argentina',
     away: 'Mexico',
@@ -184,7 +184,7 @@ const fixtures = [
   },
   {
     group: 'C',
-    date: '2026-11-30',
+    date: '2026-04-02',
     time: '22:00',
     home: 'Poland',
     away: 'Argentina',
@@ -193,7 +193,7 @@ const fixtures = [
   },
   {
     group: 'C',
-    date: '2026-11-30',
+    date: '2026-04-02',
     time: '22:00',
     home: 'Saudi Arabia',
     away: 'Mexico',
@@ -204,7 +204,7 @@ const fixtures = [
   // Group D
   {
     group: 'D',
-    date: '2026-11-22',
+    date: '2026-03-25',
     time: '16:00',
     home: 'Denmark',
     away: 'Tunisia',
@@ -213,7 +213,7 @@ const fixtures = [
   },
   {
     group: 'D',
-    date: '2026-11-22',
+    date: '2026-03-25',
     time: '22:00',
     home: 'France',
     away: 'Australia',
@@ -222,7 +222,7 @@ const fixtures = [
   },
   {
     group: 'D',
-    date: '2026-11-26',
+    date: '2026-03-29',
     time: '13:00',
     home: 'Tunisia',
     away: 'Australia',
@@ -231,7 +231,7 @@ const fixtures = [
   },
   {
     group: 'D',
-    date: '2026-11-26',
+    date: '2026-03-29',
     time: '19:00',
     home: 'France',
     away: 'Denmark',
@@ -240,7 +240,7 @@ const fixtures = [
   },
   {
     group: 'D',
-    date: '2026-11-30',
+    date: '2026-04-02',
     time: '18:00',
     home: 'Australia',
     away: 'Denmark',
@@ -249,7 +249,7 @@ const fixtures = [
   },
   {
     group: 'D',
-    date: '2026-11-30',
+    date: '2026-04-02',
     time: '18:00',
     home: 'Tunisia',
     away: 'France',
@@ -260,7 +260,7 @@ const fixtures = [
   // Group E
   {
     group: 'E',
-    date: '2026-11-23',
+    date: '2026-03-26',
     time: '16:00',
     home: 'Germany',
     away: 'Japan',
@@ -269,7 +269,7 @@ const fixtures = [
   },
   {
     group: 'E',
-    date: '2026-11-23',
+    date: '2026-03-26',
     time: '19:00',
     home: 'Spain',
     away: 'Costa Rica',
@@ -278,7 +278,7 @@ const fixtures = [
   },
   {
     group: 'E',
-    date: '2026-11-27',
+    date: '2026-03-30',
     time: '13:00',
     home: 'Japan',
     away: 'Costa Rica',
@@ -287,7 +287,7 @@ const fixtures = [
   },
   {
     group: 'E',
-    date: '2026-11-27',
+    date: '2026-03-30',
     time: '22:00',
     home: 'Spain',
     away: 'Germany',
@@ -296,7 +296,7 @@ const fixtures = [
   },
   {
     group: 'E',
-    date: '2026-12-01',
+    date: '2026-04-03',
     time: '22:00',
     home: 'Japan',
     away: 'Spain',
@@ -305,7 +305,7 @@ const fixtures = [
   },
   {
     group: 'E',
-    date: '2026-12-01',
+    date: '2026-04-03',
     time: '22:00',
     home: 'Costa Rica',
     away: 'Germany',
@@ -316,7 +316,7 @@ const fixtures = [
   // Group F
   {
     group: 'F',
-    date: '2026-11-23',
+    date: '2026-03-26',
     time: '13:00',
     home: 'Morocco',
     away: 'Croatia',
@@ -325,7 +325,7 @@ const fixtures = [
   },
   {
     group: 'F',
-    date: '2026-11-23',
+    date: '2026-03-26',
     time: '22:00',
     home: 'Belgium',
     away: 'Canada',
@@ -334,7 +334,7 @@ const fixtures = [
   },
   {
     group: 'F',
-    date: '2026-11-27',
+    date: '2026-03-30',
     time: '16:00',
     home: 'Belgium',
     away: 'Morocco',
@@ -343,7 +343,7 @@ const fixtures = [
   },
   {
     group: 'F',
-    date: '2026-11-27',
+    date: '2026-03-30',
     time: '19:00',
     home: 'Croatia',
     away: 'Canada',
@@ -352,7 +352,7 @@ const fixtures = [
   },
   {
     group: 'F',
-    date: '2026-12-01',
+    date: '2026-04-03',
     time: '18:00',
     home: 'Croatia',
     away: 'Belgium',
@@ -361,7 +361,7 @@ const fixtures = [
   },
   {
     group: 'F',
-    date: '2026-12-01',
+    date: '2026-04-03',
     time: '18:00',
     home: 'Canada',
     away: 'Morocco',
@@ -372,7 +372,7 @@ const fixtures = [
   // Group G
   {
     group: 'G',
-    date: '2026-11-24',
+    date: '2026-03-27',
     time: '13:00',
     home: 'Switzerland',
     away: 'Cameroon',
@@ -381,7 +381,7 @@ const fixtures = [
   },
   {
     group: 'G',
-    date: '2026-11-24',
+    date: '2026-03-27',
     time: '22:00',
     home: 'Brazil',
     away: 'Serbia',
@@ -390,7 +390,7 @@ const fixtures = [
   },
   {
     group: 'G',
-    date: '2026-11-28',
+    date: '2026-03-31',
     time: '13:00',
     home: 'Cameroon',
     away: 'Serbia',
@@ -399,7 +399,7 @@ const fixtures = [
   },
   {
     group: 'G',
-    date: '2026-11-28',
+    date: '2026-03-31',
     time: '19:00',
     home: 'Brazil',
     away: 'Switzerland',
@@ -408,7 +408,7 @@ const fixtures = [
   },
   {
     group: 'G',
-    date: '2026-12-02',
+    date: '2026-04-04',
     time: '22:00',
     home: 'Serbia',
     away: 'Switzerland',
@@ -417,7 +417,7 @@ const fixtures = [
   },
   {
     group: 'G',
-    date: '2026-12-02',
+    date: '2026-04-04',
     time: '22:00',
     home: 'Cameroon',
     away: 'Brazil',
@@ -428,7 +428,7 @@ const fixtures = [
   // Group H
   {
     group: 'H',
-    date: '2026-11-24',
+    date: '2026-03-27',
     time: '16:00',
     home: 'Uruguay',
     away: 'South Korea',
@@ -437,7 +437,7 @@ const fixtures = [
   },
   {
     group: 'H',
-    date: '2026-11-24',
+    date: '2026-03-27',
     time: '19:00',
     home: 'Portugal',
     away: 'Ghana',
@@ -446,7 +446,7 @@ const fixtures = [
   },
   {
     group: 'H',
-    date: '2026-11-28',
+    date: '2026-03-31',
     time: '16:00',
     home: 'South Korea',
     away: 'Ghana',
@@ -455,7 +455,7 @@ const fixtures = [
   },
   {
     group: 'H',
-    date: '2026-11-28',
+    date: '2026-03-31',
     time: '22:00',
     home: 'Portugal',
     away: 'Uruguay',
@@ -464,7 +464,7 @@ const fixtures = [
   },
   {
     group: 'H',
-    date: '2026-12-02',
+    date: '2026-04-04',
     time: '18:00',
     home: 'South Korea',
     away: 'Portugal',
@@ -473,7 +473,7 @@ const fixtures = [
   },
   {
     group: 'H',
-    date: '2026-12-02',
+    date: '2026-04-04',
     time: '18:00',
     home: 'Ghana',
     away: 'Uruguay',
