@@ -15,7 +15,6 @@ export function useDeviceRegistrationStatusQuery() {
     queryFn: async (): Promise<DeviceStatusResponse> => {
       const deviceId = (await getOrCreateDeviceId()).trim();
 
-      console.log('deviceId', deviceId);
       if (!deviceId) {
         return { registered: false, user: null };
       }
@@ -29,6 +28,7 @@ export function useDeviceRegistrationStatusQuery() {
           },
         );
 
+        console.log('result', result);
         return result;
       } catch (error) {
         console.log('error', error);

@@ -7,6 +7,7 @@ import { Text } from 'react-native-paper';
 import { Button } from '../../components/Button';
 import { Screen } from '../../components/Screen';
 import { ThemedInput } from '../../components/ThemedInput';
+import { useDeviceLoginMutation } from '../../mutations/device-login.mutation';
 import { useLoginMutation } from '../../mutations/login.mutation';
 import { useDeviceRegistrationStatusQuery } from '../../queries/device-registration-status.query';
 
@@ -17,6 +18,17 @@ export default function Login() {
 
   const deviceAlreadyRegistered =
     isSuccess && deviceStatus?.registered === true;
+
+  const { mutateAsync: deviceLogin } = useDeviceLoginMutation();
+
+  const onDeviceLogin = async () => {
+    try {
+      await deviceLogin();
+      router.replace('/(app)/home');
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const {
     control,
@@ -115,8 +127,14 @@ export default function Login() {
             }
           }}
         >
-          Register
+          {deviceAlreadyRegistered ? 'Register with email' : 'Register'}
         </Button>
+
+        {deviceAlreadyRegistered ? (
+          <Button mode="contained" onPress={onDeviceLogin}>
+            Login with device
+          </Button>
+        ) : null}
       </View>
     </Screen>
   );

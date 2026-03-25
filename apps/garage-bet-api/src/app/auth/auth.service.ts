@@ -8,6 +8,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { User } from '@prisma/client';
 import { createHash, randomBytes, scrypt, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
 import { PrismaService } from '../services/prisma-service';
@@ -88,12 +89,13 @@ export class AuthService {
   }
 
   /** Returns userId that owns this device, if any. */
-  private async findUserIdByDeviceId(deviceId: string): Promise<string | null> {
+  private async findUserIdByDeviceId(deviceId: string): Promise<User | null> {
     const row = await this.prisma.userDevice.findUnique({
       where: { deviceId },
-      select: { userId: true },
+      select: { userId: true, user: true },
     });
-    return row?.userId ?? null;
+
+    return row?.user ?? null;
   }
 
   /**
@@ -220,8 +222,8 @@ export class AuthService {
     if (!trimmed) {
       throw new BadRequestException('Device ID is required');
     }
-    const userId = await this.findUserIdByDeviceId(trimmed);
-    return { registered: Boolean(userId) };
+    const user = await this.findUserIdByDeviceId(trimmed);
+    return { registered: Boolean(user) && user?.email === null, user };
   }
 
   /**
@@ -270,7 +272,7 @@ export class AuthService {
     }
 
     const user = await this.prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: userId.id },
       select: this.userProfileSelect,
     });
     if (!user) {
@@ -282,7 +284,7 @@ export class AuthService {
     const trimmed = displayName?.trim();
     if (trimmed && trimmed.length > 0 && user.name !== trimmed) {
       await this.prisma.user.update({
-        where: { id: userId },
+        where: { id: userId.id },
         data: { name: trimmed },
       });
     }
@@ -300,17 +302,7 @@ export class AuthService {
       throw new BadRequestException('Device ID is required');
     }
 
-    const userId = await this.findUserIdByDeviceId(deviceId);
-    if (!userId) {
-      throw new NotFoundException(
-        'No account for this device. Register on this device first.',
-      );
-    }
-
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: this.userProfileSelect,
-    });
+    const user = await this.findUserIdByDeviceId(deviceId);
     if (!user) {
       throw new NotFoundException(
         'No account for this device. Register on this device first.',
