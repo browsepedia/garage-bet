@@ -6,8 +6,8 @@ import { Text } from 'react-native-paper';
 import { Button } from '../../components/Button';
 import { Screen } from '../../components/Screen';
 import { ThemedInput } from '../../components/ThemedInput';
-import { ApiError } from '../../utils/http-client';
 import { useRegisterMutation } from '../../mutations/register.mutation';
+import { ApiError } from '../../utils/http-client';
 import { useDeviceId } from '../../utils/use-device-id.hook';
 
 export default function RegisterWithEmail() {
@@ -17,9 +17,10 @@ export default function RegisterWithEmail() {
   const [formError, setFormError] = useState<string | null>(null);
 
   const { mutateAsync: register, isPending } = useRegisterMutation();
-  const deviceId = useDeviceId();
+  const { deviceId, isDeviceIdReady } = useDeviceId();
 
   const canSubmit =
+    isDeviceIdReady &&
     Boolean(deviceId) &&
     Boolean(email.trim()) &&
     Boolean(password) &&
@@ -51,7 +52,9 @@ export default function RegisterWithEmail() {
       if (e instanceof ApiError) {
         setFormError(e.message);
       } else {
-        setFormError('Registration failed. Try again or use a different email.');
+        setFormError(
+          'Registration failed. Try again or use a different email.',
+        );
       }
     }
   };

@@ -7,14 +7,18 @@ import { useDeviceRegistrationStatusQuery } from '../../queries/device-registrat
 import { useDeviceId } from '../../utils/use-device-id.hook';
 
 export default function Register() {
-  const deviceId = useDeviceId();
+  const { deviceId } = useDeviceId();
 
-  const { data: deviceStatus } = useDeviceRegistrationStatusQuery(deviceId);
-  const deviceAlreadyRegistered = deviceStatus?.registered === true;
+  const { data: deviceStatus, isSuccess } = useDeviceRegistrationStatusQuery();
+
+  const deviceAlreadyRegistered =
+    isSuccess && deviceStatus?.registered === true;
 
   const canSubmit = Boolean(deviceId);
 
   const showDeviceOnlyPath = canSubmit && !deviceAlreadyRegistered;
+
+  console.log('deviceAlreadyRegistered', deviceAlreadyRegistered, isSuccess);
 
   return (
     <Screen

@@ -214,6 +214,16 @@ export class AuthService {
     return { user, accessToken, refreshToken };
   }
 
+  /** Public check for the app register screen (no tokens). */
+  async getDeviceRegistrationStatus(deviceId: string) {
+    const trimmed = deviceId?.trim();
+    if (!trimmed) {
+      throw new BadRequestException('Device ID is required');
+    }
+    const userId = await this.findUserIdByDeviceId(trimmed);
+    return { registered: Boolean(userId) };
+  }
+
   /**
    * Device-only registration — one device per account; fails if device already registered.
    */
@@ -232,9 +242,7 @@ export class AuthService {
     const trimmedName = displayName?.trim();
     const user = await this.prisma.user.create({
       data: {
-        ...(trimmedName && trimmedName.length > 0
-          ? { name: trimmedName }
-          : {}),
+        ...(trimmedName && trimmedName.length > 0 ? { name: trimmedName } : {}),
         devices: {
           create: { deviceId },
         },

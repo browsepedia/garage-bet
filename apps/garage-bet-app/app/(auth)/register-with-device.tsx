@@ -11,7 +11,7 @@ import { ApiError } from '../../utils/http-client';
 import { useDeviceId } from '../../utils/use-device-id.hook';
 
 export default function RegisterWithDevice() {
-  const deviceId = useDeviceId();
+  const { deviceId, isDeviceIdReady } = useDeviceId();
   const [name, setName] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
   const { mutateAsync: registerDevice, isPending } =
@@ -77,7 +77,7 @@ export default function RegisterWithDevice() {
         <View style={{ justifyContent: 'center', gap: 16 }}>
           <Button
             mode="contained"
-            disabled={isPending}
+            disabled={isPending || !isDeviceIdReady || !deviceId}
             onPress={onRegister}
             style={{ backgroundColor: '#EA580C' }}
           >

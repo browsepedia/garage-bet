@@ -19,6 +19,12 @@ export class AuthController {
     return this.service.login(dto);
   }
 
+  /** Whether this device id is already linked to an account (no auth / no tokens). */
+  @Post('device/status')
+  deviceStatus(@Body() dto: { deviceId: string }) {
+    return this.service.getDeviceRegistrationStatus(dto.deviceId);
+  }
+
   /** Device-only account: device must not already be registered. */
   @Post('device/register')
   registerDevice(@Body() dto: DeviceAuthBody) {

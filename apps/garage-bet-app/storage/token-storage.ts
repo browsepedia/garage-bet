@@ -49,7 +49,10 @@ export async function clearTokens() {
 
 export async function getLastSyncedExpoPushSignature() {
   try {
-    return await SecureStore.getItemAsync(PUSH_TOKEN_SYNC_KEY, KEYCHAIN_OPTIONS);
+    return await SecureStore.getItemAsync(
+      PUSH_TOKEN_SYNC_KEY,
+      KEYCHAIN_OPTIONS,
+    );
   } catch {
     return null;
   }
@@ -74,10 +77,31 @@ type ApplicationLike = {
   getIosIdForVendorAsync?: () => Promise<string | null>;
 };
 
+const EXPO_APPLICATION_IMPORT_MS = 5000;
+
+async function importExpoApplicationOrNull(): Promise<
+  typeof import('expo-application') | null
+> {
+  try {
+    const mod = await Promise.race([
+      import('expo-application'),
+      new Promise<null>((resolve) =>
+        setTimeout(() => resolve(null), EXPO_APPLICATION_IMPORT_MS),
+      ),
+    ]);
+    return mod;
+  } catch {
+    return null;
+  }
+}
+
 async function getPersistentOsDeviceId() {
   // Dynamic import: expo-application can crash on iPhone 16 Pro at startup.
   // Defer until auth flow so index screen (getAccessToken only) loads without it.
-  const Application = await import('expo-application');
+  const Application = await importExpoApplicationOrNull();
+  if (!Application) {
+    return null;
+  }
   const app = Application as unknown as ApplicationLike;
 
   if (Platform.OS === 'android') {

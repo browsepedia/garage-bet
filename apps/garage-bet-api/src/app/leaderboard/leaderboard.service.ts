@@ -1,5 +1,5 @@
 import { LeaderboardEntry } from '@garage-bet/models';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { MatchStatus } from '@prisma/client';
 import { scoreFinalBet } from '../final-bets/final-bet-scoring';
 import { PrismaService } from '../services/prisma-service';
@@ -14,7 +14,22 @@ export class LeaderboardService {
 
   async getLeaderboard(page = 0): Promise<LeaderboardEntry[]> {
     const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 0;
+    const full = await this.computeFullLeaderboard();
+    const start = safePage * PAGE_SIZE;
+    const end = start + PAGE_SIZE;
+    return full.slice(start, end);
+  }
 
+  async getLeaderboardEntryForUser(userId: string): Promise<LeaderboardEntry> {
+    const full = await this.computeFullLeaderboard();
+    const entry = full.find((e) => e.userId === userId);
+    if (!entry) {
+      throw new NotFoundException('User not found');
+    }
+    return entry;
+  }
+
+  private async computeFullLeaderboard(): Promise<LeaderboardEntry[]> {
     const users = await this.prisma.user.findMany({
       select: {
         id: true,
@@ -135,7 +150,7 @@ export class LeaderboardService {
       }
     }
 
-    const leaderboard = Array.from(byUser.values())
+    return Array.from(byUser.values())
       .map<LeaderboardEntry>((entry) => ({
         ...entry,
         winRate:
@@ -154,9 +169,5 @@ export class LeaderboardService {
         }
         return a.name.localeCompare(b.name);
       });
-
-    const start = safePage * PAGE_SIZE;
-    const end = start + PAGE_SIZE;
-    return leaderboard.slice(start, end);
   }
 }

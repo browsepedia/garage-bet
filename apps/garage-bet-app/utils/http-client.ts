@@ -118,15 +118,4 @@ function safeJson(text: string) {
 
 function resolveApiUrl() {
   return 'https://garage-bet-api-5f371ca7b557.herokuapp.com/api';
-
-  const envUrl = process.env.EXPO_PUBLIC_API_URL?.trim();
-  if (envUrl) {
-    return envUrl.replace(/\/$/, '');
-  }
-
-  if (__DEV__) {
-    return 'http://10.0.2.2:3000/api';
-  }
-
-  return 'https://garage-bet-api-5f371ca7b557.herokuapp.com/api';
 }
