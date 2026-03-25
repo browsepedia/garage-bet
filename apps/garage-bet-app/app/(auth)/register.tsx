@@ -35,9 +35,9 @@ export default function Register() {
             variant="bodyMedium"
             style={{ color: '#a1a1aa', textAlign: 'center' }}
           >
-            This phone already has its device-only account. Use email below to
-            add a password, or log in. Other people can still use email on this
-            phone (separate accounts).
+            This phone already has its device-only account. Email sign-up below
+            creates a separate account (the device-only profile stays). Use Login
+            to pick device-only or email.
           </Text>
         ) : null}
 
@@ -70,8 +70,9 @@ export default function Register() {
                 variant="bodyMedium"
                 style={{ color: '#a1a1aa', textAlign: 'center' }}
               >
-                One device-only account per phone. You can add email later.
-                Without email you will not receive email notifications.
+                One device-only account per phone. You can also register with
+                email later for a separate account on the same phone. Without
+                email you will not receive email notifications.
               </Text>
             </>
           ) : null}

@@ -70,8 +70,8 @@ export default function RegisterWithEmail() {
           Register
         </Text>
         <Text variant="bodyMedium" style={{ color: '#a1a1aa' }}>
-          New email account, or adds email to this phone&apos;s device-only
-          profile if it exists.
+          New email account on this phone. Does not change an existing
+          device-only profile on the same device.
         </Text>
 
         <ThemedInput

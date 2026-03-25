@@ -259,28 +259,6 @@ export class AuthService {
       throw new ConflictException('Email already registered');
     }
 
-    const deviceOnlyUser = await this.findDeviceOnlyUserForDevice(dto.deviceId);
-    if (deviceOnlyUser) {
-      const passwordHash = await this.hashPassword(dto.password);
-      const verifyToken = this.generateEmailVerificationToken();
-      const upgraded = await this.prisma.user.update({
-        where: { id: deviceOnlyUser.id },
-        data: {
-          email: dto.email,
-          name: dto.name,
-          passwordHash,
-          emailVerifiedAt: null,
-          emailVerificationToken: verifyToken,
-          emailVerificationExpiresAt: this.newEmailVerificationExpiry(),
-        },
-        select: this.userProfileSelect,
-      });
-
-      const { accessToken, refreshToken } =
-        await this.issueAuthTokens(upgraded);
-      return { user: upgraded, accessToken, refreshToken };
-    }
-
     const passwordHash = await this.hashPassword(dto.password);
     const verifyToken = this.generateEmailVerificationToken();
 
@@ -333,7 +311,7 @@ export class AuthService {
     const deviceOnlyExists = await this.findDeviceOnlyUserForDevice(deviceId);
     if (deviceOnlyExists) {
       throw new ConflictException(
-        'This device already has a device-only account. Add email with Register, or log in.',
+        'This device already has a device-only account. Sign in with device, or register with email for a separate account.',
       );
     }
 

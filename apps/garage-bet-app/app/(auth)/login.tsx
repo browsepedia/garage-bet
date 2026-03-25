@@ -19,8 +19,7 @@ export default function Login() {
     useDeviceLoginMutation();
 
   const { data: deviceStatus, isSuccess } = useDeviceRegistrationStatusQuery();
-  const hasDeviceOnlyOnDevice =
-    isSuccess && deviceStatus?.registered === true;
+  const hasDeviceOnlyOnDevice = isSuccess && deviceStatus?.registered === true;
 
   const [formError, setFormError] = useState<string | null>(null);
   const [deviceLoginError, setDeviceLoginError] = useState<string | null>(null);
@@ -167,12 +166,18 @@ export default function Login() {
         </Button>
 
         {hasDeviceOnlyOnDevice ? (
-          <Text variant="bodySmall" style={{ color: '#a1a1aa', textAlign: 'center' }}>
+          <Text
+            variant="bodySmall"
+            style={{ color: '#a1a1aa', textAlign: 'center' }}
+          >
             Signs in the device-only account for this phone. Email login above
             links this phone to that email account as well.
           </Text>
         ) : (
-          <Text variant="bodySmall" style={{ color: '#a1a1aa', textAlign: 'center' }}>
+          <Text
+            variant="bodySmall"
+            style={{ color: '#a1a1aa', textAlign: 'center' }}
+          >
             Device-only login works if you registered without email on this
             phone.
           </Text>
@@ -184,7 +189,13 @@ export default function Login() {
 
         <Button
           mode="outlined"
-          onPress={() => router.replace('/(auth)/register')}
+          onPress={() => {
+            if (hasDeviceOnlyOnDevice) {
+              router.replace('/(auth)/register-with-email');
+            } else {
+              router.replace('/(auth)/register');
+            }
+          }}
         >
           Register
         </Button>
