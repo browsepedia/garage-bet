@@ -1,5 +1,5 @@
 import { LoginFormModel, RegisterFormModel } from '@garage-bet/models';
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
 type LoginRequestBody = LoginFormModel & { deviceId?: string };
@@ -17,6 +17,15 @@ export class AuthController {
   @Post('login')
   login(@Body() dto: LoginRequestBody) {
     return this.service.login(dto);
+  }
+
+  /**
+   * Link from confirmation email: `?token=` from `emailVerificationToken`.
+   * Public; no auth header.
+   */
+  @Get('confirm-email')
+  confirmEmail(@Query('token') token: string | undefined) {
+    return this.service.confirmEmailByToken(token);
   }
 
   /** Whether this device id is already linked to an account (no auth / no tokens). */

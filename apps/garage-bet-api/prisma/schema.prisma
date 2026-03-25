@@ -46,6 +46,12 @@ model User {
     avatarUrl    String?
     passwordHash String?
 
+    /// Set when the user confirms their email (null until then for email/password sign-ups).
+    emailVerifiedAt DateTime?
+    /// Opaque token for GET /auth/confirm-email; cleared after success or expiry.
+    emailVerificationToken   String?   @unique
+    emailVerificationExpiresAt DateTime?
+
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
@@ -61,11 +67,11 @@ model User {
     @@index([email])
 }
 
-/// One row per physical device; a user may have many devices (push / reminders).
+/// Links a user to an app install id. The same deviceId may appear for multiple users.
 model UserDevice {
     id        String   @id @default(cuid())
     userId    String
-    deviceId  String   @unique
+    deviceId  String
     /// Expo push token for this device (Expo Push API / FCM / APNs via Expo).
     expoPushToken          String?
     expoPushTokenUpdatedAt DateTime?
@@ -73,7 +79,9 @@ model UserDevice {
 
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+    @@unique([userId, deviceId])
     @@index([userId])
+    @@index([deviceId])
 }
 
 model AuthAccount {
