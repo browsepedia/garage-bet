@@ -11,12 +11,10 @@ export default function Register() {
 
   const { data: deviceStatus, isSuccess } = useDeviceRegistrationStatusQuery();
 
-  const deviceAlreadyRegistered =
+  const hasDeviceOnlyOnDevice =
     isSuccess && deviceStatus?.registered === true;
 
   const canSubmit = Boolean(deviceId);
-
-  const showDeviceOnlyPath = canSubmit && !deviceAlreadyRegistered;
 
   return (
     <Screen
@@ -32,6 +30,17 @@ export default function Register() {
           Register
         </Text>
 
+        {hasDeviceOnlyOnDevice ? (
+          <Text
+            variant="bodyMedium"
+            style={{ color: '#a1a1aa', textAlign: 'center' }}
+          >
+            This phone already has its device-only account. Use email below to
+            add a password, or log in. Other people can still use email on this
+            phone (separate accounts).
+          </Text>
+        ) : null}
+
         <View style={{ justifyContent: 'center', gap: 16 }}>
           <Button
             mode="contained"
@@ -42,7 +51,7 @@ export default function Register() {
             Continue with email
           </Button>
 
-          {showDeviceOnlyPath ? (
+          {!hasDeviceOnlyOnDevice ? (
             <>
               <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                 <Text>or</Text>
@@ -61,8 +70,8 @@ export default function Register() {
                 variant="bodyMedium"
                 style={{ color: '#a1a1aa', textAlign: 'center' }}
               >
-                Device-only accounts are tied to this phone. Without an email
-                you will not receive email notifications and reminders.
+                One device-only account per phone. You can add email later.
+                Without email you will not receive email notifications.
               </Text>
             </>
           ) : null}

@@ -22,10 +22,11 @@ export function useLoginMutation() {
       return data;
     },
     onSuccess: async () => {
-      // fetch user immediately
-
       router.replace('/(app)/home');
       await queryClient.invalidateQueries({ queryKey: ['me'] });
+      await queryClient.invalidateQueries({
+        queryKey: ['deviceRegistrationStatus'],
+      });
     },
   });
 }

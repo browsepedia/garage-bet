@@ -27,6 +27,9 @@ export function useDeviceRegisterMutation() {
     onSuccess: async () => {
       router.replace('/(app)/home');
       await queryClient.invalidateQueries({ queryKey: ['me'] });
+      await queryClient.invalidateQueries({
+        queryKey: ['deviceRegistrationStatus'],
+      });
     },
   });
 }

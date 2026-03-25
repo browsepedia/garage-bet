@@ -1,13 +1,16 @@
-import { User } from '@prisma/client';
+import type { UserProfileModel } from '@garage-bet/models';
 import { useQuery } from '@tanstack/react-query';
 import { getOrCreateDeviceId } from '../storage/token-storage';
 import { ApiError, apiJson } from '../utils/http-client';
 
-type DeviceStatusResponse = { registered: boolean; user: User | null };
+export type DeviceStatusResponse = {
+  registered: boolean;
+  user: UserProfileModel | null;
+};
 
 /**
- * Loads the device id inside the query so `queryFn` always runs (no separate
- * `useEffect` + `enabled` gate that can stay false if storage/OS id never flips ready).
+ * `registered` = this device id already has its one allowed device-only user (email null).
+ * Other users with email may also be linked to the same device id.
  */
 export function useDeviceRegistrationStatusQuery() {
   return useQuery({
@@ -20,23 +23,15 @@ export function useDeviceRegistrationStatusQuery() {
       }
 
       try {
-        const result = await apiJson<DeviceStatusResponse>(
-          '/auth/device/status',
-          {
-            method: 'POST',
-            body: JSON.stringify({ deviceId }),
-          },
-        );
-
-        console.log('result', result);
-        return result;
-      } catch (error) {
-        console.log('error', error);
+        return await apiJson<DeviceStatusResponse>('/auth/device/status', {
+          method: 'POST',
+          body: JSON.stringify({ deviceId }),
+        });
+      } catch {
         return { registered: false, user: null };
       }
     },
     retry: (failureCount, err) => {
-      console.log('retry', failureCount, err);
       if (err instanceof ApiError && [400, 401, 404].includes(err.status)) {
         return false;
       }

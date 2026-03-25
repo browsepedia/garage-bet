@@ -1,6 +1,7 @@
 import { LoginFormModel, LoginSchema } from '@garage-bet/models';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { ActivityIndicator, Dimensions, View } from 'react-native';
 import { Text } from 'react-native-paper';
@@ -10,23 +11,30 @@ import { ThemedInput } from '../../components/ThemedInput';
 import { useDeviceLoginMutation } from '../../mutations/device-login.mutation';
 import { useLoginMutation } from '../../mutations/login.mutation';
 import { useDeviceRegistrationStatusQuery } from '../../queries/device-registration-status.query';
+import { ApiError } from '../../utils/http-client';
 
 export default function Login() {
   const { mutateAsync: login, isPending: isLoading } = useLoginMutation();
+  const { mutateAsync: deviceLogin, isPending: isDeviceLoggingIn } =
+    useDeviceLoginMutation();
 
   const { data: deviceStatus, isSuccess } = useDeviceRegistrationStatusQuery();
-
-  const deviceAlreadyRegistered =
+  const hasDeviceOnlyOnDevice =
     isSuccess && deviceStatus?.registered === true;
 
-  const { mutateAsync: deviceLogin } = useDeviceLoginMutation();
+  const [formError, setFormError] = useState<string | null>(null);
+  const [deviceLoginError, setDeviceLoginError] = useState<string | null>(null);
 
   const onDeviceLogin = async () => {
+    setDeviceLoginError(null);
     try {
       await deviceLogin();
-      router.replace('/(app)/home');
-    } catch (error) {
-      console.error(error);
+    } catch (e: unknown) {
+      if (e instanceof ApiError) {
+        setDeviceLoginError(e.message);
+      } else {
+        setDeviceLoginError('Could not sign in with this device.');
+      }
     }
   };
 
@@ -37,10 +45,15 @@ export default function Login() {
   } = useLoginForm();
 
   const handleLogin = handleSubmit(async (data: LoginFormModel) => {
+    setFormError(null);
     try {
       await login(data);
-    } catch (error) {
-      console.error(error);
+    } catch (e: unknown) {
+      if (e instanceof ApiError) {
+        setFormError(e.message);
+      } else {
+        setFormError('Sign in failed. Try again.');
+      }
     }
   });
 
@@ -101,6 +114,18 @@ export default function Login() {
           </View>
         )}
 
+        {formError ? (
+          <View
+            style={{
+              padding: 8,
+              paddingHorizontal: 16,
+              backgroundColor: '#7f1d1d',
+            }}
+          >
+            <Text style={{ color: '#fca5a5' }}>{formError}</Text>
+          </View>
+        ) : null}
+
         <Button
           mode="contained"
           onPress={handleLogin}
@@ -109,7 +134,7 @@ export default function Login() {
           {isLoading ? (
             <ActivityIndicator size="small" color="#ffffff" />
           ) : (
-            'Login'
+            'Login with email'
           )}
         </Button>
 
@@ -117,24 +142,52 @@ export default function Login() {
           <Text>or</Text>
         </View>
 
+        {deviceLoginError ? (
+          <View
+            style={{
+              padding: 8,
+              paddingHorizontal: 16,
+              backgroundColor: '#7f1d1d',
+            }}
+          >
+            <Text style={{ color: '#fca5a5' }}>{deviceLoginError}</Text>
+          </View>
+        ) : null}
+
         <Button
-          mode="contained"
-          onPress={() => {
-            if (deviceAlreadyRegistered) {
-              router.replace('/(auth)/register-with-email');
-            } else {
-              router.replace('/(auth)/register');
-            }
-          }}
+          mode="outlined"
+          disabled={isDeviceLoggingIn}
+          onPress={onDeviceLogin}
         >
-          {deviceAlreadyRegistered ? 'Register with email' : 'Register'}
+          {isDeviceLoggingIn ? (
+            <ActivityIndicator size="small" />
+          ) : (
+            'Login with device only'
+          )}
         </Button>
 
-        {deviceAlreadyRegistered ? (
-          <Button mode="contained" onPress={onDeviceLogin}>
-            Login with device
-          </Button>
-        ) : null}
+        {hasDeviceOnlyOnDevice ? (
+          <Text variant="bodySmall" style={{ color: '#a1a1aa', textAlign: 'center' }}>
+            Signs in the device-only account for this phone. Email login above
+            links this phone to that email account as well.
+          </Text>
+        ) : (
+          <Text variant="bodySmall" style={{ color: '#a1a1aa', textAlign: 'center' }}>
+            Device-only login works if you registered without email on this
+            phone.
+          </Text>
+        )}
+
+        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+          <Text>or</Text>
+        </View>
+
+        <Button
+          mode="outlined"
+          onPress={() => router.replace('/(auth)/register')}
+        >
+          Register
+        </Button>
       </View>
     </Screen>
   );

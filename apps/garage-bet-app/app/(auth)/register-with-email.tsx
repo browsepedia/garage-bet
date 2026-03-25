@@ -69,6 +69,11 @@ export default function RegisterWithEmail() {
         <Text variant="headlineLarge" style={{ fontWeight: 'bold' }}>
           Register
         </Text>
+        <Text variant="bodyMedium" style={{ color: '#a1a1aa' }}>
+          New email account, or adds email to this phone&apos;s device-only
+          profile if it exists.
+        </Text>
+
         <ThemedInput
           placeholder="Email"
           value={email}

@@ -54,6 +54,10 @@ export default function RegisterWithDevice() {
         <Text variant="headlineLarge" style={{ fontWeight: 'bold' }}>
           Register
         </Text>
+        <Text variant="bodyMedium" style={{ color: '#a1a1aa' }}>
+          One device-only account per phone. People with email can still sign up
+          on the same phone as separate accounts.
+        </Text>
 
         <ThemedInput
           placeholder="Name"
