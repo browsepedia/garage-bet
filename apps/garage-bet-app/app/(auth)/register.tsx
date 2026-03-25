@@ -18,8 +18,6 @@ export default function Register() {
 
   const showDeviceOnlyPath = canSubmit && !deviceAlreadyRegistered;
 
-  console.log('deviceAlreadyRegistered', deviceAlreadyRegistered, isSuccess);
-
   return (
     <Screen
       style={{

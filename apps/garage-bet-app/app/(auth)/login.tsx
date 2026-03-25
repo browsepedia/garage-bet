@@ -1,21 +1,22 @@
 import { LoginFormModel, LoginSchema } from '@garage-bet/models';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
-import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { ActivityIndicator, Dimensions, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Button } from '../../components/Button';
 import { Screen } from '../../components/Screen';
 import { ThemedInput } from '../../components/ThemedInput';
-import { useDeviceLoginMutation } from '../../mutations/device-login.mutation';
 import { useLoginMutation } from '../../mutations/login.mutation';
+import { useDeviceRegistrationStatusQuery } from '../../queries/device-registration-status.query';
 
 export default function Login() {
-  const [deviceLoginError, setDeviceLoginError] = useState<string | null>(null);
   const { mutateAsync: login, isPending: isLoading } = useLoginMutation();
-  const { mutateAsync: deviceLogin, isPending: isDeviceLoginLoading } =
-    useDeviceLoginMutation();
+
+  const { data: deviceStatus, isSuccess } = useDeviceRegistrationStatusQuery();
+
+  const deviceAlreadyRegistered =
+    isSuccess && deviceStatus?.registered === true;
 
   const {
     control,
@@ -104,21 +105,15 @@ export default function Login() {
           <Text>or</Text>
         </View>
 
-        {deviceLoginError ? (
-          <View
-            style={{
-              padding: 8,
-              paddingHorizontal: 16,
-              backgroundColor: '#7f1d1d',
-            }}
-          >
-            <Text style={{ color: '#fca5a5' }}>{deviceLoginError}</Text>
-          </View>
-        ) : null}
-
         <Button
           mode="contained"
-          onPress={() => router.replace('/(auth)/register')}
+          onPress={() => {
+            if (deviceAlreadyRegistered) {
+              router.replace('/(auth)/register-with-email');
+            } else {
+              router.replace('/(auth)/register');
+            }
+          }}
         >
           Register
         </Button>
