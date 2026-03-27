@@ -48,7 +48,7 @@ export default function Home() {
         justifyContent: 'center',
       }}
     >
-      <ActivityIndicator />
+      <ActivityIndicator size="large" color="#EA580C" />
       <Text style={{ marginTop: 12 }}>Checking session...</Text>
     </Screen>
   );

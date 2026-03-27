@@ -9,7 +9,13 @@ const buttonCompact = {
   labelStyle: { fontSize: 12, marginVertical: 2, marginHorizontal: 6 },
 } as const;
 
-export type AppTheme = MD3Theme & {
+export type AppThemeColors = MD3Theme['colors'] & {
+  success: string;
+  warning: string;
+};
+
+export type AppTheme = Omit<MD3Theme, 'colors'> & {
+  colors: AppThemeColors;
   components?: {
     Button?: {
       style?: object;
@@ -41,6 +47,8 @@ const darkTheme: AppTheme = {
     onSurfaceVariant: '#a1a1aa',
     error: '#ef4444',
     errorContainer: '#7f1d1d',
+    success: '#4ade80',
+    warning: '#fbbf24',
     backdrop: 'transparent',
     elevation: {
       ...MD3DarkTheme.colors.elevation,
@@ -67,6 +75,8 @@ const lightTheme: AppTheme = {
     onSurfaceVariant: '#71717a',
     error: '#dc2626',
     errorContainer: '#fef2f2',
+    success: '#16a34a',
+    warning: '#d97706',
     backdrop: 'transparent',
   },
 };

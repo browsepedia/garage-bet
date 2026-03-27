@@ -7,32 +7,68 @@ import {
 
 const API_URL = resolveApiUrl();
 
+/** Avoid indefinite hangs on poor networks (Android then looks like a black screen behind the shell). */
+const API_FETCH_TIMEOUT_MS = 25_000;
+
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+    public body?: unknown,
+  ) {
+    super(message);
+  }
+}
+
 let refreshPromise: Promise<string | null> | null = null;
+
+async function fetchWithTimeout(
+  url: string,
+  init: RequestInit,
+  timeoutMs = API_FETCH_TIMEOUT_MS,
+): Promise<Response> {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } catch (e) {
+    if (e instanceof Error && e.name === 'AbortError') {
+      throw new ApiError('Request timed out', 408);
+    }
+    throw e;
+  } finally {
+    clearTimeout(id);
+  }
+}
 
 async function refreshAccessToken(): Promise<string | null> {
   if (refreshPromise) return refreshPromise;
 
   refreshPromise = (async () => {
-    const refreshToken = await getRefreshToken();
-    if (!refreshToken) return null;
+    try {
+      const refreshToken = await getRefreshToken();
+      if (!refreshToken) return null;
 
-    const res = await fetch(`${API_URL}/auth/refresh`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken }),
-    });
+      const res = await fetchWithTimeout(`${API_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      });
 
-    if (!res.ok) {
-      await clearTokens();
+      if (!res.ok) {
+        await clearTokens();
+        return null;
+      }
+
+      const data = (await res.json()) as {
+        accessToken: string;
+        refreshToken: string;
+      };
+      await setTokens(data);
+      return data.accessToken;
+    } catch {
       return null;
     }
-
-    const data = (await res.json()) as {
-      accessToken: string;
-      refreshToken: string;
-    };
-    await setTokens(data);
-    return data.accessToken;
   })();
 
   try {
@@ -58,7 +94,7 @@ export async function apiFetch(path: string, init: RequestInit = {}) {
   const access = await getAccessToken();
   if (access) headers.set('Authorization', `Bearer ${access}`);
 
-  const res = await fetch(url, { ...init, headers });
+  const res = await fetchWithTimeout(url, { ...init, headers });
 
   // Access token expired → refresh → retry once
   if (res.status === 401) {
@@ -70,20 +106,10 @@ export async function apiFetch(path: string, init: RequestInit = {}) {
       retryHeaders.set('Content-Type', 'application/json');
     retryHeaders.set('Authorization', `Bearer ${newAccess}`);
 
-    return fetch(url, { ...init, headers: retryHeaders });
+    return fetchWithTimeout(url, { ...init, headers: retryHeaders });
   }
 
   return res;
-}
-
-export class ApiError extends Error {
-  constructor(
-    message: string,
-    public status: number,
-    public body?: unknown,
-  ) {
-    super(message);
-  }
 }
 
 // Use this everywhere from queries/mutations

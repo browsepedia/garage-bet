@@ -11,8 +11,7 @@ export default function Register() {
 
   const { data: deviceStatus, isSuccess } = useDeviceRegistrationStatusQuery();
 
-  const hasDeviceOnlyOnDevice =
-    isSuccess && deviceStatus?.registered === true;
+  const hasDeviceOnlyOnDevice = isSuccess && deviceStatus?.registered === true;
 
   const canSubmit = Boolean(deviceId);
 
@@ -30,17 +29,6 @@ export default function Register() {
           Register
         </Text>
 
-        {hasDeviceOnlyOnDevice ? (
-          <Text
-            variant="bodyMedium"
-            style={{ color: '#a1a1aa', textAlign: 'center' }}
-          >
-            This phone already has its device-only account. Email sign-up below
-            creates a separate account (the device-only profile stays). Use Login
-            to pick device-only or email.
-          </Text>
-        ) : null}
-
         <View style={{ justifyContent: 'center', gap: 16 }}>
           <Button
             mode="contained"
@@ -51,31 +39,14 @@ export default function Register() {
             Continue with email
           </Button>
 
-          {!hasDeviceOnlyOnDevice ? (
-            <>
-              <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                <Text>or</Text>
-              </View>
-
-              <Button
-                disabled={!canSubmit}
-                mode="contained"
-                onPress={() => router.replace('/(auth)/register-with-device')}
-                style={{ backgroundColor: '#EA580C' }}
-              >
-                Continue with device only
-              </Button>
-
-              <Text
-                variant="bodyMedium"
-                style={{ color: '#a1a1aa', textAlign: 'center' }}
-              >
-                One device-only account per phone. You can also register with
-                email later for a separate account on the same phone. Without
-                email you will not receive email notifications.
-              </Text>
-            </>
-          ) : null}
+          <Button
+            mode="contained"
+            disabled={!canSubmit}
+            onPress={() => router.replace('/(auth)/register-with-device')}
+            style={{ backgroundColor: '#EA580C' }}
+          >
+            Continue with device only
+          </Button>
         </View>
 
         <View style={{ alignItems: 'center', gap: 16 }}>

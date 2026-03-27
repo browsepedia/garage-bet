@@ -8,7 +8,7 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query';
-import { router, Stack } from 'expo-router';
+import { router, Stack, usePathname } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import { AppState, Platform, StatusBar, View } from 'react-native';
@@ -21,6 +21,12 @@ import { darkTheme } from '../theme';
 
 export default function RootLayout() {
   const [queryClient] = useState(() => makeQueryClient());
+
+  const pathname = usePathname();
+
+  useEffect(() => {
+    console.log('pathname', pathname);
+  }, [pathname]);
 
   // React Query focus handling for RN
   useEffect(() => {

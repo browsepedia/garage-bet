@@ -43,7 +43,13 @@ export default function Settings() {
 
   return (
     <Screen>
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: 16,
+        }}
+      >
         <TouchableOpacity
           accessibilityRole="button"
           accessibilityLabel="Back"
@@ -88,7 +94,7 @@ export default function Settings() {
             name="name"
             render={({ field: { value, onChange, onBlur } }) => (
               <ThemedInput
-                value={value}
+                value={value || ''}
                 onChangeText={onChange}
                 onBlur={onBlur}
                 placeholder="Name"
@@ -102,7 +108,7 @@ export default function Settings() {
               name="email"
               render={({ field: { value, onChange, onBlur } }) => (
                 <ThemedInput
-                  value={value}
+                  value={value || ''}
                   onChangeText={onChange}
                   onBlur={onBlur}
                   keyboardType="email-address"

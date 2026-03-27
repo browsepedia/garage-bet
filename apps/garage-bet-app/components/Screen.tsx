@@ -15,8 +15,8 @@ export const Screen = ({ children, style }: ScreenProps) => {
       style={[
         {
           flex: 1,
-          paddingHorizontal: 16,
           backgroundColor: theme.colors.background,
+          paddingHorizontal: 16,
         },
         style,
       ]}

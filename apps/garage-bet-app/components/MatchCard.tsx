@@ -1,9 +1,22 @@
 import { MatchData } from '@garage-bet/models';
-import { memo } from 'react';
+import { router } from 'expo-router';
+import { memo, useMemo } from 'react';
 import { View } from 'react-native';
 import { Card, Text, useTheme } from 'react-native-paper';
+import { AppTheme } from '../theme';
 import { formatInUserTimezone } from '../utils/format-date';
 import { Button } from './Button';
+
+function hasMatchStarted(match: MatchData): boolean {
+  if (match.status === 'LIVE' || match.status === 'FINISHED') {
+    return true;
+  }
+  const kickoffMs = Date.parse(match.kickoffAt);
+  if (Number.isNaN(kickoffMs)) {
+    return false;
+  }
+  return kickoffMs <= Date.now();
+}
 
 function MatchCard({
   match,
@@ -19,7 +32,31 @@ function MatchCard({
         ? '#ef4444'
         : '#eab308';
 
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
+  const started = hasMatchStarted(match);
+
+  const borderColor = useMemo(() => {
+    if (match.betStatus === 'UNSET') {
+      return '#3f3f46';
+    }
+    if (match.betStatus === 'SET') {
+      return '#3f3f46';
+    }
+
+    if (match.betStatus === 'WON') {
+      return '#22c55e';
+    }
+
+    if (match.betStatus === 'LOST') {
+      return theme.colors.error;
+    }
+
+    if (match.betStatus === 'RESULT') {
+      return theme.colors.warning;
+    }
+
+    return '#3f3f46';
+  }, [match.betStatus, theme]);
 
   return (
     <Card
@@ -28,7 +65,7 @@ function MatchCard({
         marginBottom: 16,
         padding: 16,
         borderWidth: 1,
-        borderColor: '#3f3f46',
+        borderColor,
         backgroundColor: '#13161a',
       }}
     >
@@ -45,11 +82,12 @@ function MatchCard({
           }}
         />
       )}
+
       <View
         style={{
           flexDirection: 'row',
           justifyContent: 'space-between',
-          gap: 16,
+          gap: 8,
           alignItems: 'center',
         }}
       >
@@ -62,29 +100,31 @@ function MatchCard({
         </Text>
       </View>
 
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          gap: 16,
-          alignItems: 'center',
-        }}
-      >
-        <Text variant="titleMedium" style={{ flex: 1, textAlign: 'right' }}>
-          {match.homeScore}
-        </Text>
-        <Text style={{ width: 16, textAlign: 'center' }}>-</Text>
-        <Text variant="titleMedium" style={{ flex: 1, textAlign: 'left' }}>
-          {match.awayScore}
-        </Text>
-      </View>
+      {(match.status === 'FINISHED' || match.status === 'LIVE') && (
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            gap: 8,
+            alignItems: 'center',
+          }}
+        >
+          <Text variant="titleMedium" style={{ flex: 1, textAlign: 'right' }}>
+            {match.homeScore}
+          </Text>
+          <Text style={{ width: 16, textAlign: 'center' }}>-</Text>
+          <Text variant="titleMedium" style={{ flex: 1, textAlign: 'left' }}>
+            {match.awayScore}
+          </Text>
+        </View>
+      )}
 
       {match.betStatus !== 'UNSET' && (
         <View
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
-            gap: 16,
+            gap: 8,
             alignItems: 'center',
           }}
         >
@@ -96,7 +136,7 @@ function MatchCard({
               color: theme.colors.onSurfaceDisabled,
             }}
           >
-            {match.homeScore}
+            {match.homeBetScore}
           </Text>
           <Text
             style={{
@@ -115,7 +155,7 @@ function MatchCard({
               color: theme.colors.onSurfaceDisabled,
             }}
           >
-            {match.awayScore}
+            {match.awayBetScore}
           </Text>
         </View>
       )}
@@ -141,45 +181,43 @@ function MatchCard({
           </Text>
         </View>
 
-        {match.betStatus === 'UNSET' && match.status !== 'FINISHED' && (
-          <View style={{ flexShrink: 0 }}>
-            <Button mode="contained" compact onPress={() => onSetBetClick(match)}>
+        <View
+          style={{
+            flexShrink: 0,
+            gap: 8,
+            alignItems: 'flex-end',
+          }}
+        >
+          {match.betStatus === 'UNSET' && !started && (
+            <Button
+              mode="contained"
+              compact
+              onPress={() => onSetBetClick(match)}
+            >
               Place bet
             </Button>
-          </View>
-        )}
+          )}
 
-        {match.betStatus === 'SET' && (
-          <View style={{ flexShrink: 0 }}>
-            <Button mode="contained" compact onPress={() => onSetBetClick(match)}>
+          {match.betStatus === 'SET' && !started && (
+            <Button
+              mode="contained"
+              compact
+              onPress={() => onSetBetClick(match)}
+            >
               Update bet
             </Button>
-          </View>
-        )}
+          )}
 
-        {match.betStatus === 'UNSET' && match.status === 'FINISHED' && (
-          <Text variant="bodySmall" style={{ color: '#a1a1aa' }}>
-            Unset
-          </Text>
-        )}
-
-        {match.betStatus === 'WON' && (
-          <Text variant="bodySmall" style={{ color: '#a1a1aa' }}>
-            Won
-          </Text>
-        )}
-
-        {match.betStatus === 'LOST' && (
-          <Text variant="bodySmall" style={{ color: '#a1a1aa' }}>
-            Lost
-          </Text>
-        )}
-
-        {match.betStatus === 'RESULT' && (
-          <Text variant="bodySmall" style={{ color: '#a1a1aa' }}>
-            Result
-          </Text>
-        )}
+          {started && (
+            <Button
+              mode="outlined"
+              compact
+              onPress={() => router.push(`/matches/${match.id}`)}
+            >
+              See bets
+            </Button>
+          )}
+        </View>
       </View>
     </Card>
   );

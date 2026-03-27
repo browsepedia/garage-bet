@@ -49,10 +49,14 @@ export default function AppLayout() {
           flex: 1,
           alignItems: 'center',
           justifyContent: 'center',
+          gap: 12,
           backgroundColor: appBackground,
         }}
       >
-        <ActivityIndicator />
+        <ActivityIndicator size="large" color="#EA580C" />
+        <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
+          Loading session…
+        </Text>
       </View>
     );
   }

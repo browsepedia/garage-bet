@@ -29,5 +29,8 @@ export function useDeviceLoginMutation() {
         queryKey: ['deviceRegistrationStatus'],
       });
     },
+    onError: (error) => {
+      console.error(error);
+    },
   });
 }

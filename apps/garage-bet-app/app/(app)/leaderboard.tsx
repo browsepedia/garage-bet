@@ -124,7 +124,7 @@ export default function Leaderboard() {
 
   return (
     <Screen>
-      <View style={{ flex: 1, paddingTop: 8 }}>
+      <View style={{ flex: 1, paddingTop: 8, paddingHorizontal: 16 }}>
         {isLoading ? (
           <View
             style={{

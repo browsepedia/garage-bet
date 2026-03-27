@@ -1,10 +1,10 @@
 import { MatchData } from '@garage-bet/models';
 import { useCallback, useState } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
-import MatchCard from '../../components/MatchCard';
-import { Screen } from '../../components/Screen';
-import SetMatchBetDialog from '../../components/SetMatchBetDialog';
-import { useMatchesQuery } from '../../queries/matches.query';
+import MatchCard from '../../../components/MatchCard';
+import { Screen } from '../../../components/Screen';
+import SetMatchBetDialog from '../../../components/SetMatchBetDialog';
+import { useMatchesQuery } from '../../../queries/matches.query';
 
 export default function Matches() {
   const { data, isRefetching, refetch } = useMatchesQuery();
@@ -19,7 +19,7 @@ export default function Matches() {
   }, []);
 
   return (
-    <Screen>
+    <Screen style={{ paddingHorizontal: 0 }}>
       <ScrollView
         refreshControl={
           <RefreshControl
@@ -27,6 +27,9 @@ export default function Matches() {
             onRefresh={refetch}
           />
         }
+        contentContainerStyle={{
+          paddingHorizontal: 16,
+        }}
       >
         <View>
           {matches.map((match) => (

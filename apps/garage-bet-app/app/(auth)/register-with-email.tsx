@@ -2,7 +2,7 @@ import { RegisterSchema } from '@garage-bet/models';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { TouchableOpacity, View } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import { Button } from '../../components/Button';
 import { Screen } from '../../components/Screen';
 import { ThemedInput } from '../../components/ThemedInput';
@@ -11,10 +11,13 @@ import { ApiError } from '../../utils/http-client';
 import { useDeviceId } from '../../utils/use-device-id.hook';
 
 export default function RegisterWithEmail() {
+  const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
+
+  const theme = useTheme();
 
   const { mutateAsync: register, isPending } = useRegisterMutation();
   const { deviceId, isDeviceIdReady } = useDeviceId();
@@ -30,6 +33,7 @@ export default function RegisterWithEmail() {
     setFormError(null);
 
     const parsed = RegisterSchema.safeParse({
+      name: displayName.trim(),
       email: email.trim(),
       password,
       deviceId,
@@ -75,6 +79,13 @@ export default function RegisterWithEmail() {
         </Text>
 
         <ThemedInput
+          placeholder="Display Name"
+          value={displayName}
+          onChangeText={setDisplayName}
+          autoCapitalize="none"
+        />
+
+        <ThemedInput
           placeholder="Email"
           value={email}
           onChangeText={setEmail}
@@ -101,10 +112,12 @@ export default function RegisterWithEmail() {
             style={{
               padding: 8,
               paddingHorizontal: 16,
-              backgroundColor: '#7f1d1d',
+              backgroundColor: theme.colors.errorContainer,
             }}
           >
-            <Text style={{ color: '#fca5a5' }}>{formError}</Text>
+            <Text style={{ color: theme.colors.onErrorContainer }}>
+              {formError}
+            </Text>
           </View>
         ) : null}
 
@@ -113,7 +126,7 @@ export default function RegisterWithEmail() {
             mode="contained"
             disabled={!canSubmit || isPending}
             onPress={onRegister}
-            style={{ backgroundColor: '#EA580C' }}
+            style={{ backgroundColor: theme.colors.primary }}
           >
             Register
           </Button>

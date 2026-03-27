@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { Button, Dialog, Text, useTheme } from 'react-native-paper';
 import { useSetBetMutation } from '../mutations/set-bet.mutation';
-import { NumberSelectExpo } from './NumberSelectExpo';
+import MatchScoreSelect from './MatchScoreSelect';
 
 export default function SetMatchBetDialog({
   open,
@@ -76,27 +76,19 @@ export default function SetMatchBetDialog({
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
-            gap: 16,
             alignItems: 'center',
+            gap: 16,
             marginTop: 16,
           }}
         >
-          <View style={{ flex: 1 }}>
-            <NumberSelectExpo
-              value={homeScore}
-              onChange={setHomeScore}
-              label="Home team score"
-              textAlign="right"
-            />
+          <View style={{ flex: 1, alignItems: 'flex-end' }}>
+            <MatchScoreSelect value={homeScore} onSelect={setHomeScore} />
           </View>
+
           <Text style={{ width: 16, textAlign: 'center' }}>-</Text>
-          <View style={{ flex: 1 }}>
-            <NumberSelectExpo
-              value={awayScore}
-              onChange={setAwayScore}
-              label="Away team score"
-              textAlign="left"
-            />
+
+          <View style={{ flex: 1, alignItems: 'flex-start' }}>
+            <MatchScoreSelect value={awayScore} onSelect={setAwayScore} />
           </View>
         </View>
       </Dialog.Content>

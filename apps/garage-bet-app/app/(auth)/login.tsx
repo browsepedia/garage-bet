@@ -18,8 +18,8 @@ export default function Login() {
   const { mutateAsync: deviceLogin, isPending: isDeviceLoggingIn } =
     useDeviceLoginMutation();
 
-  const { data: deviceStatus, isSuccess } = useDeviceRegistrationStatusQuery();
-  const hasDeviceOnlyOnDevice = isSuccess && deviceStatus?.registered === true;
+  const { data: deviceStatus } = useDeviceRegistrationStatusQuery();
+  const hasDeviceOnlyOnDevice = deviceStatus?.registered === true;
 
   const [formError, setFormError] = useState<string | null>(null);
   const [deviceLoginError, setDeviceLoginError] = useState<string | null>(null);
@@ -159,7 +159,7 @@ export default function Login() {
           onPress={onDeviceLogin}
         >
           {isDeviceLoggingIn ? (
-            <ActivityIndicator size="small" />
+            <ActivityIndicator size="small" color="#EA580C" />
           ) : (
             'Login with device only'
           )}

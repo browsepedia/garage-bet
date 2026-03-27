@@ -1,172 +1,60 @@
 import type {
   FinalBetListItem,
-  FinalBetTeamOption,
+  MatchData,
   SeasonListItem,
 } from '@garage-bet/models';
-import { UpsertFinalBetPayloadSchema } from '@garage-bet/models';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  TextInput,
-  View,
-} from 'react-native';
-import { Avatar, Menu, Text, useTheme } from 'react-native-paper';
+import { ActivityIndicator, ScrollView, View } from 'react-native';
+import { Avatar, Text, useTheme } from 'react-native-paper';
 import { Button } from '../../components/Button';
+import { EditFinalBetDialog } from '../../components/EditFinalBetDialog';
+import { LabeledSelectMenu } from '../../components/LabeledSelectMenu';
 import { Screen } from '../../components/Screen';
-import { useUpsertFinalBetMutation } from '../../mutations/final-bet.mutation';
-import { useFinalBetQuery } from '../../queries/final-bet.query';
 import { useFinalBetsListQuery } from '../../queries/final-bets-list.query';
+import { useMatchesQuery } from '../../queries/matches.query';
 import { useSeasonsQuery } from '../../queries/seasons.query';
 import { useUserProfileQuery } from '../../queries/user-profile.query';
 
-type CompetitionOption = { id: string; name: string };
+type ChampionshipSeasonOption = {
+  id: string;
+  season: SeasonListItem;
+};
 
-function LabeledSelectMenu<T extends { id: string }>({
-  label,
-  options,
-  valueId,
-  onSelect,
-  getOptionLabel,
-  placeholder,
-  emptyMessage,
-}: {
-  label: string;
-  options: T[];
-  valueId: string | null;
-  onSelect: (id: string) => void;
-  getOptionLabel: (item: T) => string;
-  placeholder: string;
-  emptyMessage?: string;
-}) {
-  const [open, setOpen] = useState(false);
-  const selected = options.find((o) => o.id === valueId);
-
-  return (
-    <View style={{ marginBottom: 12 }}>
-      <Text variant="labelLarge" style={{ marginBottom: 6 }}>
-        {label}
-      </Text>
-      <Menu
-        visible={open}
-        onDismiss={() => setOpen(false)}
-        anchor={
-          <Pressable
-            disabled={options.length === 0}
-            onPress={() => options.length > 0 && setOpen(true)}
-            style={{
-              padding: 12,
-              borderWidth: 1,
-              borderColor: '#3f3f46',
-              borderRadius: 4,
-              backgroundColor: options.length === 0 ? '#1a1d22' : '#13161a',
-            }}
-          >
-            <Text>
-              {selected
-                ? getOptionLabel(selected)
-                : (emptyMessage ?? placeholder)}
-            </Text>
-          </Pressable>
-        }
-        contentStyle={{
-          backgroundColor: '#13161a',
-          borderWidth: 1,
-          borderColor: '#3f3f46',
-        }}
-      >
-        {options.map((item) => (
-          <Menu.Item
-            key={item.id}
-            onPress={() => {
-              onSelect(item.id);
-              setOpen(false);
-            }}
-            title={getOptionLabel(item)}
-          />
-        ))}
-      </Menu>
-    </View>
-  );
+function championshipSeasonLabel(opt: ChampionshipSeasonOption) {
+  const s = opt.season;
+  const seasonPart = s.year != null ? `${s.name}` : s.name;
+  return `${s.competition.name} - ${seasonPart}`;
 }
 
-function TeamMenu({
-  label,
-  options,
-  valueId,
-  onSelect,
-  disabled,
-}: {
-  label: string;
-  options: FinalBetTeamOption[];
-  valueId: string;
-  onSelect: (id: string) => void;
-  disabled?: boolean;
-}) {
-  const [open, setOpen] = useState(false);
-  const selected = options.find((t) => t.id === valueId);
-
-  return (
-    <View style={{ marginBottom: 12 }}>
-      <Text variant="labelLarge" style={{ marginBottom: 6 }}>
-        {label}
-      </Text>
-      <Menu
-        visible={open}
-        onDismiss={() => setOpen(false)}
-        anchor={
-          <Pressable
-            disabled={disabled}
-            onPress={() => !disabled && setOpen(true)}
-            style={{
-              padding: 12,
-              borderWidth: 1,
-              borderColor: '#3f3f46',
-              borderRadius: 4,
-              backgroundColor: disabled ? '#1a1d22' : '#13161a',
-            }}
-          >
-            <Text>{selected?.name ?? 'Select team'}</Text>
-          </Pressable>
-        }
-        contentStyle={{
-          backgroundColor: '#13161a',
-          borderWidth: 1,
-          borderColor: '#3f3f46',
-        }}
-      >
-        {options.map((t) => (
-          <Menu.Item
-            key={t.id}
-            onPress={() => {
-              onSelect(t.id);
-              setOpen(false);
-            }}
-            title={t.name}
-          />
-        ))}
-      </Menu>
-    </View>
-  );
-}
-
-function seasonMenuLabel(s: SeasonListItem) {
-  return `${s.name}${s.year != null ? ` (${s.year})` : ''}`;
+/** True if this season has at least one fixture whose kickoff is on or before now. Invalid dates are ignored (treated as not started). */
+function seasonHasAnyMatchKickoffInPast(
+  seasonId: string,
+  matches: MatchData[],
+): boolean {
+  const now = Date.now();
+  return matches.some((m) => {
+    if (m.seasonId !== seasonId) return false;
+    const kickoffMs = Date.parse(m.kickoffAt);
+    if (Number.isNaN(kickoffMs)) return false;
+    return kickoffMs <= now;
+  });
 }
 
 function FinalBetRow({
   item,
   isCurrentUser,
+  onEditPick,
 }: {
   item: FinalBetListItem;
   isCurrentUser: boolean;
+  onEditPick?: () => void;
 }) {
   return (
     <View
       style={{
         flexDirection: 'row',
+        alignItems: 'center',
         gap: 12,
         paddingVertical: 12,
         paddingHorizontal: 12,
@@ -177,7 +65,9 @@ function FinalBetRow({
         backgroundColor: isCurrentUser ? '#2a1510' : '#13161a',
       }}
     >
-      <Avatar.Image size={40} source={{ uri: item.avatarUrl }} />
+      <View style={{ justifyContent: 'center' }}>
+        <Avatar.Image size={40} source={{ uri: item.avatarUrl }} />
+      </View>
       <View style={{ flex: 1, minWidth: 0 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <Text
@@ -203,6 +93,13 @@ function FinalBetRow({
           </Text>
         ) : null}
       </View>
+      {isCurrentUser && onEditPick ? (
+        <View style={{ justifyContent: 'center' }}>
+          <Button mode="text" compact onPress={onEditPick}>
+            Edit pick
+          </Button>
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -224,97 +121,72 @@ export default function FinalBetsScreen() {
     }, [refetchSeasons]),
   );
 
-  const [competitionId, setCompetitionId] = useState<string | null>(null);
   const [seasonId, setSeasonId] = useState<string | null>(null);
 
-  const competitions = useMemo((): CompetitionOption[] => {
-    const map = new Map<string, CompetitionOption>();
-    for (const s of seasons ?? []) {
-      map.set(s.competition.id, {
-        id: s.competition.id,
-        name: s.competition.name,
-      });
-    }
-    return [...map.values()].sort((a, b) =>
-      a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }),
-    );
+  const championshipSeasonOptions = useMemo((): ChampionshipSeasonOption[] => {
+    const list = [...(seasons ?? [])];
+    list.sort((a, b) => {
+      const byComp = a.competition.name.localeCompare(
+        b.competition.name,
+        undefined,
+        {
+          sensitivity: 'base',
+        },
+      );
+      if (byComp !== 0) return byComp;
+      return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+    });
+    return list.map((s) => ({ id: s.id, season: s }));
   }, [seasons]);
 
-  const seasonsForCompetition = useMemo(() => {
-    return (seasons ?? [])
-      .filter((s) => s.competition.id === competitionId)
-      .sort((a, b) =>
-        a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }),
-      );
-  }, [seasons, competitionId]);
-
   useEffect(() => {
-    if (!competitions.length) return;
-    if (!competitionId || !competitions.some((c) => c.id === competitionId)) {
-      setCompetitionId(competitions[0].id);
-    }
-  }, [competitions, competitionId]);
-
-  useEffect(() => {
-    if (!seasonsForCompetition.length) {
+    if (!championshipSeasonOptions.length) {
       setSeasonId(null);
       return;
     }
-    if (!seasonId || !seasonsForCompetition.some((s) => s.id === seasonId)) {
-      setSeasonId(seasonsForCompetition[0].id);
+    if (
+      !seasonId ||
+      !championshipSeasonOptions.some((o) => o.id === seasonId)
+    ) {
+      setSeasonId(championshipSeasonOptions[0].id);
     }
-  }, [seasonsForCompetition, seasonId]);
+  }, [championshipSeasonOptions, seasonId]);
 
   const { data: list, isLoading: listLoading } =
     useFinalBetsListQuery(seasonId);
-  const { data: ctx, isLoading: ctxLoading } = useFinalBetQuery(seasonId);
-  const { mutateAsync: save, isPending: saving } =
-    useUpsertFinalBetMutation(seasonId);
 
-  const [homeId, setHomeId] = useState('');
-  const [awayId, setAwayId] = useState('');
-  const [homeScore, setHomeScore] = useState('0');
-  const [awayScore, setAwayScore] = useState('0');
-  const [error, setError] = useState<string | null>(null);
+  const { data: matchesList, isSuccess: matchesQuerySuccess } =
+    useMatchesQuery();
+
+  const seasonHasStartedMatch = useMemo(() => {
+    if (!seasonId || !matchesList) {
+      return false;
+    }
+
+    return seasonHasAnyMatchKickoffInPast(seasonId, matchesList);
+  }, [seasonId, matchesList]);
+
+  /** Require successful /matches load and no past kickoff in this season before showing edit entry points. */
+  const canEditFinalPickBySchedule =
+    matchesQuerySuccess && !seasonHasStartedMatch;
+
+  const [finalBetDialogOpen, setFinalBetDialogOpen] = useState(false);
+
+  const openFinalBetDialog = useCallback(() => setFinalBetDialogOpen(true), []);
 
   useEffect(() => {
-    if (!ctx) return;
-    if (ctx.myBet) {
-      setHomeId(ctx.myBet.predictedHomeTeamId);
-      setAwayId(ctx.myBet.predictedAwayTeamId);
-      setHomeScore(String(ctx.myBet.predictedHomeScore));
-      setAwayScore(String(ctx.myBet.predictedAwayScore));
-    } else if (ctx.teamOptions.length >= 2) {
-      setHomeId(ctx.teamOptions[0].id);
-      setAwayId(ctx.teamOptions[1].id);
-      setHomeScore('0');
-      setAwayScore('0');
-    }
-  }, [ctx]);
+    setFinalBetDialogOpen(false);
+  }, [seasonId]);
 
-  const canEdit = ctx?.finalBettingOpen ?? false;
-  const teamOptions = ctx?.teamOptions ?? [];
+  useEffect(() => {
+    if (!canEditFinalPickBySchedule) {
+      setFinalBetDialogOpen(false);
+    }
+  }, [canEditFinalPickBySchedule]);
 
-  const onSave = async () => {
-    setError(null);
-    const hs = Number.parseInt(homeScore, 10);
-    const as = Number.parseInt(awayScore, 10);
-    const parsed = UpsertFinalBetPayloadSchema.safeParse({
-      predictedHomeTeamId: homeId,
-      predictedAwayTeamId: awayId,
-      predictedHomeScore: hs,
-      predictedAwayScore: as,
-    });
-    if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Invalid input');
-      return;
-    }
-    try {
-      await save(parsed.data);
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Save failed');
-    }
-  };
+  const currentUserInList = Boolean(
+    me?.id && list?.some((row) => row.userId === me.id),
+  );
 
   if (seasonsPending) {
     return (
@@ -378,21 +250,13 @@ export default function FinalBetsScreen() {
             Final bets
           </Text>
           <LabeledSelectMenu
-            label="Championship"
-            options={competitions}
-            valueId={competitionId}
-            onSelect={setCompetitionId}
-            getOptionLabel={(c) => c.name}
-            placeholder="Select championship"
-          />
-          <LabeledSelectMenu
-            label="Season"
-            options={seasonsForCompetition}
-            valueId={seasonId}
+            label="Championship & season"
+            options={championshipSeasonOptions}
+            value={seasonId}
             onSelect={setSeasonId}
-            getOptionLabel={seasonMenuLabel}
-            placeholder="Select season"
-            emptyMessage="No season for this championship"
+            getOptionLabel={championshipSeasonLabel}
+            placeholder="Select championship and season"
+            emptyMessage="No seasons available"
           />
         </View>
 
@@ -408,9 +272,9 @@ export default function FinalBetsScreen() {
             variant="bodySmall"
             style={{ color: '#a1a1aa', marginBottom: 16 }}
           >
-            Everyone’s final picks for the season you selected. Make or update
-            your own pick below (one per season). Points: 2 / 5 / 7 / 10 when
-            the result is known.
+            Everyone’s final picks for the season you selected. Edit yours from
+            your row or “Set your final bet” (one per season). Points: 2 / 5 / 7
+            / 10 when the result is known.
           </Text>
 
           <Text variant="titleSmall" style={{ marginBottom: 8 }}>
@@ -420,7 +284,7 @@ export default function FinalBetsScreen() {
 
           {!seasonId ? (
             <Text style={{ color: '#a1a1aa', marginBottom: 16 }}>
-              Select a championship and season to see picks.
+              Select a championship / season above to see picks.
             </Text>
           ) : listLoading ? (
             <ActivityIndicator style={{ marginBottom: 24 }} />
@@ -435,149 +299,35 @@ export default function FinalBetsScreen() {
                   key={item.userId}
                   item={item}
                   isCurrentUser={item.userId === me?.id}
+                  onEditPick={
+                    item.userId === me?.id && canEditFinalPickBySchedule
+                      ? openFinalBetDialog
+                      : undefined
+                  }
                 />
               ))}
             </View>
           )}
 
-          <View
-            style={{
-              height: 1,
-              backgroundColor: '#3f3f46',
-              marginVertical: 8,
-            }}
-          />
-
-          {ctxLoading || !ctx ? (
-            seasonId ? (
-              <ActivityIndicator style={{ marginTop: 16 }} />
-            ) : null
-          ) : (
-            <>
-              <Text variant="titleSmall" style={{ marginBottom: 8 }}>
-                Your pick
-              </Text>
-              <Text style={{ color: '#a1a1aa', marginBottom: 16 }}>
-                {!ctx.finalBettingOpen ? 'Betting closed · ' : ''}
-                {ctx.competitionName} — {ctx.seasonName}
-              </Text>
-
-              {ctx.actual ? (
-                <View
-                  style={{
-                    padding: 12,
-                    marginBottom: 16,
-                    borderWidth: 1,
-                    borderColor: '#3f3f46',
-                    borderRadius: 8,
-                    backgroundColor: '#13161a',
-                  }}
-                >
-                  <Text variant="titleSmall" style={{ marginBottom: 8 }}>
-                    Actual final
-                  </Text>
-                  <Text>
-                    {ctx.actual.homeTeamName} {ctx.actual.homeScore ?? '—'} —{' '}
-                    {ctx.actual.awayScore ?? '—'} {ctx.actual.awayTeamName}
-                  </Text>
-                  {ctx.awardedPoints !== null ? (
-                    <Text style={{ marginTop: 8, color: '#EA580C' }}>
-                      Your points: {ctx.awardedPoints}
-                    </Text>
-                  ) : null}
-                </View>
-              ) : null}
-
-              <TeamMenu
-                label="Home (final)"
-                options={teamOptions}
-                valueId={homeId}
-                onSelect={setHomeId}
-                disabled={!canEdit}
-              />
-              <TeamMenu
-                label="Away (final)"
-                options={teamOptions}
-                valueId={awayId}
-                onSelect={setAwayId}
-                disabled={!canEdit}
-              />
-
-              <View style={{ flexDirection: 'row', gap: 16, marginBottom: 16 }}>
-                <View style={{ flex: 1 }}>
-                  <Text variant="labelLarge" style={{ marginBottom: 6 }}>
-                    Home goals
-                  </Text>
-                  <TextInput
-                    editable={canEdit}
-                    keyboardType="number-pad"
-                    value={homeScore}
-                    onChangeText={setHomeScore}
-                    style={{
-                      padding: 12,
-                      borderWidth: 1,
-                      borderColor: '#3f3f46',
-                      borderRadius: 4,
-                      color: '#f1f5f9',
-                      backgroundColor: '#13161a',
-                    }}
-                  />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text variant="labelLarge" style={{ marginBottom: 6 }}>
-                    Away goals
-                  </Text>
-                  <TextInput
-                    editable={canEdit}
-                    keyboardType="number-pad"
-                    value={awayScore}
-                    onChangeText={setAwayScore}
-                    style={{
-                      padding: 12,
-                      borderWidth: 1,
-                      borderColor: '#3f3f46',
-                      borderRadius: 4,
-                      color: '#f1f5f9',
-                      backgroundColor: '#13161a',
-                    }}
-                  />
-                </View>
-              </View>
-
-              {error ? (
-                <Text style={{ color: '#fca5a5', marginBottom: 12 }}>
-                  {error}
-                </Text>
-              ) : null}
-
-              {canEdit ? (
-                <Pressable
-                  onPress={onSave}
-                  disabled={saving}
-                  style={{
-                    padding: 14,
-                    backgroundColor: '#EA580C',
-                    borderRadius: 8,
-                    alignItems: 'center',
-                  }}
-                >
-                  {saving ? (
-                    <ActivityIndicator color="#fff" />
-                  ) : (
-                    <Text style={{ color: '#fff', fontWeight: '700' }}>
-                      Save final bet
-                    </Text>
-                  )}
-                </Pressable>
-              ) : (
-                <Text style={{ color: '#a1a1aa' }}>
-                  You cannot change this pick while betting is closed.
-                </Text>
-              )}
-            </>
-          )}
+          {seasonId &&
+          me &&
+          !currentUserInList &&
+          !listLoading &&
+          canEditFinalPickBySchedule ? (
+            <View style={{ marginBottom: 24 }}>
+              <Button mode="contained" onPress={openFinalBetDialog}>
+                Set your final bet
+              </Button>
+            </View>
+          ) : null}
         </ScrollView>
       </View>
+
+      <EditFinalBetDialog
+        open={finalBetDialogOpen}
+        onOpenChange={setFinalBetDialogOpen}
+        seasonId={seasonId}
+      />
     </Screen>
   );
 }

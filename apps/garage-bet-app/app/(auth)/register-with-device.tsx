@@ -51,7 +51,10 @@ export default function RegisterWithDevice() {
       }}
     >
       <View style={{ gap: 16 }}>
-        <Text variant="headlineLarge" style={{ fontWeight: 'bold' }}>
+        <Text
+          variant="headlineLarge"
+          style={{ fontWeight: 'bold', textAlign: 'center' }}
+        >
           Register
         </Text>
         <Text variant="bodyMedium" style={{ color: '#a1a1aa' }}>
