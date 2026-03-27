@@ -9,7 +9,7 @@ export const MatchDataSchema = zod.object({
   homeScore: zod.number(),
   awayScore: zod.number(),
   kickoffAt: zod.string(),
-  status: zod.string(),
+  status: zod.enum(['SCHEDULED', 'LIVE', 'FINISHED', 'CANCELED', 'POSTPONED']),
   stage: zod.string(),
   groupName: zod.string(),
   competition: zod.string(),

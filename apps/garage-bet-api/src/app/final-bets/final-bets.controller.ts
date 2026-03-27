@@ -25,6 +25,17 @@ export class FinalBetsController {
     return this.finalBetsService.listSeasons();
   }
 
+  @Get('competitions/:competitionId/seasons/:seasonId/schedule-started')
+  getSeasonScheduleStarted(
+    @Param('competitionId') competitionId: string,
+    @Param('seasonId') seasonId: string,
+  ) {
+    return this.finalBetsService.getSeasonScheduleStarted(
+      competitionId,
+      seasonId,
+    );
+  }
+
   @Get('seasons/:seasonId/final-bets')
   listFinalBetsForSeason(
     @Param('seasonId') seasonId: string,

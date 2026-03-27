@@ -13,7 +13,7 @@ export const RegisterSchema = zod.object({
     .string()
     .min(1, 'Password is required')
     .min(8, 'Password must be at least 8 characters long'),
-  name: zod.string().optional(),
+  name: zod.string().min(1, 'Display Name is required'),
   deviceId: zod.string().optional(),
 });
 

@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compileOnSave": false,
+  "files": [],
+  "references": [
+    { "path": "./apps/garage-bet-app" },
+    { "path": "./apps/garage-bet-api" },
+    { "path": "./models" }
+  ]
+}

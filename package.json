@@ -6,6 +6,7 @@
     "prisma:generate": "prisma generate --schema apps/garage-bet-api/prisma/schema.prisma",
     "build:api": "yarn prisma:generate && nx build garage-bet-api",
     "start:api": "node dist/apps/garage-bet-api/main.js",
+    "seed:world-cup-group": "node apps/garage-bet-api/prisma/seed-world-cup-group-stage.cjs",
     "heroku-postbuild": "yarn build:api"
   },
   "private": true,

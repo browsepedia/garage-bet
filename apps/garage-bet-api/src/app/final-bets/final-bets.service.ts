@@ -42,6 +42,34 @@ export class FinalBetsService {
     });
   }
 
+  /**
+   * True when the season belongs to the given competition and at least one
+   * fixture kickoff is on or before now (server time).
+   */
+  async getSeasonScheduleStarted(
+    competitionId: string,
+    seasonId: string,
+  ): Promise<{ hasStarted: boolean }> {
+    const season = await this.prisma.season.findFirst({
+      where: { id: seasonId, competitionId },
+      select: { id: true },
+    });
+
+    if (!season) {
+      throw new NotFoundException('Season not found for this competition');
+    }
+
+    const pastKickoff = await this.prisma.match.findFirst({
+      where: {
+        seasonId,
+        kickoffAt: { lte: new Date() },
+      },
+      select: { id: true },
+    });
+
+    return { hasStarted: pastKickoff != null };
+  }
+
   async listFinalBetsForSeason(
     seasonId: string,
     authorizationHeader?: string,
