@@ -1,8 +1,43 @@
 import { MatchData } from '@garage-bet/models';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { MatchStage, MatchStatus } from '@prisma/client';
+import { toDate } from 'date-fns-tz';
 import { AuthService } from '../auth/auth.service';
 import { PrismaService } from '../services/prisma-service';
+
+const LOCAL_DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+function addCalendarDaysToYyyyMmDd(yyyyMmDd: string, delta: number): string {
+  const [y, m, d] = yyyyMmDd.split('-').map(Number);
+  const u = new Date(Date.UTC(y, m - 1, d + delta));
+  const yy = u.getUTCFullYear();
+  const mm = String(u.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(u.getUTCDate()).padStart(2, '0');
+  return `${yy}-${mm}-${dd}`;
+}
+
+function utcRangeForLocalCalendarDay(
+  dateYyyyMmDd: string,
+  timeZone: string,
+): { start: Date; endExclusive: Date } {
+  if (!LOCAL_DAY_RE.test(dateYyyyMmDd)) {
+    throw new BadRequestException('Invalid date; expected yyyy-MM-dd');
+  }
+  if (!timeZone?.trim()) {
+    throw new BadRequestException('timeZone is required (IANA identifier)');
+  }
+  const start = toDate(`${dateYyyyMmDd}T00:00:00.000`, { timeZone });
+  const nextDay = addCalendarDaysToYyyyMmDd(dateYyyyMmDd, 1);
+  const endExclusive = toDate(`${nextDay}T00:00:00.000`, { timeZone });
+  if (Number.isNaN(start.getTime()) || Number.isNaN(endExclusive.getTime())) {
+    throw new BadRequestException('Invalid date or time zone');
+  }
+  return { start, endExclusive };
+}
 
 type MatchWithUserBet = {
   id: string;
@@ -115,6 +150,33 @@ export class MatchesService {
 
     const matches = await this.prisma.match.findMany({
       where: { seasonId },
+      include: this.userBetInclude(user.id),
+      orderBy: {
+        kickoffAt: 'asc',
+      },
+    });
+
+    return matches.map((match) => mapMatchToDto(match));
+  }
+
+  async getMatchesForLocalDay(
+    dateYyyyMmDd: string,
+    timeZone: string,
+    authorizationHeader?: string,
+  ): Promise<MatchData[]> {
+    const user = await this.authService.me(authorizationHeader);
+    const { start, endExclusive } = utcRangeForLocalCalendarDay(
+      dateYyyyMmDd,
+      timeZone,
+    );
+
+    const matches = await this.prisma.match.findMany({
+      where: {
+        kickoffAt: {
+          gte: start,
+          lt: endExclusive,
+        },
+      },
       include: this.userBetInclude(user.id),
       orderBy: {
         kickoffAt: 'asc',

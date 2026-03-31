@@ -1,4 +1,4 @@
-import { Controller, Get, Headers, Param } from '@nestjs/common';
+import { Controller, Get, Headers, Param, Query } from '@nestjs/common';
 import { MatchesService } from './matches.service';
 
 @Controller('matches')
@@ -8,6 +8,19 @@ export class MatchesController {
   @Get()
   getMatches(@Headers('authorization') authorization?: string) {
     return this.matchesService.getMatches(authorization);
+  }
+
+  @Get('day')
+  getMatchesForDay(
+    @Query('date') date: string,
+    @Query('timeZone') timeZone: string,
+    @Headers('authorization') authorization?: string,
+  ) {
+    return this.matchesService.getMatchesForLocalDay(
+      date,
+      timeZone,
+      authorization,
+    );
   }
 
   @Get('season/:seasonId')

@@ -1,5 +1,5 @@
-import { memo, useMemo } from 'react';
-import { View, type ViewStyle } from 'react-native';
+import { memo } from 'react';
+import { View } from 'react-native';
 import { SvgUri } from 'react-native-svg';
 
 export type TeamLogoProps = {
@@ -9,32 +9,18 @@ export type TeamLogoProps = {
   maxHeight?: number;
 };
 
-export const TeamLogo = memo(function TeamLogo({
-  uri,
-  maxWidth = 48,
-  maxHeight = 32,
-}: TeamLogoProps) {
-  const diameter = Math.min(maxWidth, maxHeight);
-
-  const clipStyle = useMemo<ViewStyle>(
-    () => ({
-      width: diameter,
-      height: diameter,
-      borderRadius: diameter / 2,
-      overflow: 'hidden',
-      backgroundColor: '#13161a',
-    }),
-    [diameter],
-  );
-
+export const TeamLogo = memo(function TeamLogo({ uri }: TeamLogoProps) {
   return (
-    <View style={clipStyle}>
-      <SvgUri
-        uri={uri}
-        width={diameter}
-        height={diameter}
-        preserveAspectRatio="xMidYMid meet"
-      />
+    <View
+      style={{
+        width: 28,
+        height: 28,
+        borderRadius: 999,
+        overflow: 'hidden',
+        backgroundColor: '#13161a',
+      }}
+    >
+      <SvgUri uri={uri} width={32} height={32} />
     </View>
   );
 });

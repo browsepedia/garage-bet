@@ -21,7 +21,7 @@ export default function Home() {
       }
 
       if (accessToken || refreshToken) {
-        router.replace('/(app)/home');
+        router.replace('/(app)/today');
         return;
       }
 
@@ -29,7 +29,7 @@ export default function Home() {
       if (!active) return;
 
       if (autoLoggedIn) {
-        router.replace('/(app)/home');
+        router.replace('/(app)/today');
         return;
       }
 

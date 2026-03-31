@@ -140,9 +140,9 @@ export default function AppLayout() {
         }}
       >
         <Tabs.Screen
-          name="home"
+          name="today"
           options={{
-            title: 'Live',
+            title: 'Today',
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="play" size={size} color={color} />
             ),
@@ -170,9 +170,9 @@ export default function AppLayout() {
             ),
           }}
         />
-      <Tabs.Screen
-        name="final-bets"
-        options={{
+        <Tabs.Screen
+          name="final-bets"
+          options={{
             title: 'Final Bets',
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons

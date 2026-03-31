@@ -13,3 +13,14 @@ export const formatInUserTimezone = (
 
   return format(zonedDate, pattern);
 };
+
+export function getDeviceIanaTimeZone(): string {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone;
+}
+
+/** Calendar date `yyyy-MM-dd` for “now” in the given IANA zone (defaults to device). */
+export function getTodayYyyyMmDdInTimeZone(
+  timeZone = getDeviceIanaTimeZone(),
+): string {
+  return formatInUserTimezone(new Date().toISOString(), 'yyyy-MM-dd', timeZone);
+}

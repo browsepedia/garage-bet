@@ -16,6 +16,7 @@ export function useSetBetMutation() {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['matches'] });
       queryClient.invalidateQueries({ queryKey: ['matches', 'season'] });
+      queryClient.invalidateQueries({ queryKey: ['matches', 'day'] });
       queryClient.invalidateQueries({
         queryKey: ['match-bets', variables.matchId],
       });

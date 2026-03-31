@@ -12,6 +12,8 @@ const buttonCompact = {
 export type AppThemeColors = MD3Theme['colors'] & {
   success: string;
   warning: string;
+  /** Blue tone for informational copy (e.g. “result” bet outcome). */
+  info: string;
 };
 
 export type AppTheme = Omit<MD3Theme, 'colors'> & {
@@ -49,6 +51,7 @@ const darkTheme: AppTheme = {
     errorContainer: '#7f1d1d',
     success: '#4ade80',
     warning: '#fbbf24',
+    info: '#60a5fa',
     backdrop: 'transparent',
     elevation: {
       ...MD3DarkTheme.colors.elevation,
@@ -77,6 +80,7 @@ const lightTheme: AppTheme = {
     errorContainer: '#fef2f2',
     success: '#16a34a',
     warning: '#d97706',
+    info: '#2563eb',
     backdrop: 'transparent',
   },
 };

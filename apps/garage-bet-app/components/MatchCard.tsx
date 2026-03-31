@@ -5,24 +5,16 @@ import { View } from 'react-native';
 import { Card, Text, useTheme } from 'react-native-paper';
 import { AppTheme } from '../theme';
 import { formatInUserTimezone } from '../utils/format-date';
+import { hasMatchStarted } from '../utils/match-utils';
 import { Button } from './Button';
 import { TeamLogo } from './TeamLogo';
 
-function hasMatchStarted(match: MatchData): boolean {
-  if (match.status === 'LIVE' || match.status === 'FINISHED') {
-    return true;
-  }
-  const kickoffMs = Date.parse(match.kickoffAt);
-  if (Number.isNaN(kickoffMs)) {
-    return false;
-  }
-  return kickoffMs <= Date.now();
-}
-
 function MatchCard({
   match,
+  showStanding = true,
   onSetBetClick,
 }: {
+  showStanding?: boolean;
   match: MatchData;
   onSetBetClick: (match: MatchData) => void;
 }) {
@@ -63,7 +55,7 @@ function MatchCard({
     <Card
       mode="contained"
       style={{
-        marginBottom: 16,
+        marginBottom: 8,
         padding: 16,
         borderWidth: 1,
         borderColor,
@@ -100,7 +92,7 @@ function MatchCard({
             flexDirection: 'row',
           }}
         >
-          <Text variant="titleMedium" style={{ flex: 1, textAlign: 'right' }}>
+          <Text variant="titleSmall" style={{ flex: 1, textAlign: 'right' }}>
             {match.homeTeam}
           </Text>
 
@@ -120,7 +112,7 @@ function MatchCard({
           {match.awayTeamLogoUrl ? (
             <TeamLogo uri={match.awayTeamLogoUrl} />
           ) : null}
-          <Text variant="titleMedium" style={{ flex: 1, textAlign: 'left' }}>
+          <Text variant="titleSmall" style={{ flex: 1, textAlign: 'left' }}>
             {match.awayTeam}
           </Text>
         </View>
@@ -135,7 +127,7 @@ function MatchCard({
             alignItems: 'center',
           }}
         >
-          <Text variant="titleMedium" style={{ flex: 1, textAlign: 'right' }}>
+          <Text variant="titleSmall" style={{ flex: 1, textAlign: 'right' }}>
             {match.homeScore}
           </Text>
           <Text style={{ width: 16, textAlign: 'center' }}>-</Text>
@@ -155,7 +147,7 @@ function MatchCard({
           }}
         >
           <Text
-            variant="titleMedium"
+            variant="titleSmall"
             style={{
               flex: 1,
               textAlign: 'right',
@@ -174,7 +166,7 @@ function MatchCard({
             -
           </Text>
           <Text
-            variant="titleMedium"
+            variant="titleSmall"
             style={{
               flex: 1,
               textAlign: 'left',
@@ -192,7 +184,7 @@ function MatchCard({
           justifyContent: 'space-between',
           gap: 16,
           alignItems: 'flex-end',
-          marginTop: 8,
+          marginTop: 4,
         }}
       >
         <View style={{ flex: 1, minWidth: 0 }}>
