@@ -20,7 +20,7 @@ export const TeamLogo = memo(function TeamLogo({ uri }: TeamLogoProps) {
         backgroundColor: '#13161a',
       }}
     >
-      <SvgUri uri={uri} width={32} height={32} />
+      <SvgUri uri={uri} width={28} height={28} />
     </View>
   );
 });

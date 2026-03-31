@@ -90,6 +90,9 @@ export default function TodayScreen() {
           groupByChampionship
           refreshing={isRefetching ?? false}
           onRefresh={refetch}
+          showStanding={false}
+          showChampionship={false}
+          showOnlyStartTime
         />
       </View>
       <SetMatchBetDialog

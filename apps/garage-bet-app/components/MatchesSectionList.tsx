@@ -28,6 +28,8 @@ export type MatchesSectionListProps = {
   /** When true, sections are competition — season (ignores `groupByDate`). */
   groupByChampionship?: boolean;
   showStanding?: boolean;
+  showChampionship?: boolean;
+  showOnlyStartTime?: boolean;
 };
 
 export function MatchesSectionList({
@@ -41,6 +43,8 @@ export function MatchesSectionList({
   groupByDate = false,
   groupByChampionship = false,
   showStanding = true,
+  showChampionship = true,
+  showOnlyStartTime = false,
 }: MatchesSectionListProps) {
   const theme = useTheme();
 
@@ -78,7 +82,9 @@ export function MatchesSectionList({
         <MatchCard
           match={item}
           showStanding={showStanding}
+          showChampionship={showChampionship}
           onSetBetClick={onSetBetClick}
+          showOnlyStartTime={showOnlyStartTime}
         />
       )}
       renderSectionHeader={({ section }) => (

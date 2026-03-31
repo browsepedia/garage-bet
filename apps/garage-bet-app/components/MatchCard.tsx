@@ -1,4 +1,4 @@
-import { MatchData } from '@garage-bet/models';
+import { MatchBetListItem, MatchData } from '@garage-bet/models';
 import { router } from 'expo-router';
 import { memo, useMemo } from 'react';
 import { View } from 'react-native';
@@ -6,50 +6,40 @@ import { Card, Text, useTheme } from 'react-native-paper';
 import { AppTheme } from '../theme';
 import { formatInUserTimezone } from '../utils/format-date';
 import { hasMatchStarted } from '../utils/match-utils';
+import { useBetStatusColor } from '../utils/use-bet-status-color';
 import { Button } from './Button';
 import { TeamLogo } from './TeamLogo';
 
 function MatchCard({
   match,
   showStanding = true,
+  showChampionship = true,
   onSetBetClick,
+  showOnlyStartTime = false,
 }: {
   showStanding?: boolean;
+  showChampionship?: boolean;
   match: MatchData;
   onSetBetClick: (match: MatchData) => void;
+  showOnlyStartTime?: boolean;
 }) {
-  const statusColor =
-    match.betStatus === 'WON'
-      ? '#22c55e'
-      : match.betStatus === 'LOST'
-        ? '#ef4444'
-        : '#eab308';
+  const statusColor = useBetStatusColor(
+    match.betStatus as MatchBetListItem['betStatus'],
+  );
 
   const theme = useTheme<AppTheme>();
   const started = hasMatchStarted(match);
 
   const borderColor = useMemo(() => {
     if (match.betStatus === 'UNSET') {
-      return '#3f3f46';
+      return theme.colors.outline;
     }
     if (match.betStatus === 'SET') {
-      return '#3f3f46';
+      return theme.colors.outline;
     }
 
-    if (match.betStatus === 'WON') {
-      return '#22c55e';
-    }
-
-    if (match.betStatus === 'LOST') {
-      return theme.colors.error;
-    }
-
-    if (match.betStatus === 'RESULT') {
-      return theme.colors.warning;
-    }
-
-    return '#3f3f46';
-  }, [match.betStatus, theme]);
+    return statusColor;
+  }, [match.betStatus, theme, statusColor]);
 
   return (
     <Card
@@ -184,19 +174,24 @@ function MatchCard({
           justifyContent: 'space-between',
           gap: 16,
           alignItems: 'flex-end',
-          marginTop: 4,
         }}
       >
-        <View style={{ flex: 1, minWidth: 0 }}>
+        <View style={{ minWidth: 0 }}>
           <Text variant="bodySmall" style={{ color: '#a1a1aa' }}>
-            {formatInUserTimezone(match.kickoffAt, 'dd MMM yyyy HH:mm')}
+            {showOnlyStartTime
+              ? formatInUserTimezone(match.kickoffAt, 'HH:mm')
+              : formatInUserTimezone(match.kickoffAt, 'dd MMM yyyy HH:mm')}
           </Text>
-          <Text variant="bodySmall" style={{ color: '#a1a1aa' }}>
-            {match.competition}
-          </Text>
-          <Text variant="bodySmall" style={{ color: '#a1a1aa' }}>
-            {match.stage}
-          </Text>
+          {showChampionship && (
+            <Text variant="bodySmall" style={{ color: '#a1a1aa' }}>
+              {match.competition}
+            </Text>
+          )}
+          {showStanding && (
+            <Text variant="bodySmall" style={{ color: '#a1a1aa' }}>
+              {match.stage} {match.groupName}
+            </Text>
+          )}
         </View>
 
         <View

@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { Avatar, Text } from 'react-native-paper';
 import { useBetStatusColor } from '../utils/use-bet-status-color';
 
-export default function MatchBetRow({
+export default function BetCard({
   item,
   isCurrentUser,
 }: {
@@ -23,8 +23,8 @@ export default function MatchBetRow({
         marginBottom: 8,
         borderRadius: 8,
         borderWidth: 1,
-        borderColor: isCurrentUser ? '#EA580C' : '#3f3f46',
-        backgroundColor: isCurrentUser ? '#2a1510' : '#13161a',
+        borderColor: betStatusColor,
+        backgroundColor: '#13161a',
       }}
     >
       <Avatar.Image size={40} source={{ uri: item.avatarUrl }} />

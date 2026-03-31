@@ -1,6 +1,6 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useQuery } from '@tanstack/react-query';
-import { Redirect, router, Tabs, useSegments } from 'expo-router';
+import { Redirect, router, Tabs, usePathname, useSegments } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
@@ -27,6 +27,8 @@ export default function AppLayout() {
   const [tokenHint, setTokenHint] = useState(false);
   const theme = useTheme();
   const appBackground = theme.colors.background;
+
+  const pathname = usePathname();
 
   useEffect(() => {
     (async () => {
@@ -110,7 +112,7 @@ export default function AppLayout() {
       <ExpoPushTokenSync enabled={Boolean(meQuery.data?.id)} />
       <Tabs
         screenOptions={{
-          headerShown: true,
+          headerShown: pathname.includes('/matches/') ? false : true,
           headerStyle: {
             backgroundColor: appBackground,
           },
@@ -160,6 +162,12 @@ export default function AppLayout() {
               />
             ),
           }}
+          listeners={({ navigation }) => ({
+            tabPress: (e) => {
+              e.preventDefault();
+              navigation.navigate('matches', { screen: 'index' });
+            },
+          })}
         />
         <Tabs.Screen
           name="leaderboard"

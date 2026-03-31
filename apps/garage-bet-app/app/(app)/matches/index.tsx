@@ -206,6 +206,9 @@ export default function Matches() {
           refreshing={isRefetching ?? false}
           onRefresh={refetchSeasonMatches}
           groupByDate={groupByDate}
+          showChampionship={false}
+          showStanding={groupByDate}
+          showOnlyStartTime={groupByDate}
         />
       </View>
       <SetMatchBetDialog
