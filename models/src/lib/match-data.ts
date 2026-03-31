@@ -19,6 +19,9 @@ export const MatchDataSchema = zod.object({
   homeBetScore: zod.number(),
   awayBetScore: zod.number(),
   betStatus: zod.enum(['WON', 'LOST', 'RESULT', 'UNSET', 'SET']),
+  /** From `Team.logoUrl` when set. */
+  homeTeamLogoUrl: zod.union([zod.string().min(1), zod.null()]),
+  awayTeamLogoUrl: zod.union([zod.string().min(1), zod.null()]),
 });
 
 export type MatchData = zod.infer<typeof MatchDataSchema>;

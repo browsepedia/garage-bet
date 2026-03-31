@@ -1,7 +1,7 @@
 import { MatchData } from '@garage-bet/models';
 import { router } from 'expo-router';
 import { memo, useMemo } from 'react';
-import { View } from 'react-native';
+import { Image, View } from 'react-native';
 import { Card, Text, useTheme } from 'react-native-paper';
 import { AppTheme } from '../theme';
 import { formatInUserTimezone } from '../utils/format-date';
@@ -91,13 +91,29 @@ function MatchCard({
           alignItems: 'center',
         }}
       >
-        <Text variant="titleMedium" style={{ flex: 1, textAlign: 'right' }}>
-          {match.homeTeam}
-        </Text>
+        <View style={{ flex: 1, alignItems: 'flex-end', gap: 4 }}>
+          {match.homeTeamLogoUrl ? (
+            <Image
+              source={{ uri: match.homeTeamLogoUrl }}
+              style={{ width: 40, height: 27 }}
+            />
+          ) : null}
+          <Text variant="titleMedium" style={{ flex: 1, textAlign: 'right' }}>
+            {match.homeTeam}
+          </Text>
+        </View>
         <Text style={{ width: 16, textAlign: 'center' }}>-</Text>
-        <Text variant="titleMedium" style={{ flex: 1, textAlign: 'left' }}>
-          {match.awayTeam}
-        </Text>
+        <View style={{ flex: 1, alignItems: 'flex-start', gap: 4 }}>
+          {match.awayTeamLogoUrl ? (
+            <Image
+              source={{ uri: match.awayTeamLogoUrl }}
+              style={{ width: 40, height: 27 }}
+            />
+          ) : null}
+          <Text variant="titleMedium" style={{ flex: 1, textAlign: 'left' }}>
+            {match.awayTeam}
+          </Text>
+        </View>
       </View>
 
       {(match.status === 'FINISHED' || match.status === 'LIVE') && (

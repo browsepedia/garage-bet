@@ -27,6 +27,7 @@
     "production": {}
   },
   "cli": {
+    "version": ">= 16.31.0",
     "appVersionSource": "remote"
   }
 }

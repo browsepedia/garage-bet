@@ -65,6 +65,8 @@ export class MatchesService {
             : null,
           { homeScore, awayScore },
         ),
+        homeTeamLogoUrl: match.homeTeam.logoUrl?.trim() || null,
+        awayTeamLogoUrl: match.awayTeam.logoUrl?.trim() || null,
       };
     });
   }

@@ -1,17 +1,28 @@
 /**
  * EAS build post-install helper for monorepo apps.
  *
- * Responsibilities:
  * 1) Ensure workspace node_modules exists (symlink to app node_modules when needed).
- * 2) Mirror hoisted packages from the workspace root into the app's node_modules via
- *    symlinks so Android Gradle autolinking finds native modules under the app
- *    (Yarn hoists to repo root, leaving apps/<app>/node_modules nearly empty).
+ * 2) Mirror hoisted packages from the workspace root into the app's node_modules when
+ *    they are missing there (Yarn nohoist should make this a no-op for garage-bet-app).
+ *
+ * Directory links: POSIX uses relative symlinks; Windows uses junctions (no admin).
  */
 
 import { existsSync, promises as fs } from 'fs';
-import { dirname, join, relative } from 'path';
+import { dirname, join, relative, resolve } from 'path';
+import { fileURLToPath } from 'url';
 
-const [workspaceRoot, projectRoot] = process.argv.slice(2);
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+
+const rawWorkspace = process.argv[2];
+const rawProject = process.argv[3];
+
+const workspaceRoot = rawWorkspace
+  ? resolve(process.cwd(), rawWorkspace)
+  : resolve(__dirname, '../..');
+const projectRoot = rawProject
+  ? resolve(process.cwd(), rawProject)
+  : resolve(workspaceRoot, 'apps/garage-bet-app');
 
 async function ensureWorkspaceNodeModules() {
   const workspaceNodeModules = join(workspaceRoot, 'node_modules');
@@ -35,10 +46,6 @@ const SKIP_TOP_LEVEL = new Set([
   '.modules.yaml',
 ]);
 
-/**
- * Symlink each hoisted package from workspaceRoot/node_modules into projectRoot/node_modules
- * so paths like apps/my-app/node_modules/react-native-gesture-handler exist for RN Gradle.
- */
 async function mirrorHoistedPackagesIntoApp() {
   const rootNm = join(workspaceRoot, 'node_modules');
   const appNm = join(projectRoot, 'node_modules');
@@ -52,7 +59,7 @@ async function mirrorHoistedPackagesIntoApp() {
 
   await fs.mkdir(appNm, { recursive: true });
 
-  async function symlinkIfAbsent(targetAbs, linkAbs) {
+  async function linkIfAbsent(targetAbs, linkAbs) {
     try {
       await fs.lstat(linkAbs);
       return;
@@ -60,8 +67,12 @@ async function mirrorHoistedPackagesIntoApp() {
       /* create */
     }
     await fs.mkdir(dirname(linkAbs), { recursive: true });
-    const rel = relative(dirname(linkAbs), targetAbs);
-    await fs.symlink(rel, linkAbs, 'dir');
+    if (process.platform === 'win32') {
+      await fs.symlink(targetAbs, linkAbs, 'junction');
+    } else {
+      const rel = relative(dirname(linkAbs), targetAbs);
+      await fs.symlink(rel, linkAbs, 'dir');
+    }
   }
 
   const top = await fs.readdir(rootNm, { withFileTypes: true });
@@ -82,27 +93,19 @@ async function mirrorHoistedPackagesIntoApp() {
         if (!sub.isDirectory()) continue;
         const targetAbs = join(scopeDir, sub.name);
         const linkAbs = join(appNm, ent.name, sub.name);
-        await symlinkIfAbsent(targetAbs, linkAbs);
+        await linkIfAbsent(targetAbs, linkAbs);
       }
     } else {
       const targetAbs = join(rootNm, ent.name);
       const linkAbs = join(appNm, ent.name);
-      await symlinkIfAbsent(targetAbs, linkAbs);
+      await linkIfAbsent(targetAbs, linkAbs);
     }
   }
 
-  console.log('Hoisted workspace packages symlinked into app node_modules');
+  console.log(
+    'Hoisted workspace packages linked into app node_modules (if missing)',
+  );
 }
 
 await ensureWorkspaceNodeModules();
-
-const shouldMirrorHoistedIntoApp =
-  process.env.EAS_BUILD === 'true' || process.platform !== 'win32';
-
-if (shouldMirrorHoistedIntoApp) {
-  await mirrorHoistedPackagesIntoApp();
-} else {
-  console.log(
-    'Skipping hoisted mirror on Windows (symlinks need dev mode/admin); EAS cloud still runs this step.',
-  );
-}
+await mirrorHoistedPackagesIntoApp();
