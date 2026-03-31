@@ -12,16 +12,7 @@ export default function MatchesStackLayout() {
       }}
     >
       <Stack.Screen name="index" />
-      <Stack.Screen
-        name="[matchId]"
-        options={{
-          headerShown: true,
-          headerTitle: 'Match',
-          headerStyle: { backgroundColor: theme.colors.background },
-          headerTintColor: theme.colors.onSurface,
-          headerShadowVisible: false,
-        }}
-      />
+      <Stack.Screen name="[matchId]" options={{ headerShown: false }} />
     </Stack>
   );
 }

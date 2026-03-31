@@ -1,11 +1,12 @@
 import { MatchData } from '@garage-bet/models';
 import { router } from 'expo-router';
 import { memo, useMemo } from 'react';
-import { Image, View } from 'react-native';
+import { View } from 'react-native';
 import { Card, Text, useTheme } from 'react-native-paper';
 import { AppTheme } from '../theme';
 import { formatInUserTimezone } from '../utils/format-date';
 import { Button } from './Button';
+import { TeamLogo } from './TeamLogo';
 
 function hasMatchStarted(match: MatchData): boolean {
   if (match.status === 'LIVE' || match.status === 'FINISHED') {
@@ -91,24 +92,33 @@ function MatchCard({
           alignItems: 'center',
         }}
       >
-        <View style={{ flex: 1, alignItems: 'flex-end', gap: 4 }}>
-          {match.homeTeamLogoUrl ? (
-            <Image
-              source={{ uri: match.homeTeamLogoUrl }}
-              style={{ width: 40, height: 27 }}
-            />
-          ) : null}
+        <View
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            gap: 8,
+            flexDirection: 'row',
+          }}
+        >
           <Text variant="titleMedium" style={{ flex: 1, textAlign: 'right' }}>
             {match.homeTeam}
           </Text>
+
+          {match.homeTeamLogoUrl ? (
+            <TeamLogo uri={match.homeTeamLogoUrl} />
+          ) : null}
         </View>
         <Text style={{ width: 16, textAlign: 'center' }}>-</Text>
-        <View style={{ flex: 1, alignItems: 'flex-start', gap: 4 }}>
+        <View
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            gap: 8,
+            flexDirection: 'row',
+          }}
+        >
           {match.awayTeamLogoUrl ? (
-            <Image
-              source={{ uri: match.awayTeamLogoUrl }}
-              style={{ width: 40, height: 27 }}
-            />
+            <TeamLogo uri={match.awayTeamLogoUrl} />
           ) : null}
           <Text variant="titleMedium" style={{ flex: 1, textAlign: 'left' }}>
             {match.awayTeam}

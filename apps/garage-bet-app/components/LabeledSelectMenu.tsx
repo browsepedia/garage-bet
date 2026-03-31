@@ -48,7 +48,7 @@ export function LabeledSelectMenu<
   };
 
   return (
-    <View style={{ marginBottom: 12, flex }}>
+    <View style={{ flex }}>
       {label && (
         <Text variant="labelLarge" style={{ marginBottom: 6 }}>
           {label}

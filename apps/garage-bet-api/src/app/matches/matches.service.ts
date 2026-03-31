@@ -1,8 +1,66 @@
 import { MatchData } from '@garage-bet/models';
-import { Injectable } from '@nestjs/common';
-import { MatchStatus } from '@prisma/client';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { MatchStage, MatchStatus } from '@prisma/client';
 import { AuthService } from '../auth/auth.service';
 import { PrismaService } from '../services/prisma-service';
+
+type MatchWithUserBet = {
+  id: string;
+  seasonId: string;
+  kickoffAt: Date;
+  status: MatchStatus;
+  stage: MatchStage;
+  groupName: string | null;
+  homeScore: number | null;
+  awayScore: number | null;
+  homeTeamId: string;
+  awayTeamId: string;
+  homeTeam: { name: string; logoUrl: string | null };
+  awayTeam: { name: string; logoUrl: string | null };
+  season: {
+    name: string;
+    competitionId: string;
+    competition: { name: string };
+  };
+  bets: { homeScore: number; awayScore: number }[];
+};
+
+function mapMatchToDto(match: MatchWithUserBet): MatchData {
+  const userBet = match.bets[0];
+  const homeScore = match.homeScore ?? 0;
+  const awayScore = match.awayScore ?? 0;
+  const homeBetScore = userBet?.homeScore ?? 0;
+  const awayBetScore = userBet?.awayScore ?? 0;
+
+  return {
+    id: match.id,
+    homeTeam: match.homeTeam.name,
+    awayTeam: match.awayTeam.name,
+    homeTeamId: match.homeTeamId,
+    awayTeamId: match.awayTeamId,
+    homeScore,
+    awayScore,
+    kickoffAt: match.kickoffAt.toISOString(),
+    status: match.status,
+    stage: match.stage,
+    groupName: match.groupName ?? '',
+    competition: match.season.competition.name,
+    competitionId: match.season.competitionId,
+    season: match.season.name,
+    seasonId: match.seasonId,
+    homeBetScore,
+    awayBetScore,
+    betStatus: getBetStatus(
+      match.status,
+      userBet
+        ? { homeScore: userBet.homeScore, awayScore: userBet.awayScore }
+        : null,
+      { homeScore, awayScore },
+    ),
+    homeTeamLogoUrl: match.homeTeam.logoUrl?.trim() || null,
+    awayTeamLogoUrl: match.awayTeam.logoUrl?.trim() || null,
+  };
+}
 
 @Injectable()
 export class MatchesService {
@@ -11,68 +69,125 @@ export class MatchesService {
     private readonly prisma: PrismaService,
   ) {}
 
+  private userBetInclude(userId: string) {
+    return {
+      season: {
+        include: {
+          competition: true,
+        },
+      },
+      homeTeam: true,
+      awayTeam: true,
+      bets: {
+        where: { userId },
+        take: 1,
+      },
+    } as const;
+  }
+
   async getMatches(authorizationHeader?: string): Promise<MatchData[]> {
     const user = await this.authService.me(authorizationHeader);
 
     const matches = await this.prisma.match.findMany({
-      include: {
-        season: {
-          include: {
-            competition: true,
-          },
-        },
-        homeTeam: true,
-        awayTeam: true,
-        bets: {
-          where: { userId: user.id },
-          take: 1,
-        },
-      },
+      include: this.userBetInclude(user.id),
       orderBy: {
         kickoffAt: 'asc',
       },
     });
 
-    return matches.map((match) => {
-      const userBet = match.bets[0];
-      const homeScore = match.homeScore ?? 0;
-      const awayScore = match.awayScore ?? 0;
-      const homeBetScore = userBet?.homeScore ?? 0;
-      const awayBetScore = userBet?.awayScore ?? 0;
+    return matches.map((match) => mapMatchToDto(match));
+  }
+
+  async getMatchesForSeason(
+    seasonId: string,
+    authorizationHeader?: string,
+  ): Promise<MatchData[]> {
+    const user = await this.authService.me(authorizationHeader);
+
+    const season = await this.prisma.season.findUnique({
+      where: { id: seasonId },
+      select: { id: true },
+    });
+
+    if (!season) {
+      throw new NotFoundException('Season not found');
+    }
+
+    const matches = await this.prisma.match.findMany({
+      where: { seasonId },
+      include: this.userBetInclude(user.id),
+      orderBy: {
+        kickoffAt: 'asc',
+      },
+    });
+
+    return matches.map((match) => mapMatchToDto(match));
+  }
+
+  async listBetsForMatch(matchId: string, authorizationHeader?: string) {
+    await this.authService.me(authorizationHeader);
+
+    const match = await this.prisma.match.findUnique({
+      where: { id: matchId },
+      select: {
+        id: true,
+        status: true,
+        homeScore: true,
+        awayScore: true,
+      },
+    });
+
+    if (!match) {
+      throw new NotFoundException('Match not found');
+    }
+
+    const bets = await this.prisma.bet.findMany({
+      where: { matchId },
+      include: {
+        user: { select: { id: true, name: true, email: true, avatarUrl: true } },
+      },
+    });
+
+    const homeScore = match.homeScore ?? 0;
+    const awayScore = match.awayScore ?? 0;
+    const result = { homeScore, awayScore };
+
+    const rows = bets.map((bet) => {
+      const displayName =
+        bet.user.name?.trim() ||
+        bet.user.email?.split('@')[0] ||
+        `User ${bet.user.id.slice(0, 6)}`;
+      const avatarUrl =
+        bet.user.avatarUrl ||
+        `https://ui-avatars.com/api/?name=${encodeURIComponent(
+          displayName,
+        )}&background=EA580C&color=ffffff&bold=true`;
 
       return {
-        id: match.id,
-        homeTeam: match.homeTeam.name,
-        awayTeam: match.awayTeam.name,
-        homeTeamId: match.homeTeamId,
-        awayTeamId: match.awayTeamId,
-        homeScore,
-        awayScore,
-        kickoffAt: match.kickoffAt.toISOString(),
-        status: match.status,
-        stage: match.stage,
-        groupName: match.groupName ?? '',
-        competition: match.season.competition.name,
-        competitionId: match.season.competitionId,
-        season: match.season.name,
-        seasonId: match.seasonId,
-        homeBetScore,
-        awayBetScore,
+        userId: bet.userId,
+        displayName,
+        avatarUrl,
+        homeScore: bet.homeScore,
+        awayScore: bet.awayScore,
         betStatus: getBetStatus(
           match.status,
-          userBet
-            ? { homeScore: userBet.homeScore, awayScore: userBet.awayScore }
-            : null,
-          { homeScore, awayScore },
+          { homeScore: bet.homeScore, awayScore: bet.awayScore },
+          result,
         ),
-        homeTeamLogoUrl: match.homeTeam.logoUrl?.trim() || null,
-        awayTeamLogoUrl: match.awayTeam.logoUrl?.trim() || null,
       };
     });
+
+    rows.sort((a, b) =>
+      a.displayName.localeCompare(b.displayName, undefined, {
+        sensitivity: 'base',
+      }),
+    );
+
+    return rows;
   }
 }
 
-function getBetStatus(
+export function getBetStatus(
   matchStatus: MatchStatus,
   bet: { homeScore: number; awayScore: number } | null,
   result: { homeScore: number; awayScore: number },

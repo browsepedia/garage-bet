@@ -13,8 +13,12 @@ export function useSetBetMutation() {
       });
       return response;
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['matches'] });
+      queryClient.invalidateQueries({ queryKey: ['matches', 'season'] });
+      queryClient.invalidateQueries({
+        queryKey: ['match-bets', variables.matchId],
+      });
     },
     onError: (error) => {
       console.error(error);
