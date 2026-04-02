@@ -62,11 +62,13 @@ function StatRow({
   label,
   value,
   accent,
+  iconColor,
 }: {
   icon: keyof typeof MaterialCommunityIcons.glyphMap;
   label: string;
   value: string;
   accent?: boolean;
+  iconColor?: string;
 }) {
   const theme = useTheme<AppTheme>();
   return (
@@ -83,7 +85,7 @@ function StatRow({
       <MaterialCommunityIcons
         name={icon}
         size={20}
-        color={accent ? theme.colors.primary : MUTED}
+        color={iconColor ? iconColor : accent ? theme.colors.primary : MUTED}
       />
       <Text style={{ flex: 1, color: MUTED }} variant="bodyMedium">
         {label}
@@ -269,11 +271,34 @@ export default function StatsScreen() {
               value={`${data.points}`}
               accent
             />
+
             <StatRow
               icon="lightning-bolt"
+              iconColor={theme.colors.warning}
               label="Max available points"
               value={`${data.maxPoints}`}
             />
+
+            <StatRow
+              icon="check-decagram"
+              iconColor={theme.colors.success}
+              label="Exact scores (×3 pts)"
+              value={`${data.wins} / ${data.bets} `}
+              accent
+            />
+            <StatRow
+              icon="target"
+              iconColor={theme.colors.info}
+              label="Correct results (×1 pt)"
+              value={`${data.results} / ${data.bets}`}
+            />
+            <StatRow
+              icon="close-circle-outline"
+              iconColor={theme.colors.error}
+              label="Wrong predictions"
+              value={`${data.losses} / ${data.bets}`}
+            />
+
             <StatRow
               icon="chart-line"
               label="Win rate (on bets placed)"
@@ -291,22 +316,7 @@ export default function StatsScreen() {
               label="Bets placed on finished matches"
               value={`${data.bets} / ${data.totalFinishedMatches} (${coveragePct}%)`}
             />
-            <StatRow
-              icon="check-decagram"
-              label="Exact scores (×3 pts)"
-              value={`${data.wins} / ${data.bets} `}
-              accent
-            />
-            <StatRow
-              icon="target"
-              label="Correct results (×1 pt)"
-              value={`${data.results} / ${data.bets}`}
-            />
-            <StatRow
-              icon="close-circle-outline"
-              label="Wrong predictions"
-              value={`${data.losses} / ${data.bets}`}
-            />
+
             <StatRow
               icon="flag-checkered"
               label="Final bet bonus"
