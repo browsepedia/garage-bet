@@ -1,9 +1,4 @@
-import Svg, {
-  Circle,
-  Line,
-  Polygon,
-  Text as SvgText,
-} from 'react-native-svg';
+import Svg, { Circle, Line, Polygon, Text as SvgText } from 'react-native-svg';
 
 export type RadarAxis = {
   label: string;
@@ -55,7 +50,7 @@ export function RadarChart({
   const cx = size / 2;
   const cy = size / 2;
   // Leave space for labels around the edge.
-  const r = size * 0.30;
+  const r = size * 0.3;
   const labelR = r + 30;
 
   const axisAngle = (i: number) => (i * 2 * Math.PI) / n - Math.PI / 2;

@@ -10,7 +10,8 @@ import { PrismaService } from '../services/prisma-service';
 
 const PAGE_SIZE = 50;
 
-type UserStats = Omit<LeaderboardEntry, 'winRate'>;
+/** Internal mutable accumulator used while building the leaderboard. */
+type LeaderboardAccumulator = Omit<LeaderboardEntry, 'winRate'>;
 
 @Injectable()
 export class LeaderboardService {
@@ -81,7 +82,7 @@ export class LeaderboardService {
       },
     });
 
-    const byUser = new Map<string, UserStats>(
+    const byUser = new Map<string, LeaderboardAccumulator>(
       users.map((user) => {
         const name =
           user.name?.trim() ||
