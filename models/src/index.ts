@@ -7,3 +7,5 @@ export * from './lib/leaderboard.schema';
 export * from './lib/match-bet-list.schema';
 export * from './lib/match-data';
 export * from './lib/set-bet-payload.schema';
+export * from './lib/update-match-score-payload.schema';
+export * from './lib/user-stats.schema';

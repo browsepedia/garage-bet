@@ -112,7 +112,10 @@ export default function AppLayout() {
       <ExpoPushTokenSync enabled={Boolean(meQuery.data?.id)} />
       <Tabs
         screenOptions={{
-          headerShown: pathname.includes('/matches/') ? false : true,
+          headerShown:
+            pathname.includes('/matches/') || pathname.includes('/stats')
+              ? false
+              : true,
           headerStyle: {
             backgroundColor: appBackground,
           },
@@ -189,6 +192,13 @@ export default function AppLayout() {
                 color={color}
               />
             ),
+          }}
+        />
+        <Tabs.Screen
+          name="stats"
+          options={{
+            href: null,
+            title: 'Stats',
           }}
         />
       </Tabs>

@@ -6,6 +6,7 @@ export const UserProfileSchema = zod.object({
   email: zod.string().nullable(),
   id: zod.string(),
   name: zod.string().nullable().optional(),
+  isAdmin: zod.boolean(),
 });
 
 export type UserProfileModel = zod.infer<typeof UserProfileSchema>;

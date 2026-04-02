@@ -36,12 +36,18 @@ export class AuthService {
     name: true,
     createdAt: true,
     emailVerifiedAt: true,
+    isAdmin: true,
   } as const;
 
-  private async issueAccessToken(user: { id: string; email: string | null }) {
+  private async issueAccessToken(user: {
+    id: string;
+    email: string | null;
+    isAdmin: boolean;
+  }) {
     return this.jwtService.signAsync({
       sub: user.id,
       email: user.email,
+      isAdmin: user.isAdmin,
     });
   }
 
@@ -87,7 +93,11 @@ export class AuthService {
     return timingSafeEqual(keyBuf, storedBuf);
   }
 
-  private async issueAuthTokens(user: { id: string; email: string | null }) {
+  private async issueAuthTokens(user: {
+    id: string;
+    email: string | null;
+    isAdmin: boolean;
+  }) {
     const accessToken = await this.issueAccessToken(user);
     const refreshToken = this.generateRefreshToken();
 
@@ -438,9 +448,20 @@ export class AuthService {
 
   private async verifyAccessToken(token: string) {
     try {
-      return await this.jwtService.verifyAsync<{ sub?: string }>(token);
+      return await this.jwtService.verifyAsync<{
+        sub?: string;
+        isAdmin?: boolean;
+      }>(token);
     } catch {
       throw new UnauthorizedException('Invalid or expired access token');
     }
+  }
+
+  async meAdmin(authorizationHeader?: string) {
+    const user = await this.me(authorizationHeader);
+    if (!user.isAdmin) {
+      throw new ForbiddenException('Admin access required');
+    }
+    return user;
   }
 }

@@ -1,4 +1,8 @@
-import { LeaderboardEntry } from '@garage-bet/models';
+import {
+  LeaderboardEntry,
+  LeaderboardEntryWithRank,
+  UserStats,
+} from '@garage-bet/models';
 import { Controller, Get, Headers, Param, Query } from '@nestjs/common';
 import { AuthService } from '../auth/auth.service';
 import { LeaderboardService } from './leaderboard.service';
@@ -18,11 +22,20 @@ export class LeaderboardController {
     return this.leaderboardService.getLeaderboard(parsedPage);
   }
 
+  /** Full stats for the authenticated user including rank and max points. */
+  @Get('me/stats')
+  async getMyStats(
+    @Headers('authorization') authorization?: string,
+  ): Promise<UserStats> {
+    const user = await this.authService.me(authorization);
+    return this.leaderboardService.getUserStats(user.id);
+  }
+
   /** Same body as `GET user/:userId`, but user id comes from the bearer token. */
   @Get('me')
   async getMyLeaderboardEntry(
     @Headers('authorization') authorization?: string,
-  ): Promise<LeaderboardEntry> {
+  ): Promise<LeaderboardEntryWithRank> {
     const user = await this.authService.me(authorization);
     return this.leaderboardService.getLeaderboardEntryForUser(user.id);
   }
@@ -30,7 +43,7 @@ export class LeaderboardController {
   @Get('user/:userId')
   async getLeaderboardEntryForUser(
     @Param('userId') userId: string,
-  ): Promise<LeaderboardEntry> {
+  ): Promise<LeaderboardEntryWithRank> {
     return this.leaderboardService.getLeaderboardEntryForUser(userId);
   }
 }

@@ -4,15 +4,15 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Pressable,
   RefreshControl,
   SectionList,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Checkbox, Text, useTheme } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import BetCard from '../../../components/BetCard';
 import { Button } from '../../../components/Button';
+import PressableCheckbox from '../../../components/PressableCheckbox';
 import { Screen } from '../../../components/Screen';
 import { useMatchBetsQuery } from '../../../queries/match-bets.query';
 import { useMatchesQuery } from '../../../queries/matches.query';
@@ -194,29 +194,23 @@ export default function MatchDetailScreen() {
         </View>
       )}
 
-      <Pressable
-        accessibilityRole="checkbox"
-        accessibilityState={{ checked: groupByOutcome }}
-        accessibilityLabel="Group by outcome"
+      <PressableCheckbox
+        checked={groupByOutcome}
         onPress={() => setGroupByOutcome((v) => !v)}
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginTop: 4,
-          marginLeft: -8,
-        }}
-      >
-        <View pointerEvents="none">
-          <Checkbox
-            status={groupByOutcome ? 'checked' : 'unchecked'}
-            color="#EA580C"
-            uncheckedColor="#71717a"
-          />
-        </View>
-        <Text variant="bodyLarge" style={{ marginLeft: 8 }}>
-          Group by outcome
-        </Text>
-      </Pressable>
+        label="Group by outcome"
+      />
+
+      <PressableCheckbox
+        checked={groupByOutcome}
+        onPress={() => setGroupByOutcome((v) => !v)}
+        label="Group by outcome"
+      />
+
+      <PressableCheckbox
+        checked={groupByOutcome}
+        onPress={() => setGroupByOutcome((v) => !v)}
+        label="Group by outcome"
+      />
     </View>
   );
 

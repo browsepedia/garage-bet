@@ -15,12 +15,14 @@ function MatchCard({
   showStanding = true,
   showChampionship = true,
   onSetBetClick,
+  onUpdateScoreClick,
   showOnlyStartTime = false,
 }: {
   showStanding?: boolean;
   showChampionship?: boolean;
   match: MatchData;
   onSetBetClick: (match: MatchData) => void;
+  onUpdateScoreClick?: (match: MatchData) => void;
   showOnlyStartTime?: boolean;
 }) {
   const statusColor = useBetStatusColor(
@@ -228,6 +230,16 @@ function MatchCard({
               onPress={() => router.push(`/matches/${match.id}`)}
             >
               See bets
+            </Button>
+          )}
+
+          {onUpdateScoreClick && (
+            <Button
+              mode="outlined"
+              compact
+              onPress={() => onUpdateScoreClick(match)}
+            >
+              Update score
             </Button>
           )}
         </View>

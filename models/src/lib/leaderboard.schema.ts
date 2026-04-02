@@ -15,3 +15,12 @@ export const LeaderboardEntrySchema = zod.object({
 });
 
 export type LeaderboardEntry = zod.infer<typeof LeaderboardEntrySchema>;
+
+/** Leaderboard row plus global rank (1 = top). Returned by `GET /leaderboard/me` and `GET /leaderboard/user/:userId`. */
+export const LeaderboardEntryWithRankSchema = LeaderboardEntrySchema.extend({
+  rank: zod.number().int().positive(),
+});
+
+export type LeaderboardEntryWithRank = zod.infer<
+  typeof LeaderboardEntryWithRankSchema
+>;

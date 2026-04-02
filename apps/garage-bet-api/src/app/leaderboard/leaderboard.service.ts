@@ -1,4 +1,8 @@
-import { LeaderboardEntry } from '@garage-bet/models';
+import {
+  LeaderboardEntry,
+  LeaderboardEntryWithRank,
+  UserStats,
+} from '@garage-bet/models';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { MatchStatus } from '@prisma/client';
 import { scoreFinalBet } from '../final-bets/final-bet-scoring';
@@ -20,13 +24,38 @@ export class LeaderboardService {
     return full.slice(start, end);
   }
 
-  async getLeaderboardEntryForUser(userId: string): Promise<LeaderboardEntry> {
+  async getLeaderboardEntryForUser(
+    userId: string,
+  ): Promise<LeaderboardEntryWithRank> {
     const full = await this.computeFullLeaderboard();
-    const entry = full.find((e) => e.userId === userId);
-    if (!entry) {
+    const index = full.findIndex((e) => e.userId === userId);
+    if (index === -1) {
       throw new NotFoundException('User not found');
     }
-    return entry;
+    return { ...full[index], rank: index + 1 };
+  }
+
+  async getUserStats(userId: string): Promise<UserStats> {
+    const full = await this.computeFullLeaderboard();
+    const index = full.findIndex((e) => e.userId === userId);
+    if (index === -1) {
+      throw new NotFoundException('User not found');
+    }
+    const entry = full[index];
+    return {
+      userId: entry.userId,
+      name: entry.name,
+      avatarUrl: entry.avatarUrl,
+      points: entry.totalPoints,
+      maxPoints: entry.betCount * 3,
+      bets: entry.betCount,
+      rank: index + 1,
+      totalPlayers: full.length,
+      wins: entry.totalWins,
+      results: entry.totalResults,
+      losses: entry.totalLosses,
+      finalBetPoints: entry.finalBetPoints,
+    };
   }
 
   private async computeFullLeaderboard(): Promise<LeaderboardEntry[]> {

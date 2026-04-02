@@ -7,7 +7,9 @@ import { Divider, Text } from 'react-native-paper';
 import { MatchesSectionList } from '../../components/MatchesSectionList';
 import { Screen } from '../../components/Screen';
 import SetMatchBetDialog from '../../components/SetMatchBetDialog';
+import UpdateMatchScoreDialog from '../../components/UpdateMatchScoreDialog';
 import { useMatchesByDayQuery } from '../../queries/matches-by-day.query';
+import { useUserProfileQuery } from '../../queries/user-profile.query';
 import {
   formatInUserTimezone,
   getDeviceIanaTimeZone,
@@ -15,6 +17,7 @@ import {
 } from '../../utils/format-date';
 
 export default function TodayScreen() {
+  const { data: me } = useUserProfileQuery();
   const queryClient = useQueryClient();
   const timeZone = useMemo(() => getDeviceIanaTimeZone(), []);
   const [calendarDay, setCalendarDay] = useState(() =>
@@ -40,6 +43,13 @@ export default function TodayScreen() {
   const isSetBetDialogOpen = Boolean(settingBetForMatch);
   const onSetBetClick = useCallback((match: MatchData) => {
     setSettingBetForMatch(match);
+  }, []);
+
+  const [updatingScoreForMatch, setUpdatingScoreForMatch] =
+    useState<MatchData | null>(null);
+  const isUpdateScoreDialogOpen = Boolean(updatingScoreForMatch);
+  const onUpdateScoreClick = useCallback((match: MatchData) => {
+    setUpdatingScoreForMatch(match);
   }, []);
 
   const subtitle = formatInUserTimezone(
@@ -86,6 +96,7 @@ export default function TodayScreen() {
         <MatchesSectionList
           matches={dayMatches ?? []}
           onSetBetClick={onSetBetClick}
+          onUpdateScoreClick={me?.isAdmin ? onUpdateScoreClick : undefined}
           listEmptyComponent={renderListEmpty}
           groupByChampionship
           refreshing={isRefetching ?? false}
@@ -101,6 +112,15 @@ export default function TodayScreen() {
         onOpenChange={(nextOpen: boolean) => {
           if (!nextOpen) {
             setSettingBetForMatch(null);
+          }
+        }}
+      />
+      <UpdateMatchScoreDialog
+        open={isUpdateScoreDialogOpen}
+        match={updatingScoreForMatch}
+        onOpenChange={(nextOpen: boolean) => {
+          if (!nextOpen) {
+            setUpdatingScoreForMatch(null);
           }
         }}
       />

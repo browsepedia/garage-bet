@@ -1,4 +1,5 @@
-import { Controller, Get, Headers, Param, Query } from '@nestjs/common';
+import { UpdateMatchScorePayload } from '@garage-bet/models';
+import { Body, Controller, Get, Headers, Param, Patch, Query } from '@nestjs/common';
 import { MatchesService } from './matches.service';
 
 @Controller('matches')
@@ -37,5 +38,14 @@ export class MatchesController {
     @Headers('authorization') authorization?: string,
   ) {
     return this.matchesService.listBetsForMatch(matchId, authorization);
+  }
+
+  @Patch(':matchId/score')
+  updateMatchScore(
+    @Param('matchId') matchId: string,
+    @Body() body: UpdateMatchScorePayload,
+    @Headers('authorization') authorization?: string,
+  ) {
+    return this.matchesService.updateMatchScore(matchId, body, authorization);
   }
 }

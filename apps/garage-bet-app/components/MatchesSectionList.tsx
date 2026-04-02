@@ -19,6 +19,7 @@ import MatchCard from './MatchCard';
 export type MatchesSectionListProps = {
   matches: MatchData[];
   onSetBetClick: (match: MatchData) => void;
+  onUpdateScoreClick?: (match: MatchData) => void;
   listEmptyComponent?: ReactElement | (() => ReactElement) | null;
   refreshing?: boolean;
   onRefresh?: () => void;
@@ -35,6 +36,7 @@ export type MatchesSectionListProps = {
 export function MatchesSectionList({
   matches,
   onSetBetClick,
+  onUpdateScoreClick,
   listEmptyComponent = null,
   refreshing = false,
   onRefresh,
@@ -84,6 +86,7 @@ export function MatchesSectionList({
           showStanding={showStanding}
           showChampionship={showChampionship}
           onSetBetClick={onSetBetClick}
+          onUpdateScoreClick={onUpdateScoreClick}
           showOnlyStartTime={showOnlyStartTime}
         />
       )}

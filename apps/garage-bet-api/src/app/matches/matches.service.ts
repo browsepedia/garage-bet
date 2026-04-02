@@ -1,4 +1,4 @@
-import { MatchData } from '@garage-bet/models';
+import { MatchData, UpdateMatchScorePayload } from '@garage-bet/models';
 import {
   BadRequestException,
   Injectable,
@@ -246,6 +246,36 @@ export class MatchesService {
     );
 
     return rows;
+  }
+
+  async updateMatchScore(
+    matchId: string,
+    payload: UpdateMatchScorePayload,
+    authorizationHeader?: string,
+  ) {
+    await this.authService.meAdmin(authorizationHeader);
+
+    const match = await this.prisma.match.findUnique({
+      where: { id: matchId },
+      select: { id: true },
+    });
+
+    if (!match) {
+      throw new NotFoundException('Match not found');
+    }
+
+    const status = payload.isEnded ? MatchStatus.FINISHED : MatchStatus.LIVE;
+
+    await this.prisma.match.update({
+      where: { id: matchId },
+      data: {
+        homeScore: payload.homeScore,
+        awayScore: payload.awayScore,
+        status,
+      },
+    });
+
+    return { ok: true as const };
   }
 }
 

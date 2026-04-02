@@ -1,14 +1,17 @@
 import type { MatchData, SeasonListItem } from '@garage-bet/models';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, View } from 'react-native';
-import { Checkbox, Divider, Text } from 'react-native-paper';
+import { ActivityIndicator, View } from 'react-native';
+import { Divider, Text } from 'react-native-paper';
 import { LabeledSelectMenu } from '../../../components/LabeledSelectMenu';
 import { MatchesSectionList } from '../../../components/MatchesSectionList';
+import PressableCheckbox from '../../../components/PressableCheckbox';
 import { Screen } from '../../../components/Screen';
 import SetMatchBetDialog from '../../../components/SetMatchBetDialog';
+import UpdateMatchScoreDialog from '../../../components/UpdateMatchScoreDialog';
 import { useMatchesBySeasonQuery } from '../../../queries/matches-by-season.query';
 import { useSeasonsQuery } from '../../../queries/seasons.query';
+import { useUserProfileQuery } from '../../../queries/user-profile.query';
 
 type ChampionshipSeasonOption = {
   id: string;
@@ -22,6 +25,7 @@ function championshipSeasonLabel(opt: ChampionshipSeasonOption) {
 }
 
 export default function Matches() {
+  const { data: me } = useUserProfileQuery();
   const {
     data: seasons,
     isPending: seasonsPending,
@@ -89,6 +93,13 @@ export default function Matches() {
     setSettingBetForMatch(match);
   }, []);
 
+  const [updatingScoreForMatch, setUpdatingScoreForMatch] =
+    useState<MatchData | null>(null);
+  const isUpdateScoreDialogOpen = Boolean(updatingScoreForMatch);
+  const onUpdateScoreClick = useCallback((match: MatchData) => {
+    setUpdatingScoreForMatch(match);
+  }, []);
+
   const renderListEmpty = useCallback(() => {
     if (!seasonId) {
       return (
@@ -147,53 +158,17 @@ export default function Matches() {
               justifyContent: 'space-between',
             }}
           >
-            <Pressable
-              accessibilityRole="checkbox"
-              accessibilityState={{ checked: hideEndedMatches }}
-              accessibilityLabel="Hide ended matches"
+            <PressableCheckbox
+              checked={hideEndedMatches}
               onPress={() => setHideEndedMatches((v) => !v)}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginTop: 4,
-                paddingVertical: 4,
-              }}
-            >
-              <View pointerEvents="none">
-                <Checkbox
-                  status={hideEndedMatches ? 'checked' : 'unchecked'}
-                  color="#EA580C"
-                  uncheckedColor="#71717a"
-                />
-              </View>
-              <Text variant="bodyLarge" style={{ marginLeft: 8 }}>
-                Hide ended matches
-              </Text>
-            </Pressable>
+              label="Hide ended matches"
+            />
 
-            <Pressable
-              accessibilityRole="checkbox"
-              accessibilityState={{ checked: groupByDate }}
-              accessibilityLabel="Group by date"
+            <PressableCheckbox
+              checked={groupByDate}
               onPress={() => setGroupByDate((v) => !v)}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginTop: 4,
-                paddingVertical: 4,
-              }}
-            >
-              <View pointerEvents="none">
-                <Checkbox
-                  status={groupByDate ? 'checked' : 'unchecked'}
-                  color="#EA580C"
-                  uncheckedColor="#71717a"
-                />
-              </View>
-              <Text variant="bodyLarge" style={{ marginLeft: 8 }}>
-                Group by date
-              </Text>
-            </Pressable>
+              label="Group by date"
+            />
           </View>
         </View>
 
@@ -202,6 +177,7 @@ export default function Matches() {
         <MatchesSectionList
           matches={matches}
           onSetBetClick={onSetBetClick}
+          onUpdateScoreClick={me?.isAdmin ? onUpdateScoreClick : undefined}
           listEmptyComponent={renderListEmpty}
           refreshing={isRefetching ?? false}
           onRefresh={refetchSeasonMatches}
@@ -217,6 +193,15 @@ export default function Matches() {
         onOpenChange={(nextOpen) => {
           if (!nextOpen) {
             setSettingBetForMatch(null);
+          }
+        }}
+      />
+      <UpdateMatchScoreDialog
+        open={isUpdateScoreDialogOpen}
+        match={updatingScoreForMatch}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen) {
+            setUpdatingScoreForMatch(null);
           }
         }}
       />

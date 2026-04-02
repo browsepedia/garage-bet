@@ -1,17 +1,19 @@
-import { SetBetPayload } from '@garage-bet/models';
+import { UpdateMatchScorePayload } from '@garage-bet/models';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiJson } from '../utils/http-client';
 
-export function useSetBetMutation() {
+export function useUpdateMatchScoreMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (input: SetBetPayload) => {
-      const response = await apiJson<void>('/bets', {
-        method: 'POST',
-        body: JSON.stringify(input),
+    mutationFn: async (
+      input: UpdateMatchScorePayload & { matchId: string },
+    ) => {
+      const { matchId, ...body } = input;
+      return apiJson<{ ok: true }>(`/matches/${matchId}/score`, {
+        method: 'PATCH',
+        body: JSON.stringify(body),
       });
-      return response;
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['matches'] });
@@ -21,9 +23,6 @@ export function useSetBetMutation() {
         queryKey: ['match-bets', variables.matchId],
       });
       queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
-    },
-    onError: (error) => {
-      console.error(error);
     },
   });
 }

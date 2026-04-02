@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { TouchableOpacity, View, ViewStyle } from 'react-native';
-import { Avatar, useTheme } from 'react-native-paper';
+import { Avatar, IconButton, useTheme } from 'react-native-paper';
 import { useUserProfileQuery } from '../queries/user-profile.query';
 
 function useDisplayNameAndAvatar() {
@@ -54,11 +54,19 @@ export default function Header() {
         paddingBottom: 16,
         paddingHorizontal: 16,
         flexDirection: 'row',
-        justifyContent: 'flex-start',
+        justifyContent: 'space-between',
         alignItems: 'center',
       }}
     >
       <ProfileAvatarButton />
+
+      <IconButton
+        icon="chart-box-outline"
+        iconColor={theme.colors.onPrimary}
+        style={{ backgroundColor: theme.colors.primary }}
+        size={24}
+        onPress={() => router.push('/stats')}
+      />
     </View>
   );
 }
