@@ -10,6 +10,8 @@ export const UserStatsSchema = zod.object({
   maxPoints: zod.number(),
   /** Number of bets placed on finished matches. */
   bets: zod.number(),
+  /** Total finished matches in the system (used for coverage & overall win rate). */
+  totalFinishedMatches: zod.number(),
   /** 1-based position in the global leaderboard. */
   rank: zod.number().int().positive(),
   /** Total number of players on the leaderboard. */

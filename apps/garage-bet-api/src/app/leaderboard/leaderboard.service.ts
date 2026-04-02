@@ -37,7 +37,11 @@ export class LeaderboardService {
   }
 
   async getUserStats(userId: string): Promise<UserStats> {
-    const full = await this.computeFullLeaderboard();
+    const [full, totalFinishedMatches] = await Promise.all([
+      this.computeFullLeaderboard(),
+      this.prisma.match.count({ where: { status: MatchStatus.FINISHED } }),
+    ]);
+
     const index = full.findIndex((e) => e.userId === userId);
     if (index === -1) {
       throw new NotFoundException('User not found');
@@ -50,6 +54,7 @@ export class LeaderboardService {
       points: entry.totalPoints,
       maxPoints: entry.betCount * 3,
       bets: entry.betCount,
+      totalFinishedMatches,
       rank: index + 1,
       totalPlayers: full.length,
       wins: entry.totalWins,

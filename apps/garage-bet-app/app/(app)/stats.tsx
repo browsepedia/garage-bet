@@ -30,7 +30,7 @@ function safe(v: number): number {
 function buildRadarAxes(s: UserStats): RadarAxis[] {
   const bets = s.bets || 1; // avoid ÷0
   const maxPts = s.maxPoints || 1;
-  const total = s.totalPlayers || 1;
+  const totalFinished = s.totalFinishedMatches || 1;
   return [
     {
       label: 'Win rate',
@@ -49,8 +49,8 @@ function buildRadarAxes(s: UserStats): RadarAxis[] {
       value: safe(1 - s.losses / bets),
     },
     {
-      label: 'Rank',
-      value: safe((total - s.rank + 1) / total),
+      label: 'Coverage',
+      value: safe(s.bets / totalFinished),
     },
   ];
 }
@@ -89,10 +89,7 @@ function StatRow({
         {label}
       </Text>
       <Text
-        style={{
-          fontWeight: '700',
-          color: accent ? theme.colors.primary : undefined,
-        }}
+        style={{ fontWeight: '700', color: theme.colors.primary }}
         variant="bodyLarge"
       >
         {value}
@@ -109,10 +106,19 @@ export default function StatsScreen() {
   const { data, isPending, isRefetching, isError, error, refetch } =
     useUserStatsQuery();
 
-  const chartSize = Math.min(width - 32, 300);
+  // ScrollView 16×2 + chart card paddingHorizontal 14×2; cap on wide tablets.
+  const chartSize = Math.min(Math.max(200, width - 60), 400);
   const wrPct =
     data && data.maxPoints > 0
       ? Math.round((data.points / data.maxPoints) * 100)
+      : 0;
+  const overallWrPct =
+    data && data.totalFinishedMatches > 0
+      ? Math.round((data.points / (data.totalFinishedMatches * 3)) * 100)
+      : 0;
+  const coveragePct =
+    data && data.totalFinishedMatches > 0
+      ? Math.round((data.bets / data.totalFinishedMatches) * 100)
       : 0;
 
   return (
@@ -202,7 +208,7 @@ export default function StatsScreen() {
           >
             <Image
               source={{ uri: data.avatarUrl }}
-              style={{ width: 60, height: 60, borderRadius: 30 }}
+              style={{ width: 40, height: 40, borderRadius: 20 }}
             />
             <View style={{ flex: 1, minWidth: 0 }}>
               <Text variant="titleMedium" numberOfLines={2}>
@@ -219,7 +225,8 @@ export default function StatsScreen() {
             style={{
               alignItems: 'center',
               marginBottom: 20,
-              padding: 16,
+              paddingHorizontal: 14,
+              paddingVertical: 12,
               borderRadius: 12,
               borderWidth: 1,
               borderColor: BORDER,
@@ -230,7 +237,7 @@ export default function StatsScreen() {
               variant="labelMedium"
               style={{
                 color: MUTED,
-                marginBottom: 12,
+                marginBottom: 6,
                 alignSelf: 'flex-start',
               }}
             >
@@ -269,30 +276,36 @@ export default function StatsScreen() {
             />
             <StatRow
               icon="chart-line"
-              label="Win rate"
+              label="Win rate (on bets placed)"
               value={`${wrPct}%`}
               accent
             />
             <StatRow
+              icon="chart-line-variant"
+              label="Overall win rate (all matches)"
+              value={`${overallWrPct}%`}
+              accent
+            />
+            <StatRow
               icon="soccer"
-              label="Bets on finished matches"
-              value={`${data.bets}`}
+              label="Bets placed on finished matches"
+              value={`${data.bets} / ${data.totalFinishedMatches} (${coveragePct}%)`}
             />
             <StatRow
               icon="check-decagram"
               label="Exact scores (×3 pts)"
-              value={`${data.wins}`}
+              value={`${data.wins} / ${data.bets} `}
               accent
             />
             <StatRow
               icon="target"
               label="Correct results (×1 pt)"
-              value={`${data.results}`}
+              value={`${data.results} / ${data.bets}`}
             />
             <StatRow
               icon="close-circle-outline"
               label="Wrong predictions"
-              value={`${data.losses}`}
+              value={`${data.losses} / ${data.bets}`}
             />
             <StatRow
               icon="flag-checkered"
@@ -315,7 +328,10 @@ export default function StatsScreen() {
               <Text style={{ flex: 1, color: MUTED }} variant="bodyMedium">
                 Leaderboard rank
               </Text>
-              <Text style={{ fontWeight: '700' }} variant="bodyLarge">
+              <Text
+                style={{ fontWeight: '700', color: theme.colors.primary }}
+                variant="bodyLarge"
+              >
                 #{data.rank}{' '}
                 <Text variant="bodySmall" style={{ color: MUTED }}>
                   / {data.totalPlayers}
