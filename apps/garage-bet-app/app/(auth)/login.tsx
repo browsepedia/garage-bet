@@ -3,39 +3,24 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { ActivityIndicator, Dimensions, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Dimensions,
+  Pressable,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { Text } from 'react-native-paper';
 import { Button } from '../../components/Button';
 import { Screen } from '../../components/Screen';
 import { ThemedInput } from '../../components/ThemedInput';
-import { useDeviceLoginMutation } from '../../mutations/device-login.mutation';
 import { useLoginMutation } from '../../mutations/login.mutation';
-import { useDeviceRegistrationStatusQuery } from '../../queries/device-registration-status.query';
 import { ApiError } from '../../utils/http-client';
 
 export default function Login() {
   const { mutateAsync: login, isPending: isLoading } = useLoginMutation();
-  const { mutateAsync: deviceLogin, isPending: isDeviceLoggingIn } =
-    useDeviceLoginMutation();
-
-  const { data: deviceStatus } = useDeviceRegistrationStatusQuery();
-  const hasDeviceOnlyOnDevice = deviceStatus?.registered === true;
 
   const [formError, setFormError] = useState<string | null>(null);
-  const [deviceLoginError, setDeviceLoginError] = useState<string | null>(null);
-
-  const onDeviceLogin = async () => {
-    setDeviceLoginError(null);
-    try {
-      await deviceLogin();
-    } catch (e: unknown) {
-      if (e instanceof ApiError) {
-        setDeviceLoginError(e.message);
-      } else {
-        setDeviceLoginError('Could not sign in with this device.');
-      }
-    }
-  };
 
   const {
     control,
@@ -94,6 +79,15 @@ export default function Login() {
           )}
         />
 
+        <Pressable
+          onPress={() => router.replace('/(auth)/forgot-password')}
+          style={{ alignSelf: 'flex-end' }}
+        >
+          <Text variant="bodySmall" style={{ color: '#EA580C' }}>
+            Forgot password?
+          </Text>
+        </Pressable>
+
         {Object.keys(errors).length > 0 && (
           <View>
             {Object.keys(errors).map((key) => (
@@ -133,72 +127,27 @@ export default function Login() {
           {isLoading ? (
             <ActivityIndicator size="small" color="#ffffff" />
           ) : (
-            'Login with email'
+            'Login'
           )}
         </Button>
 
-        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-          <Text>or</Text>
-        </View>
+        <View style={{ alignItems: 'center', gap: 16, marginTop: 8 }}>
+          <Text>Don't have an account?</Text>
 
-        {deviceLoginError ? (
-          <View
+          <TouchableOpacity
+            activeOpacity={0.7}
+            hitSlop={12}
+            onPress={() => router.replace('/(auth)/register')}
             style={{
-              padding: 8,
-              paddingHorizontal: 16,
-              backgroundColor: '#7f1d1d',
+              minHeight: 44,
+              minWidth: 80,
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
-            <Text style={{ color: '#fca5a5' }}>{deviceLoginError}</Text>
-          </View>
-        ) : null}
-
-        <Button
-          mode="outlined"
-          disabled={isDeviceLoggingIn}
-          onPress={onDeviceLogin}
-        >
-          {isDeviceLoggingIn ? (
-            <ActivityIndicator size="small" color="#EA580C" />
-          ) : (
-            'Login with device only'
-          )}
-        </Button>
-
-        {hasDeviceOnlyOnDevice ? (
-          <Text
-            variant="bodySmall"
-            style={{ color: '#a1a1aa', textAlign: 'center' }}
-          >
-            Signs in the device-only account for this phone. Email login above
-            links this phone to that email account as well.
-          </Text>
-        ) : (
-          <Text
-            variant="bodySmall"
-            style={{ color: '#a1a1aa', textAlign: 'center' }}
-          >
-            Device-only login works if you registered without email on this
-            phone.
-          </Text>
-        )}
-
-        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-          <Text>or</Text>
+            <Text>Register</Text>
+          </TouchableOpacity>
         </View>
-
-        <Button
-          mode="outlined"
-          onPress={() => {
-            if (hasDeviceOnlyOnDevice) {
-              router.replace('/(auth)/register-with-email');
-            } else {
-              router.replace('/(auth)/register');
-            }
-          }}
-        >
-          Register
-        </Button>
       </View>
     </Screen>
   );

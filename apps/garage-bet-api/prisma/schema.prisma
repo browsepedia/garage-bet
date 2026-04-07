@@ -19,6 +19,8 @@ enum MatchStatus {
 enum MatchStage {
     LEAGUE
     GROUP
+    PLAY_OFF
+    PLAY_OUT
     ROUND_OF_32
     ROUND_OF_16
     QUARTER_FINAL
@@ -41,26 +43,26 @@ enum FriendshipStatus {
 
 model User {
     id           String  @id @default(cuid())
-    email        String? @unique
+    email        String  @unique
     name         String?
     avatarUrl    String?
     passwordHash String?
     isAdmin      Boolean @default(false)
 
     /// Set when the user confirms their email (null until then for email/password sign-ups).
-    emailVerifiedAt DateTime?
+    emailVerifiedAt            DateTime?
     /// Opaque token for GET /auth/confirm-email; cleared after success or expiry.
-    emailVerificationToken   String?   @unique
+    emailVerificationToken     String?   @unique
     emailVerificationExpiresAt DateTime?
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    accounts          AuthAccount[]
-    refreshTokens     RefreshToken[]
-    bets              Bet[]
-    finalPlayerBets   FinalPlayerBet[]
-    devices           UserDevice[]
+    accounts        AuthAccount[]
+    refreshTokens   RefreshToken[]
+    bets            Bet[]
+    finalPlayerBets FinalPlayerBet[]
+    devices         UserDevice[]
 
     friendshipsSent     Friendship[] @relation("friendshipsSent")
     friendshipsReceived Friendship[] @relation("friendshipsReceived")
@@ -70,13 +72,13 @@ model User {
 
 /// Links a user to an app install id. The same deviceId may appear for multiple users.
 model UserDevice {
-    id        String   @id @default(cuid())
-    userId    String
-    deviceId  String
+    id                     String    @id @default(cuid())
+    userId                 String
+    deviceId               String
     /// Expo push token for this device (Expo Push API / FCM / APNs via Expo).
     expoPushToken          String?
     expoPushTokenUpdatedAt DateTime?
-    createdAt              DateTime @default(now())
+    createdAt              DateTime  @default(now())
 
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -160,10 +162,10 @@ model Season {
     year          Int?
 
     /// Actual finalists + result (set by admin when known). Used to score FinalPlayerBet.
-    finalHomeTeamId String?
-    finalAwayTeamId String?
-    finalHomeScore  Int?
-    finalAwayScore  Int?
+    finalHomeTeamId  String?
+    finalAwayTeamId  String?
+    finalHomeScore   Int?
+    finalAwayScore   Int?
     finalBettingOpen Boolean @default(true)
 
     createdAt DateTime @default(now())
@@ -212,6 +214,11 @@ model Match {
     homeScore Int?
     awayScore Int?
 
+    /**
+     * Stadium / city label for display (optional for non-seeded matches).
+     */
+    venue String?
+
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
@@ -248,13 +255,13 @@ model Bet {
 
 /// One prediction per user per season (championship edition): finalists + score.
 model FinalPlayerBet {
-    id                    String @id @default(cuid())
-    seasonId              String
-    userId                String
-    predictedHomeTeamId   String
-    predictedAwayTeamId   String
-    predictedHomeScore    Int
-    predictedAwayScore    Int
+    id                  String @id @default(cuid())
+    seasonId            String
+    userId              String
+    predictedHomeTeamId String
+    predictedAwayTeamId String
+    predictedHomeScore  Int
+    predictedAwayScore  Int
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt

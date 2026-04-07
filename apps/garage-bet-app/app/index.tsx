@@ -4,7 +4,6 @@ import { ActivityIndicator } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Screen } from '../components/Screen';
 import { getAccessToken, getRefreshToken } from '../storage/token-storage';
-import { tryDeviceOnlyAutoLogin } from '../utils/try-device-only-auto-login';
 
 export default function Home() {
   useEffect(() => {
@@ -21,14 +20,6 @@ export default function Home() {
       }
 
       if (accessToken || refreshToken) {
-        router.replace('/(app)/today');
-        return;
-      }
-
-      const autoLoggedIn = await tryDeviceOnlyAutoLogin();
-      if (!active) return;
-
-      if (autoLoggedIn) {
         router.replace('/(app)/today');
         return;
       }

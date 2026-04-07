@@ -194,6 +194,15 @@ function MatchCard({
               {match.stage} {match.groupName}
             </Text>
           )}
+          {match.venue ? (
+            <Text
+              variant="bodySmall"
+              style={{ color: '#a1a1aa' }}
+              numberOfLines={2}
+            >
+              {match.venue}
+            </Text>
+          ) : null}
         </View>
 
         <View

@@ -46,6 +46,7 @@ type MatchWithUserBet = {
   status: MatchStatus;
   stage: MatchStage;
   groupName: string | null;
+  venue: string | null;
   homeScore: number | null;
   awayScore: number | null;
   homeTeamId: string;
@@ -79,6 +80,7 @@ function mapMatchToDto(match: MatchWithUserBet): MatchData {
     status: match.status,
     stage: match.stage,
     groupName: match.groupName ?? '',
+    venue: match.venue ?? '',
     competition: match.season.competition.name,
     competitionId: match.season.competitionId,
     season: match.season.name,

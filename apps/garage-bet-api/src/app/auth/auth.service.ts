@@ -4,11 +4,9 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
-  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '@prisma/client';
 import { createHash, randomBytes, scrypt, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
 import { PrismaService } from '../services/prisma-service';
@@ -41,7 +39,7 @@ export class AuthService {
 
   private async issueAccessToken(user: {
     id: string;
-    email: string | null;
+    email: string;
     isAdmin: boolean;
   }) {
     return this.jwtService.signAsync({
@@ -95,7 +93,7 @@ export class AuthService {
 
   private async issueAuthTokens(user: {
     id: string;
-    email: string | null;
+    email: string;
     isAdmin: boolean;
   }) {
     const accessToken = await this.issueAccessToken(user);
@@ -112,24 +110,7 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  /**
-   * The at-most-one user with no email linked to this deviceId (business rule:
-   * only one device-only account per device id; email users may share the same device id).
-   */
-  private async findDeviceOnlyUserForDevice(
-    deviceId: string,
-  ): Promise<User | null> {
-    const row = await this.prisma.userDevice.findFirst({
-      where: {
-        deviceId,
-        user: { email: null },
-      },
-      include: { user: true },
-    });
-    return row?.user ?? null;
-  }
-
-  /** One UserDevice row per (userId, deviceId). Many users may share deviceId if at most one has email null. */
+  /** One UserDevice row per (userId, deviceId). Links this install to the user. */
   private async linkDeviceToUser(userId: string, deviceId: string) {
     const existing = await this.prisma.userDevice.findUnique({
       where: { userId_deviceId: { userId, deviceId } },
@@ -201,10 +182,6 @@ export class AuthService {
     return user;
   }
 
-  /**
-   * Completes email verification from a link. Device-only users never receive a token;
-   * they are created with emailVerifiedAt already set.
-   */
   async confirmEmailByToken(rawToken: string | undefined) {
     const token = rawToken?.trim();
     if (!token) {
@@ -221,8 +198,8 @@ export class AuthService {
       },
     });
 
-    if (!row?.email) {
-      throw new NotFoundException('Invalid or expired verification link');
+    if (!row) {
+      throw new UnauthorizedException('Invalid or expired verification link');
     }
 
     if (row.emailVerifiedAt) {
@@ -292,119 +269,40 @@ export class AuthService {
     return { user, accessToken, refreshToken };
   }
 
-  /** Public check for the app register screen (no tokens). */
-  async getDeviceRegistrationStatus(deviceId: string) {
-    const trimmed = deviceId?.trim();
+  /**
+   * Generates a new random 16-character password, saves its hash, and should
+   * send it to the user's email address.
+   * Always returns { ok: true } regardless of whether the email exists, to
+   * avoid leaking account information.
+   */
+  async forgotPassword(email: string) {
+    const trimmed = email?.trim().toLowerCase();
     if (!trimmed) {
-      throw new BadRequestException('Device ID is required');
-    }
-    const row = await this.prisma.userDevice.findFirst({
-      where: {
-        deviceId: trimmed,
-        user: { email: null },
-      },
-      include: { user: true },
-    });
-    const user = row?.user ?? null;
-    return { registered: Boolean(user), user };
-  }
-
-  /**
-   * Device-only registration — one null-email user per deviceId. Other users may share the
-   * same deviceId as long as they have an email.
-   */
-  async registerDeviceAccount(deviceId: string, displayName?: string) {
-    if (!deviceId) {
-      throw new BadRequestException('Device ID is required');
-    }
-
-    const deviceOnlyExists = await this.findDeviceOnlyUserForDevice(deviceId);
-    if (deviceOnlyExists) {
-      throw new ConflictException(
-        'This device already has a device-only account. Sign in with device, or register with email for a separate account.',
-      );
-    }
-
-    const trimmedName = displayName?.trim();
-    const now = new Date();
-    const user = await this.prisma.user.create({
-      data: {
-        ...(trimmedName && trimmedName.length > 0 ? { name: trimmedName } : {}),
-        emailVerifiedAt: now,
-        devices: {
-          create: { deviceId },
-        },
-      },
-      select: this.userProfileSelect,
-    });
-
-    const { accessToken, refreshToken } = await this.issueAuthTokens(user);
-    return { accessToken, refreshToken };
-  }
-
-  /**
-   * Device-only login — this device must already be linked to an account.
-   */
-  async loginDeviceAccount(deviceId: string, displayName?: string) {
-    if (!deviceId) {
-      throw new BadRequestException('Device ID is required');
-    }
-
-    const deviceOnly = await this.findDeviceOnlyUserForDevice(deviceId);
-    if (!deviceOnly) {
-      throw new NotFoundException(
-        'No device-only account for this device. Register or sign in with email.',
-      );
+      throw new BadRequestException('Email is required');
     }
 
     const user = await this.prisma.user.findUnique({
-      where: { id: deviceOnly.id },
-      select: this.userProfileSelect,
+      where: { email: trimmed },
+      select: { id: true, email: true },
     });
-    if (!user) {
-      throw new NotFoundException(
-        'No account for this device. Register on this device first.',
-      );
-    }
 
-    const trimmed = displayName?.trim();
-    if (trimmed && trimmed.length > 0 && user.name !== trimmed) {
+    if (user?.email) {
+      const newPassword = randomBytes(12).toString('base64url').slice(0, 16);
+      const passwordHash = await this.hashPassword(newPassword);
+
       await this.prisma.user.update({
-        where: { id: deviceOnly.id },
-        data: { name: trimmed },
+        where: { id: user.id },
+        data: { passwordHash },
       });
+
+      // TODO: send email to user.email containing newPassword
     }
 
-    const { accessToken, refreshToken } = await this.issueAuthTokens(user);
-    return { accessToken, refreshToken };
-  }
-
-  /**
-   * Silent bootstrap for the mobile app: issue tokens only if this device belongs to a
-   * user without email (device-only account). Email/password accounts must sign in explicitly.
-   */
-  async autoLoginDeviceOnlyUser(deviceId: string) {
-    if (!deviceId) {
-      throw new BadRequestException('Device ID is required');
-    }
-
-    const user = await this.findDeviceOnlyUserForDevice(deviceId);
-    if (!user) {
-      throw new NotFoundException(
-        'No device-only account for this device. Register or sign in with email.',
-      );
-    }
-
-    const { accessToken, refreshToken } = await this.issueAuthTokens(user);
-    return { accessToken, refreshToken };
+    return { ok: true as const };
   }
 
   async login(dto: LoginFormModel & DeviceLoginInput) {
-    if (dto.deviceId && (!dto.email || !dto.password)) {
-      return this.loginDeviceAccount(dto.deviceId);
-    }
-
-    if (!dto.email || !dto.password || !dto.deviceId) {
+    if (!dto.email || !dto.password) {
       throw new BadRequestException('Email and password are required');
     }
 
@@ -432,7 +330,9 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    await this.linkDeviceToUser(user.id, dto.deviceId);
+    if (dto.deviceId) {
+      await this.linkDeviceToUser(user.id, dto.deviceId);
+    }
 
     const { accessToken, refreshToken } = await this.issueAuthTokens(user);
 

@@ -12,6 +12,8 @@ export const MatchDataSchema = zod.object({
   status: zod.enum(['SCHEDULED', 'LIVE', 'FINISHED', 'CANCELED', 'POSTPONED']),
   stage: zod.string(),
   groupName: zod.string(),
+  /** Stadium and city when known. */
+  venue: zod.string(),
   competition: zod.string(),
   competitionId: zod.string(),
   season: zod.string(),
