@@ -160,11 +160,11 @@ export class LeaderboardService {
       }
 
       for (const bet of user.bets) {
-        stats.betCount += 1;
-
         if (bet.match.status !== MatchStatus.FINISHED) {
           continue;
         }
+
+        stats.betCount += 1;
 
         const actualHome = bet.match.homeScore ?? 0;
         const actualAway = bet.match.awayScore ?? 0;
@@ -186,13 +186,16 @@ export class LeaderboardService {
     }
 
     return Array.from(byUser.values())
-      .map<LeaderboardEntry>((entry) => ({
-        ...entry,
-        winRate:
-          entry.betCount > 0
-            ? Number((entry.totalPoints / (entry.betCount * 3)).toFixed(4))
-            : 0,
-      }))
+      .map<LeaderboardEntry>((entry) => {
+        const matchPoints = entry.totalPoints - entry.finalBetPoints;
+        return {
+          ...entry,
+          winRate:
+            entry.betCount > 0
+              ? Number((matchPoints / (entry.betCount * 3)).toFixed(4))
+              : 0,
+        };
+      })
       .sort((a, b) => {
         if (b.totalPoints !== a.totalPoints)
           return b.totalPoints - a.totalPoints;

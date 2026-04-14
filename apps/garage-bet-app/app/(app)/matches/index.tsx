@@ -33,8 +33,8 @@ export default function Matches() {
   } = useSeasonsQuery();
 
   const [seasonId, setSeasonId] = useState<string | null>(null);
-  const [hideEndedMatches, setHideEndedMatches] = useState(false);
-  const [groupByDate, setGroupByDate] = useState(false);
+  const [hideEndedMatches, setHideEndedMatches] = useState(true);
+  const [groupByDate, setGroupByDate] = useState(true);
 
   const championshipSeasonOptions = useMemo((): ChampionshipSeasonOption[] => {
     const list = [...(seasons ?? [])];

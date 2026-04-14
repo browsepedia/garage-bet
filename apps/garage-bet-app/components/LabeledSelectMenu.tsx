@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import { Menu, Text } from 'react-native-paper';
 
 export type LabeledSelectMenuProps<
@@ -37,6 +37,8 @@ export function LabeledSelectMenu<
   const selected = options.find((o) => o.id === value);
 
   const triggerDisabled = disabled || options.length === 0;
+
+  const MENU_MAX_HEIGHT = 360;
 
   const menuContentStyle = {
     backgroundColor: '#13161a',
@@ -79,22 +81,30 @@ export function LabeledSelectMenu<
           </Pressable>
         }
         contentStyle={menuContentStyle}
+        keyboardShouldPersistTaps="handled"
       >
-        {options.map((item) => (
-          <Menu.Item
-            key={item.id}
-            style={
-              anchorWidth != null
-                ? { width: anchorWidth, minWidth: anchorWidth }
-                : undefined
-            }
-            onPress={() => {
-              onSelect(item.id);
-              setOpen(false);
-            }}
-            title={getOptionLabel(item)}
-          />
-        ))}
+        <ScrollView
+          style={{ maxHeight: MENU_MAX_HEIGHT }}
+          keyboardShouldPersistTaps="handled"
+          nestedScrollEnabled
+          showsVerticalScrollIndicator
+        >
+          {options.map((item) => (
+            <Menu.Item
+              key={item.id}
+              style={
+                anchorWidth != null
+                  ? { width: anchorWidth, minWidth: anchorWidth }
+                  : undefined
+              }
+              onPress={() => {
+                onSelect(item.id);
+                setOpen(false);
+              }}
+              title={getOptionLabel(item)}
+            />
+          ))}
+        </ScrollView>
       </Menu>
     </View>
   );

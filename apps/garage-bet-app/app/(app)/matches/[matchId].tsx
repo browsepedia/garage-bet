@@ -31,6 +31,27 @@ function sortByDisplayName(a: MatchBetListItem, b: MatchBetListItem) {
   });
 }
 
+/** Inset so home column clears the back chevron (inside the 16px padded area). */
+const MATCH_HEADER_LEADING_INSET = 36;
+
+const matchVsRowStyle = {
+  flexDirection: 'row' as const,
+  alignItems: 'center' as const,
+  gap: 8,
+  paddingLeft: MATCH_HEADER_LEADING_INSET,
+};
+
+const vsDashStyle = {
+  width: 24,
+  flexShrink: 0,
+  textAlign: 'center' as const,
+};
+
+const vsSideStyle = {
+  flex: 1,
+  minWidth: 0,
+};
+
 /** Section order when grouping: Won first, Results second, Lost last; Pending before Lost. */
 const OUTCOME_SECTIONS: {
   key: string;
@@ -81,7 +102,7 @@ export default function MatchDetailScreen() {
   } = useMatchBetsQuery(matchId);
 
   const match = matches?.find((m) => m.id === matchId);
-  const [groupByOutcome, setGroupByOutcome] = useState(false);
+  const [groupByOutcome, setGroupByOutcome] = useState(true);
 
   const betStatusColor = useBetStatusColor(
     (match?.betStatus === 'UNSET'
@@ -112,138 +133,101 @@ export default function MatchDetailScreen() {
 
   const score = (n: number) => (Number.isFinite(n) ? String(n) : '—');
 
-  const listHeader = (
-    <View style={{ position: 'relative' }}>
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          gap: 16,
-          alignItems: 'center',
-        }}
-      >
-        <Text variant="bodyLarge" style={{ flex: 1, textAlign: 'right' }}>
-          {score(match.homeScore)}
-        </Text>
-        <Text style={{ width: 24, textAlign: 'center', opacity: 0.5 }}>—</Text>
-        <Text variant="bodyLarge" style={{ flex: 1, textAlign: 'left' }}>
-          {score(match.awayScore)}
-        </Text>
-      </View>
-
-      {match.betStatus !== 'UNSET' && (
-        <View style={{ gap: 8, position: 'relative', marginTop: 12 }}>
-          <View
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              paddingHorizontal: 8,
-              backgroundColor: betStatusColor,
-              borderRadius: 999,
-            }}
-          >
-            <Text
-              variant="bodySmall"
-              style={{
-                color: theme.colors.onSurface,
-                backgroundColor: betStatusColor,
-              }}
-            >
-              {match.betStatus}
-            </Text>
-          </View>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              gap: 16,
-              alignItems: 'center',
-            }}
-          >
-            <Text
-              variant="titleMedium"
-              style={{
-                flex: 1,
-                textAlign: 'right',
-                color: theme.colors.onSurfaceDisabled,
-              }}
-            >
-              {score(match.homeBetScore)}
-            </Text>
-            <Text
-              style={{
-                width: 24,
-                textAlign: 'center',
-                color: theme.colors.onSurfaceDisabled,
-              }}
-            >
-              —
-            </Text>
-            <Text
-              variant="titleMedium"
-              style={{
-                flex: 1,
-                textAlign: 'left',
-                color: theme.colors.onSurfaceDisabled,
-              }}
-            >
-              {score(match.awayBetScore)}
-            </Text>
-          </View>
-        </View>
-      )}
-
-      <PressableCheckbox
-        checked={groupByOutcome}
-        onPress={() => setGroupByOutcome((v) => !v)}
-        label="Group by outcome"
-      />
-
-      <PressableCheckbox
-        checked={groupByOutcome}
-        onPress={() => setGroupByOutcome((v) => !v)}
-        label="Group by outcome"
-      />
-
-      <PressableCheckbox
-        checked={groupByOutcome}
-        onPress={() => setGroupByOutcome((v) => !v)}
-        label="Group by outcome"
-      />
-    </View>
-  );
-
   return (
     <Screen style={{ paddingHorizontal: 0 }}>
       <View style={{ paddingHorizontal: 16, position: 'relative' }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 8,
-            paddingLeft: 36,
-          }}
-        >
+        <View style={matchVsRowStyle}>
           <Text
-            style={{ flex: 1, flexShrink: 0, textAlign: 'right' }}
             variant="bodyLarge"
+            style={{ ...vsSideStyle, textAlign: 'right' }}
           >
             {match.homeTeam}
           </Text>
+          <Text style={{ ...vsDashStyle, opacity: 0.7 }}>—</Text>
           <Text
-            style={{
-              width: 24,
-              textAlign: 'center',
-              opacity: 0.7,
-              flexShrink: 0,
-            }}
+            variant="bodyLarge"
+            style={{ ...vsSideStyle, textAlign: 'left' }}
           >
-            —
-          </Text>
-          <Text style={{ flex: 1, flexShrink: 0 }} variant="bodyLarge">
             {match.awayTeam}
           </Text>
+        </View>
+
+        <View style={{ marginTop: 8 }}>
+          <View style={matchVsRowStyle}>
+            <Text
+              variant="bodyLarge"
+              style={{ ...vsSideStyle, textAlign: 'right' }}
+            >
+              {score(match.homeScore)}
+            </Text>
+            <Text style={{ ...vsDashStyle, opacity: 0.5 }}>—</Text>
+            <Text
+              variant="bodyLarge"
+              style={{ ...vsSideStyle, textAlign: 'left' }}
+            >
+              {score(match.awayScore)}
+            </Text>
+          </View>
+
+          {match.betStatus !== 'UNSET' && (
+            <View style={{ gap: 8, position: 'relative', marginTop: 12 }}>
+              <View
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  paddingHorizontal: 8,
+                  backgroundColor: betStatusColor,
+                  borderRadius: 999,
+                }}
+              >
+                <Text
+                  variant="bodySmall"
+                  style={{
+                    color: theme.colors.onSurface,
+                    backgroundColor: betStatusColor,
+                  }}
+                >
+                  {match.betStatus}
+                </Text>
+              </View>
+              <View style={matchVsRowStyle}>
+                <Text
+                  variant="titleMedium"
+                  style={{
+                    ...vsSideStyle,
+                    textAlign: 'right',
+                    color: theme.colors.onSurfaceDisabled,
+                  }}
+                >
+                  {score(match.homeBetScore)}
+                </Text>
+                <Text
+                  style={{
+                    ...vsDashStyle,
+                    color: theme.colors.onSurfaceDisabled,
+                  }}
+                >
+                  —
+                </Text>
+                <Text
+                  variant="titleMedium"
+                  style={{
+                    ...vsSideStyle,
+                    textAlign: 'left',
+                    color: theme.colors.onSurfaceDisabled,
+                  }}
+                >
+                  {score(match.awayBetScore)}
+                </Text>
+              </View>
+            </View>
+          )}
+
+          <PressableCheckbox
+            checked={groupByOutcome}
+            onPress={() => setGroupByOutcome((v) => !v)}
+            label="Group by outcome"
+          />
         </View>
 
         <TouchableOpacity
@@ -288,9 +272,9 @@ export default function MatchDetailScreen() {
               onRefresh={() => refetchBets()}
             />
           }
-          ListHeaderComponent={listHeader}
           contentContainerStyle={{
             paddingHorizontal: 16,
+            paddingTop: 8,
             paddingBottom: 32,
             flexGrow: 1,
           }}

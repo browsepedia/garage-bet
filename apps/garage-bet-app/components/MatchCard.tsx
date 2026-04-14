@@ -36,6 +36,7 @@ function MatchCard({
     if (match.betStatus === 'UNSET') {
       return theme.colors.outline;
     }
+
     if (match.betStatus === 'SET') {
       return theme.colors.outline;
     }
@@ -54,20 +55,6 @@ function MatchCard({
         backgroundColor: '#13161a',
       }}
     >
-      {match.betStatus !== 'UNSET' && (
-        <View
-          style={{
-            width: 16,
-            height: 16,
-            borderRadius: 999,
-            backgroundColor: statusColor,
-            position: 'absolute',
-            top: 8,
-            right: 8,
-          }}
-        />
-      )}
-
       <View
         style={{
           flexDirection: 'row',
