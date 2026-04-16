@@ -11,51 +11,15 @@ import {
   View,
 } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
-import { Button } from '../../components/Button';
-import { RadarChart, type RadarAxis } from '../../components/RadarChart';
-import { Screen } from '../../components/Screen';
-import { useUserStatsQuery } from '../../queries/user-stats.query';
-import type { AppTheme } from '../../theme';
+import { Button } from './Button';
+import { RadarChart } from './RadarChart';
+import { Screen } from './Screen';
+import type { AppTheme } from '../theme';
+import { buildRadarAxes } from '../utils/user-stats-radar';
 
 const MUTED = '#a1a1aa';
 const BORDER = '#273042';
 const CARD_BG = '#13161a';
-
-// ─── helpers ────────────────────────────────────────────────────────────────
-
-function safe(v: number): number {
-  return Number.isFinite(v) && v >= 0 ? Math.min(1, v) : 0;
-}
-
-function buildRadarAxes(s: UserStats): RadarAxis[] {
-  const bets = s.bets || 1; // avoid ÷0
-  const maxPts = s.maxPoints || 1;
-  const totalFinished = s.totalFinishedMatches || 1;
-  return [
-    {
-      label: 'Win rate',
-      value: safe(s.points / maxPts),
-    },
-    {
-      label: 'Exact',
-      value: safe(s.wins / bets),
-    },
-    {
-      label: 'Result',
-      value: safe(s.results / bets),
-    },
-    {
-      label: 'No loss',
-      value: safe(1 - s.losses / bets),
-    },
-    {
-      label: 'Coverage',
-      value: safe(s.bets / totalFinished),
-    },
-  ];
-}
-
-// ─── sub-components ─────────────────────────────────────────────────────────
 
 function StatRow({
   icon,
@@ -100,15 +64,28 @@ function StatRow({
   );
 }
 
-// ─── screen ─────────────────────────────────────────────────────────────────
+type UserStatsScreenContentProps = {
+  title: string;
+  data: UserStats | undefined;
+  isPending: boolean;
+  isRefetching: boolean;
+  isError: boolean;
+  error: unknown;
+  refetch: () => void;
+};
 
-export default function StatsScreen() {
+export function UserStatsScreenContent({
+  title,
+  data,
+  isPending,
+  isRefetching,
+  isError,
+  error,
+  refetch,
+}: UserStatsScreenContentProps) {
   const theme = useTheme<AppTheme>();
   const { width } = useWindowDimensions();
-  const { data, isPending, isRefetching, isError, error, refetch } =
-    useUserStatsQuery();
 
-  // ScrollView 16×2 + chart card paddingHorizontal 14×2; cap on wide tablets.
   const chartSize = Math.min(Math.max(200, width - 60), 400);
   const wrPct =
     data && data.maxPoints > 0
@@ -125,7 +102,6 @@ export default function StatsScreen() {
 
   return (
     <Screen style={{ paddingHorizontal: 0 }}>
-      {/* Header */}
       <View
         style={{
           flexDirection: 'row',
@@ -156,11 +132,10 @@ export default function StatsScreen() {
           />
         </TouchableOpacity>
         <Text variant="headlineSmall" style={{ flex: 1, fontWeight: '700' }}>
-          Your stats
+          {title}
         </Text>
       </View>
 
-      {/* Body */}
       {isPending ? (
         <View
           style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
@@ -194,7 +169,6 @@ export default function StatsScreen() {
             />
           }
         >
-          {/* Profile card */}
           <View
             style={{
               flexDirection: 'row',
@@ -222,7 +196,6 @@ export default function StatsScreen() {
             </View>
           </View>
 
-          {/* Radar chart */}
           <View
             style={{
               alignItems: 'center',
@@ -254,7 +227,6 @@ export default function StatsScreen() {
             />
           </View>
 
-          {/* Stat rows */}
           <View
             style={{
               borderRadius: 12,
@@ -301,13 +273,13 @@ export default function StatsScreen() {
 
             <StatRow
               icon="chart-line"
-              label="Win rate (on bets placed)"
+              label="Point percentage (PP) (on bets placed)"
               value={`${wrPct}%`}
               accent
             />
             <StatRow
               icon="chart-line-variant"
-              label="Overall win rate (all matches)"
+              label="Overall point percentage (PP) (all matches)"
               value={`${overallWrPct}%`}
               accent
             />
@@ -350,7 +322,6 @@ export default function StatsScreen() {
             </View>
           </View>
 
-          {/* Leaderboard shortcut */}
           <TouchableOpacity
             onPress={() => router.push('/leaderboard')}
             style={{

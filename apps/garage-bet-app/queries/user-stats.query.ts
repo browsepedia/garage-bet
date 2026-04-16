@@ -8,3 +8,11 @@ export function useUserStatsQuery() {
     queryFn: () => apiJson<UserStats>('/leaderboard/me/stats'),
   });
 }
+
+export function useUserStatsByUserIdQuery(userId: string | undefined) {
+  return useQuery({
+    queryKey: ['leaderboard', 'user', userId, 'stats'],
+    queryFn: () => apiJson<UserStats>(`/leaderboard/user/${userId}/stats`),
+    enabled: Boolean(userId),
+  });
+}

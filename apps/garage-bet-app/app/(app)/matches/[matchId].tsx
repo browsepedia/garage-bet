@@ -31,14 +31,10 @@ function sortByDisplayName(a: MatchBetListItem, b: MatchBetListItem) {
   });
 }
 
-/** Inset so home column clears the back chevron (inside the 16px padded area). */
-const MATCH_HEADER_LEADING_INSET = 36;
-
 const matchVsRowStyle = {
   flexDirection: 'row' as const,
   alignItems: 'center' as const,
   gap: 8,
-  paddingLeft: MATCH_HEADER_LEADING_INSET,
 };
 
 const vsDashStyle = {

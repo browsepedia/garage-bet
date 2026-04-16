@@ -91,7 +91,10 @@ function MatchCard({
           {match.awayTeamLogoUrl ? (
             <TeamLogo uri={match.awayTeamLogoUrl} />
           ) : null}
-          <Text variant="titleSmall" style={{ flex: 1, textAlign: 'left' }}>
+          <Text
+            variant="titleSmall"
+            style={{ flex: 1, textAlign: 'left', lineHeight: 15 }}
+          >
             {match.awayTeam}
           </Text>
         </View>
@@ -163,6 +166,7 @@ function MatchCard({
           justifyContent: 'space-between',
           gap: 16,
           alignItems: 'flex-end',
+          marginTop: match.status === 'FINISHED' ? -24 : 0,
         }}
       >
         <View style={{ minWidth: 0 }}>
@@ -226,16 +230,6 @@ function MatchCard({
               onPress={() => router.push(`/matches/${match.id}`)}
             >
               See bets
-            </Button>
-          )}
-
-          {onUpdateScoreClick && (
-            <Button
-              mode="outlined"
-              compact
-              onPress={() => onUpdateScoreClick(match)}
-            >
-              Update score
             </Button>
           )}
         </View>

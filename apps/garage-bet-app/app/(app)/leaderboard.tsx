@@ -1,4 +1,6 @@
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { LeaderboardEntry } from '@garage-bet/models';
+import { router } from 'expo-router';
 import { useCallback, useMemo, useRef } from 'react';
 import {
   ActivityIndicator,
@@ -8,6 +10,7 @@ import {
   NativeSyntheticEvent,
   RefreshControl,
   ScrollView,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import { Text } from 'react-native-paper';
@@ -19,6 +22,8 @@ const COL_POS = 40;
 const COL_PLAYER = 168;
 const COL_STAT = 40;
 const COL_WR = 44;
+/** Pinned compare action (always visible on the right). */
+const COL_COMPARE = 48;
 
 const FIXED_WIDTH = COL_POS + COL_PLAYER;
 const SCROLLABLE_WIDTH = COL_STAT * 5 + COL_WR + COL_STAT;
@@ -66,15 +71,15 @@ export default function Leaderboard() {
 
   const fixedRef = useRef<FlatList>(null);
   const scrollableRef = useRef<FlatList>(null);
-  const scrollSource = useRef<'left' | 'right' | null>(null);
+  const compareRef = useRef<FlatList>(null);
+  const scrollSource = useRef<'left' | 'right' | 'compare' | null>(null);
 
   const handleFixedScroll = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
       if (scrollSource.current === 'left') {
-        scrollableRef.current?.scrollToOffset({
-          offset: e.nativeEvent.contentOffset.y,
-          animated: false,
-        });
+        const offset = e.nativeEvent.contentOffset.y;
+        scrollableRef.current?.scrollToOffset({ offset, animated: false });
+        compareRef.current?.scrollToOffset({ offset, animated: false });
       }
     },
     [],
@@ -83,10 +88,20 @@ export default function Leaderboard() {
   const handleScrollableScroll = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
       if (scrollSource.current === 'right') {
-        fixedRef.current?.scrollToOffset({
-          offset: e.nativeEvent.contentOffset.y,
-          animated: false,
-        });
+        const offset = e.nativeEvent.contentOffset.y;
+        fixedRef.current?.scrollToOffset({ offset, animated: false });
+        compareRef.current?.scrollToOffset({ offset, animated: false });
+      }
+    },
+    [],
+  );
+
+  const handleCompareScroll = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      if (scrollSource.current === 'compare') {
+        const offset = e.nativeEvent.contentOffset.y;
+        fixedRef.current?.scrollToOffset({ offset, animated: false });
+        scrollableRef.current?.scrollToOffset({ offset, animated: false });
       }
     },
     [],
@@ -158,6 +173,51 @@ export default function Leaderboard() {
             {Math.round(item.winRate * 100)}%
           </Text>
           <Text style={{ width: COL_STAT }}>{item.finalBetPoints}</Text>
+        </View>
+      );
+    },
+    [me?.id],
+  );
+
+  const renderCompareRow = useCallback(
+    ({ item }: { item: LeaderboardEntry }) => {
+      const isMe = item.userId === me?.id;
+      return (
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: ROW_HEIGHT,
+            borderBottomWidth: 1,
+            borderBottomColor: '#273042',
+            backgroundColor: isMe ? HIGHLIGHT_BG : 'transparent',
+          }}
+        >
+          {isMe ? (
+            <View style={{ width: COL_COMPARE, height: ROW_HEIGHT }} />
+          ) : (
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel={`Compare with ${item.name}`}
+              hitSlop={8}
+              onPress={() =>
+                router.push(`/stats/compare/${encodeURIComponent(item.userId)}`)
+              }
+              style={{
+                width: COL_COMPARE,
+                height: ROW_HEIGHT,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <MaterialCommunityIcons
+                name="compare-horizontal"
+                size={22}
+                color="#EA580C"
+              />
+            </TouchableOpacity>
+          )}
         </View>
       );
     },
@@ -310,6 +370,47 @@ export default function Leaderboard() {
                 />
               </View>
             </ScrollView>
+
+            {/* Pinned compare column */}
+            <View style={{ width: COL_COMPARE, borderLeftWidth: 1, borderLeftColor: '#273042' }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: HEADER_HEIGHT,
+                  borderBottomWidth: 1,
+                  borderBottomColor: '#273042',
+                }}
+              >
+                <MaterialCommunityIcons
+                  name="compare-horizontal"
+                  size={18}
+                  color="#64748b"
+                />
+              </View>
+              <FlatList
+                ref={compareRef}
+                data={entries}
+                keyExtractor={(item) => item.userId}
+                renderItem={renderCompareRow}
+                {...FLAT_LIST_SCROLL_PROPS}
+                scrollEventThrottle={16}
+                onScrollBeginDrag={() => {
+                  scrollSource.current = 'compare';
+                }}
+                onMomentumScrollEnd={() => {
+                  scrollSource.current = null;
+                }}
+                onScroll={handleCompareScroll}
+                showsVerticalScrollIndicator={false}
+                ListFooterComponent={
+                  isFetchingNextPage ? (
+                    <View style={{ height: FOOTER_HEIGHT }} />
+                  ) : null
+                }
+              />
+            </View>
           </View>
         )}
       </View>
