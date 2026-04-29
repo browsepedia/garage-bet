@@ -10,7 +10,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { createHash, randomBytes, scrypt, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
-import { EmailService } from '../services/email/email-service';
+import { EmailService } from '../services/email-service';
 import { PrismaService } from '../services/prisma-service';
 
 const scryptAsync = promisify(scrypt);

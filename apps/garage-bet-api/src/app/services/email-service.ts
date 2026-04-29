@@ -35,7 +35,7 @@ export class EmailService {
     token: string,
   ): Promise<void> {
     const verificationUrl = this.buildEmailVerificationLink(token);
-    const html = this.loadTemplate('verify-email-template.html', {
+    const html = this.loadTemplate('verify-email-template', {
       name: registerForm.name?.trim() || 'there',
       verificationUrl,
       unsubscribeUrl: verificationUrl,
@@ -66,7 +66,13 @@ export class EmailService {
   }
 
   private loadTemplate(name: string, vars: Record<string, string>): string {
-    const file = path.join(__dirname, `${name}.html`);
+    const fileName = name.endsWith('.html') ? name : `${name}.html`;
+    const file = path.join(
+      __dirname,
+      'assets',
+      'email-templates',
+      fileName,
+    );
     let html = fs.readFileSync(file, 'utf-8');
     for (const [key, val] of Object.entries(vars)) {
       html = html.replace(new RegExp(`{{${key}}}`, 'g'), val);
