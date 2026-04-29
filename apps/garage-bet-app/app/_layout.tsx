@@ -76,6 +76,14 @@ function Content() {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)/login" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)/register" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="(auth)/register-complete"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="(auth)/email-verified"
+          options={{ headerShown: false }}
+        />
         <Stack.Screen name="(app)" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />
       </Stack>

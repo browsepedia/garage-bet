@@ -4,11 +4,13 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { createHash, randomBytes, scrypt, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
+import { EmailService } from '../services/email/email-service';
 import { PrismaService } from '../services/prisma-service';
 
 const scryptAsync = promisify(scrypt);
@@ -22,9 +24,12 @@ type DeviceLoginInput = {
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly emailService: EmailService,
   ) {}
 
   private readonly userProfileSelect = {
@@ -39,7 +44,7 @@ export class AuthService {
 
   private async issueAccessToken(user: {
     id: string;
-    email: string;
+    email: string | null;
     isAdmin: boolean;
   }) {
     return this.jwtService.signAsync({
@@ -93,7 +98,7 @@ export class AuthService {
 
   private async issueAuthTokens(user: {
     id: string;
-    email: string;
+    email: string | null;
     isAdmin: boolean;
   }) {
     const accessToken = await this.issueAccessToken(user);
@@ -265,6 +270,16 @@ export class AuthService {
     });
 
     const { accessToken, refreshToken } = await this.issueAuthTokens(user);
+
+    void this.emailService
+      .sendVerificationEmail(dto, verifyToken)
+      .catch((err: unknown) => {
+        this.logger.error(
+          `sendVerificationEmail failed: ${
+            err instanceof Error ? err.message : String(err)
+          }`,
+        );
+      });
 
     return { user, accessToken, refreshToken };
   }

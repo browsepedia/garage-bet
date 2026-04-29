@@ -22,7 +22,7 @@ export function useRegisterMutation() {
       return data;
     },
     onSuccess: async () => {
-      router.replace('/(app)/today');
+      router.replace('/(auth)/register-complete');
       await queryClient.invalidateQueries({ queryKey: ['me'] });
       await queryClient.invalidateQueries({
         queryKey: ['deviceRegistrationStatus'],
