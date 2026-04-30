@@ -14,6 +14,46 @@ export class EmailService {
     this.resend = key ? new Resend(key) : null;
   }
 
+  buildPasswordResetLink(token: string): string {
+    const base = 'https://garage-bet-api-5f371ca7b557.herokuapp.com/api';
+    const qs = new URLSearchParams({ token }).toString();
+    return `${base}/auth/reset-password?${qs}`;
+  }
+
+  async sendPasswordResetEmail(
+    user: { email: string; name: string | null },
+    token: string,
+  ): Promise<void> {
+    const resetUrl = this.buildPasswordResetLink(token);
+    const html = this.loadTemplate('reset-password-template', {
+      name: user.name?.trim() || 'there',
+      resetUrl,
+    });
+
+    if (!this.resend) {
+      this.logger.warn(
+        'RESEND_API_KEY not set; password reset email not sent. Link: ' +
+          resetUrl,
+      );
+      return;
+    }
+
+    const from = process.env.RESEND_FROM_EMAIL?.trim();
+    if (!from) {
+      this.logger.warn(
+        'RESEND_FROM_EMAIL not set; password reset email not sent',
+      );
+      return;
+    }
+
+    await this.resend.emails.send({
+      from,
+      to: user.email,
+      subject: 'Reset your password — Garage Bet',
+      html,
+    });
+  }
+
   buildEmailVerificationLink(token: string): string {
     const base = 'https://garage-bet-api-5f371ca7b557.herokuapp.com/api';
     const pathSuffix = '/auth/confirm-email';

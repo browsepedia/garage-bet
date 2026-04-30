@@ -285,10 +285,8 @@ export class AuthService {
   }
 
   /**
-   * Generates a new random 16-character password, saves its hash, and should
-   * send it to the user's email address.
-   * Always returns { ok: true } regardless of whether the email exists, to
-   * avoid leaking account information.
+   * Sends a password-reset email with a deep-link token.
+   * Always returns { ok: true } to avoid leaking account existence.
    */
   async forgotPassword(email: string) {
     const trimmed = email?.trim().toLowerCase();
@@ -298,20 +296,73 @@ export class AuthService {
 
     const user = await this.prisma.user.findUnique({
       where: { email: trimmed },
-      select: { id: true, email: true },
+      select: { id: true, email: true, name: true },
     });
 
     if (user?.email) {
-      const newPassword = randomBytes(12).toString('base64url').slice(0, 16);
-      const passwordHash = await this.hashPassword(newPassword);
+      const resetToken = randomBytes(32).toString('base64url');
+      const expiresAt = new Date();
+      expiresAt.setHours(expiresAt.getHours() + 1);
 
       await this.prisma.user.update({
         where: { id: user.id },
-        data: { passwordHash },
+        data: {
+          passwordResetToken: resetToken,
+          passwordResetExpiresAt: expiresAt,
+        },
       });
 
-      // TODO: send email to user.email containing newPassword
+      void this.emailService
+        .sendPasswordResetEmail(
+          { email: user.email, name: user.name },
+          resetToken,
+        )
+        .catch((err: unknown) => {
+          this.logger.error(
+            `sendPasswordResetEmail failed: ${
+              err instanceof Error ? err.message : String(err)
+            }`,
+          );
+        });
     }
+
+    return { ok: true as const };
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    const trimmedToken = token?.trim();
+    if (!trimmedToken) {
+      throw new BadRequestException('Missing token');
+    }
+    if (!newPassword || newPassword.length < 6) {
+      throw new BadRequestException('Password must be at least 6 characters');
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { passwordResetToken: trimmedToken },
+      select: { id: true, passwordResetExpiresAt: true },
+    });
+
+    if (!user) {
+      throw new BadRequestException('Invalid or expired reset link');
+    }
+
+    if (
+      !user.passwordResetExpiresAt ||
+      user.passwordResetExpiresAt.getTime() < Date.now()
+    ) {
+      throw new BadRequestException('Reset link has expired');
+    }
+
+    const passwordHash = await this.hashPassword(newPassword);
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash,
+        passwordResetToken: null,
+        passwordResetExpiresAt: null,
+      },
+    });
 
     return { ok: true as const };
   }

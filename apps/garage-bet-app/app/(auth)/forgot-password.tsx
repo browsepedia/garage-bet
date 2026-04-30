@@ -50,8 +50,8 @@ export default function ForgotPassword() {
             Check your email
           </Text>
           <Text variant="bodyMedium" style={{ color: '#a1a1aa' }}>
-            If {email.trim()} is registered, we've sent a new temporary
-            password. Use it to log in, then change it in your settings.
+            If {email.trim()} is registered, we've sent a password reset link.
+            Check your email and tap the link to choose a new password.
           </Text>
 
           <Button
@@ -77,7 +77,7 @@ export default function ForgotPassword() {
           Forgot password
         </Text>
         <Text variant="bodyMedium" style={{ color: '#a1a1aa' }}>
-          Enter your email and we'll send you a new temporary password.
+          Enter your email and we'll send you a link to reset your password.
         </Text>
 
         <ThemedInput
@@ -111,7 +111,7 @@ export default function ForgotPassword() {
           {isPending ? (
             <ActivityIndicator size="small" color="#ffffff" />
           ) : (
-            'Send new password'
+            'Send reset link'
           )}
         </Button>
 

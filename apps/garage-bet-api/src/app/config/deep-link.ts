@@ -1,6 +1,8 @@
 /** Env var name for {@link appDeepLinkBaseUrl}. */
 export const APP_DEEP_LINK_URL_ENV = 'APP_DEEP_LINK_URL' as const;
 
+export const CHANGE_PASSWORD_APP_PATH_SEGMENT = 'change-password' as const;
+
 /**
  * Expo Router path for `app/(auth)/email-verified.tsx` (route groups are omitted from the URL).
  */
@@ -17,6 +19,33 @@ export function appDeepLinkBaseUrl(): string {
 
 function alreadyOpensEmailVerifiedScreen(url: string): boolean {
   return /(^|\/)email-verified(\/|$|\?)/i.test(url);
+}
+
+/**
+ * Deep link to `/(auth)/change-password` with the reset token as a query param.
+ */
+export function buildChangePasswordAppDeepLink(token: string): string {
+  const base = appDeepLinkBaseUrl().trim();
+  const seg = CHANGE_PASSWORD_APP_PATH_SEGMENT;
+  const qs = new URLSearchParams({ token }).toString();
+
+  const withoutQuery = base.split('?')[0];
+  const sepIdx = withoutQuery.indexOf('://');
+
+  let url: string;
+  if (sepIdx === -1) {
+    url = `${withoutQuery.replace(/\/+$/, '')}/${seg}`;
+  } else {
+    const proto = withoutQuery.slice(0, sepIdx + 3);
+    const rest = withoutQuery.slice(sepIdx + 3);
+    if (rest === '' || rest === '/') {
+      url = `${proto}/${seg}`;
+    } else {
+      url = `${proto}${rest.replace(/\/+$/, '')}/${seg}`;
+    }
+  }
+
+  return `${url}?${qs}`;
 }
 
 /**

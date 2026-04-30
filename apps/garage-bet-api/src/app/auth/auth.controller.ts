@@ -10,7 +10,10 @@ import {
   Res,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { buildEmailVerifiedAppDeepLink } from '../config/deep-link';
+import {
+  buildChangePasswordAppDeepLink,
+  buildEmailVerifiedAppDeepLink,
+} from '../config/deep-link';
 import { AuthService } from './auth.service';
 import { verifyEmailErrorPage } from './verify-email-browser';
 
@@ -36,10 +39,29 @@ export class AuthController {
   }
 
   /**
-   * Email verification link: `GET ...?token=<emailVerificationToken>`.
-   * Public; no auth header. Alias `verify-email` for templates that use that path.
-   * Browsers (`Accept: text/html`) get a 302 to `/(auth)/email-verified`; API clients get JSON.
+   * Password-reset link from email: `GET ...?token=<passwordResetToken>`.
+   * Redirects to the app's change-password screen with the token.
    */
+  @Get('reset-password')
+  resetPasswordRedirect(
+    @Query('token') token: string | undefined,
+    @Res({ passthrough: false }) res: Response,
+  ) {
+    const t = token?.trim();
+    if (!t) {
+      return res
+        .status(400)
+        .type('text/html; charset=utf-8')
+        .send('<p>Invalid or missing reset link.</p>');
+    }
+    return res.redirect(302, buildChangePasswordAppDeepLink(t));
+  }
+
+  @Post('reset-password')
+  resetPassword(@Body() dto: { token: string; newPassword: string }) {
+    return this.service.resetPassword(dto.token, dto.newPassword);
+  }
+
   @Get(['confirm-email', 'verify-email'])
   async confirmEmail(
     @Query('token') token: string | undefined,

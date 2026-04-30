@@ -84,6 +84,10 @@ function Content() {
           name="(auth)/email-verified"
           options={{ headerShown: false }}
         />
+        <Stack.Screen
+          name="(auth)/change-password"
+          options={{ headerShown: false }}
+        />
         <Stack.Screen name="(app)" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />
       </Stack>
