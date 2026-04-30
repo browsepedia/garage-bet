@@ -1,11 +1,12 @@
 import { useLocalSearchParams } from 'expo-router';
-import { UserStatsScreenContent } from '../../../components/UserStatsScreenContent';
-import { useUserStatsByUserIdQuery } from '../../../queries/user-stats.query';
+import { UserStatsScreenContent } from '../../components/UserStatsScreenContent';
+import { useUserStatsByUserIdQuery } from '../../queries/user-stats.query';
 
-export default function UserStatsScreen() {
+export default function PlayerStatsScreen() {
   const { userId } = useLocalSearchParams<{ userId: string }>();
   const safeId = typeof userId === 'string' ? userId : userId?.[0];
   const missingUser = !safeId;
+
   const { data, isPending, isRefetching, isError, error, refetch } =
     useUserStatsByUserIdQuery(safeId);
 

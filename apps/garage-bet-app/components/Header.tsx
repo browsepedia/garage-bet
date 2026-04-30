@@ -65,7 +65,7 @@ export default function Header() {
         iconColor={theme.colors.onPrimary}
         style={{ backgroundColor: theme.colors.primary }}
         size={24}
-        onPress={() => router.push('/stats')}
+        onPress={() => router.push('/my-stats')}
       />
     </View>
   );

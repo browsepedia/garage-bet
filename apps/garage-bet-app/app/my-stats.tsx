@@ -1,7 +1,7 @@
-import { UserStatsScreenContent } from '../../../components/UserStatsScreenContent';
-import { useUserStatsQuery } from '../../../queries/user-stats.query';
+import { UserStatsScreenContent } from '../components/UserStatsScreenContent';
+import { useUserStatsQuery } from '../queries/user-stats.query';
 
-export default function StatsScreen() {
+export default function MyStatsScreen() {
   const { data, isPending, isRefetching, isError, error, refetch } =
     useUserStatsQuery();
 

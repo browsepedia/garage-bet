@@ -124,7 +124,13 @@ export default function Leaderboard() {
           <Text style={{ width: COL_POS, fontWeight: '700', paddingLeft: 8 }}>
             {index + 1}
           </Text>
-          <View
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={`View ${item.name}'s stats`}
+            hitSlop={4}
+            onPress={() =>
+              router.push(`/player-stats/${encodeURIComponent(item.userId)}`)
+            }
             style={{
               width: COL_PLAYER,
               flexDirection: 'row',
@@ -139,7 +145,7 @@ export default function Leaderboard() {
             <Text style={{ flex: 1 }} numberOfLines={1} ellipsizeMode="tail">
               {item.name}
             </Text>
-          </View>
+          </TouchableOpacity>
         </View>
       );
     },
@@ -202,7 +208,7 @@ export default function Leaderboard() {
               accessibilityLabel={`Compare with ${item.name}`}
               hitSlop={8}
               onPress={() =>
-                router.push(`/stats/compare/${encodeURIComponent(item.userId)}`)
+                router.push(`/compare/${encodeURIComponent(item.userId)}`)
               }
               style={{
                 width: COL_COMPARE,

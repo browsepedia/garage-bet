@@ -88,8 +88,23 @@ function Content() {
           name="(auth)/change-password"
           options={{ headerShown: false }}
         />
+        <Stack.Screen
+          name="(auth)/email-not-verified"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="(auth)/email-verification-error"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="(auth)/password-reset-error"
+          options={{ headerShown: false }}
+        />
         <Stack.Screen name="(app)" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />
+        <Stack.Screen name="compare/[userId]" options={{ headerShown: false }} />
+        <Stack.Screen name="my-stats" options={{ headerShown: false }} />
+        <Stack.Screen name="player-stats/[userId]" options={{ headerShown: false }} />
       </Stack>
     </View>
   );

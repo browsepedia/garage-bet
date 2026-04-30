@@ -28,5 +28,8 @@ export function useLoginMutation() {
         queryKey: ['deviceRegistrationStatus'],
       });
     },
+    onError: (error) => {
+      console.error(error);
+    },
   });
 }

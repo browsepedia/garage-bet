@@ -34,6 +34,10 @@ export default function Login() {
       await login(data);
     } catch (e: unknown) {
       if (e instanceof ApiError) {
+        if (e.status === 403) {
+          router.replace('/(auth)/email-not-verified');
+          return;
+        }
         setFormError(e.message);
       } else {
         setFormError('Sign in failed. Try again.');

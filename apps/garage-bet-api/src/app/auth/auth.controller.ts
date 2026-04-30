@@ -4,7 +4,6 @@ import {
   Controller,
   Get,
   Headers,
-  HttpException,
   Post,
   Query,
   Res,
@@ -12,10 +11,11 @@ import {
 import { Response } from 'express';
 import {
   buildChangePasswordAppDeepLink,
+  buildEmailVerificationErrorDeepLink,
   buildEmailVerifiedAppDeepLink,
+  buildPasswordResetErrorDeepLink,
 } from '../config/deep-link';
 import { AuthService } from './auth.service';
-import { verifyEmailErrorPage } from './verify-email-browser';
 
 type LoginRequestBody = LoginFormModel & { deviceId?: string };
 
@@ -40,21 +40,23 @@ export class AuthController {
 
   /**
    * Password-reset link from email: `GET ...?token=<passwordResetToken>`.
-   * Redirects to the app's change-password screen with the token.
+   * Validates the token, then redirects to change-password or the error screen.
    */
   @Get('reset-password')
-  resetPasswordRedirect(
+  async resetPasswordRedirect(
     @Query('token') token: string | undefined,
     @Res({ passthrough: false }) res: Response,
   ) {
     const t = token?.trim();
     if (!t) {
-      return res
-        .status(400)
-        .type('text/html; charset=utf-8')
-        .send('<p>Invalid or missing reset link.</p>');
+      return res.redirect(302, buildPasswordResetErrorDeepLink());
     }
-    return res.redirect(302, buildChangePasswordAppDeepLink(t));
+    try {
+      await this.service.validatePasswordResetToken(t);
+      return res.redirect(302, buildChangePasswordAppDeepLink(t));
+    } catch {
+      return res.redirect(302, buildPasswordResetErrorDeepLink());
+    }
   }
 
   @Post('reset-password')
@@ -76,27 +78,10 @@ export class AuthController {
       }
       return res.json(result);
     } catch (err) {
-      if (err instanceof HttpException) {
-        const status = err.getStatus();
-        const msg = httpExceptionMessage(err);
-        if (wantsHtml) {
-          return res
-            .status(status)
-            .type('text/html; charset=utf-8')
-            .send(verifyEmailErrorPage(msg, status));
-        }
+      if (wantsHtml) {
+        return res.redirect(302, buildEmailVerificationErrorDeepLink());
       }
       throw err;
     }
   }
-}
-
-function httpExceptionMessage(e: HttpException): string {
-  const r = e.getResponse();
-  if (typeof r === 'string') return r;
-  if (r && typeof r === 'object' && 'message' in r) {
-    const m = (r as { message: string | string[] }).message;
-    return Array.isArray(m) ? m.join(', ') : String(m);
-  }
-  return e.message;
 }

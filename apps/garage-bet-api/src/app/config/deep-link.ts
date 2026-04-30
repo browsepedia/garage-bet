@@ -2,6 +2,10 @@
 export const APP_DEEP_LINK_URL_ENV = 'APP_DEEP_LINK_URL' as const;
 
 export const CHANGE_PASSWORD_APP_PATH_SEGMENT = 'change-password' as const;
+export const EMAIL_VERIFICATION_ERROR_PATH_SEGMENT =
+  'email-verification-error' as const;
+export const PASSWORD_RESET_ERROR_PATH_SEGMENT =
+  'password-reset-error' as const;
 
 /**
  * Expo Router path for `app/(auth)/email-verified.tsx` (route groups are omitted from the URL).
@@ -46,6 +50,29 @@ export function buildChangePasswordAppDeepLink(token: string): string {
   }
 
   return `${url}?${qs}`;
+}
+
+export function buildEmailVerificationErrorDeepLink(): string {
+  return buildSimpleDeepLink(EMAIL_VERIFICATION_ERROR_PATH_SEGMENT);
+}
+
+export function buildPasswordResetErrorDeepLink(): string {
+  return buildSimpleDeepLink(PASSWORD_RESET_ERROR_PATH_SEGMENT);
+}
+
+function buildSimpleDeepLink(seg: string): string {
+  const base = appDeepLinkBaseUrl().trim();
+  const withoutQuery = base.split('?')[0];
+  const sepIdx = withoutQuery.indexOf('://');
+  if (sepIdx === -1) {
+    return `${withoutQuery.replace(/\/+$/, '')}/${seg}`;
+  }
+  const proto = withoutQuery.slice(0, sepIdx + 3);
+  const rest = withoutQuery.slice(sepIdx + 3);
+  if (rest === '' || rest === '/') {
+    return `${proto}/${seg}`;
+  }
+  return `${proto}${rest.replace(/\/+$/, '')}/${seg}`;
 }
 
 /**

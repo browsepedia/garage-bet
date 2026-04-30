@@ -1,9 +1,9 @@
 import { useLocalSearchParams } from 'expo-router';
-import { UserStatsCompareScreenContent } from '../../../../components/UserStatsCompareScreenContent';
+import { UserStatsCompareScreenContent } from '../../components/UserStatsCompareScreenContent';
 import {
   useUserStatsByUserIdQuery,
   useUserStatsQuery,
-} from '../../../../queries/user-stats.query';
+} from '../../queries/user-stats.query';
 
 export default function StatsCompareScreen() {
   const { userId } = useLocalSearchParams<{ userId: string }>();

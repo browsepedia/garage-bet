@@ -6,6 +6,7 @@ import {
   Injectable,
   Logger,
   UnauthorizedException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { createHash, randomBytes, scrypt, timingSafeEqual } from 'node:crypto';
@@ -246,28 +247,58 @@ export class AuthService {
 
     const existingUserByEmail = await this.prisma.user.findUnique({
       where: { email: dto.email },
+      select: { id: true, emailVerifiedAt: true, email: true },
     });
-    if (existingUserByEmail) {
+
+    if (existingUserByEmail?.emailVerifiedAt) {
       throw new ConflictException('Email already registered');
     }
 
     const passwordHash = await this.hashPassword(dto.password);
     const verifyToken = this.generateEmailVerificationToken();
 
-    const user = await this.prisma.user.create({
-      data: {
-        email: dto.email,
-        name: dto.name,
-        passwordHash,
-        emailVerifiedAt: null,
-        emailVerificationToken: verifyToken,
-        emailVerificationExpiresAt: this.newEmailVerificationExpiry(),
-        devices: {
-          create: { deviceId: dto.deviceId },
+    let user;
+
+    if (existingUserByEmail) {
+      // Unverified account: update credentials and resend verification email
+      user = await this.prisma.user.update({
+        where: { id: existingUserByEmail.id },
+        data: {
+          name: dto.name,
+          passwordHash,
+          emailVerificationToken: verifyToken,
+          emailVerificationExpiresAt: this.newEmailVerificationExpiry(),
+          devices: {
+            upsert: {
+              where: {
+                userId_deviceId: {
+                  userId: existingUserByEmail.id,
+                  deviceId: dto.deviceId,
+                },
+              },
+              create: { deviceId: dto.deviceId },
+              update: {},
+            },
+          },
         },
-      },
-      select: this.userProfileSelect,
-    });
+        select: this.userProfileSelect,
+      });
+    } else {
+      user = await this.prisma.user.create({
+        data: {
+          email: dto.email,
+          name: dto.name,
+          passwordHash,
+          emailVerifiedAt: null,
+          emailVerificationToken: verifyToken,
+          emailVerificationExpiresAt: this.newEmailVerificationExpiry(),
+          devices: {
+            create: { deviceId: dto.deviceId },
+          },
+        },
+        select: this.userProfileSelect,
+      });
+    }
 
     const { accessToken, refreshToken } = await this.issueAuthTokens(user);
 
@@ -329,6 +360,29 @@ export class AuthService {
     return { ok: true as const };
   }
 
+  async validatePasswordResetToken(token: string): Promise<void> {
+    const trimmedToken = token?.trim();
+    if (!trimmedToken) {
+      throw new BadRequestException('Missing token');
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { passwordResetToken: trimmedToken },
+      select: { id: true, passwordResetExpiresAt: true },
+    });
+
+    if (!user) {
+      throw new BadRequestException('Invalid or expired reset link');
+    }
+
+    if (
+      !user.passwordResetExpiresAt ||
+      user.passwordResetExpiresAt.getTime() < Date.now()
+    ) {
+      throw new BadRequestException('Reset link has expired');
+    }
+  }
+
   async resetPassword(token: string, newPassword: string) {
     const trimmedToken = token?.trim();
     if (!trimmedToken) {
@@ -380,12 +434,8 @@ export class AuthService {
       },
     });
 
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    if (!user.passwordHash) {
-      throw new UnauthorizedException('Invalid credentials');
+    if (!user || !user.passwordHash) {
+      throw new UnprocessableEntityException('Incorrect email or password');
     }
 
     const passwordOk = await this.verifyPassword(
@@ -393,7 +443,11 @@ export class AuthService {
       user.passwordHash,
     );
     if (!passwordOk) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnprocessableEntityException('Incorrect email or password');
+    }
+
+    if (!user.emailVerifiedAt) {
+      throw new ForbiddenException('Please verify your email before logging in');
     }
 
     if (dto.deviceId) {
