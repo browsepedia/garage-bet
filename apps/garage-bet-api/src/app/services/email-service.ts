@@ -4,15 +4,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Resend } from 'resend';
 
-/**
- * Public base URL of the API (no trailing slash), e.g. https://garage-bet-api.herokuapp.com
- * Used to build verification links in outgoing email.
- */
-function apiPublicBaseUrl(): string {
-  const raw = process.env.API_PUBLIC_URL?.trim() || '';
-  return raw.replace(/\/$/, '');
-}
-
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
@@ -24,10 +15,10 @@ export class EmailService {
   }
 
   buildEmailVerificationLink(token: string): string {
-    const base = apiPublicBaseUrl();
-    const pathSuffix = '/api/auth/confirm-email';
+    const base = 'https://garage-bet-api-5f371ca7b557.herokuapp.com/api';
+    const pathSuffix = '/auth/confirm-email';
     const qs = new URLSearchParams({ token }).toString();
-    return base ? `${base}${pathSuffix}?${qs}` : `${pathSuffix}?${qs}`;
+    return `${base}${pathSuffix}?${qs}`;
   }
 
   async sendVerificationEmail(
@@ -38,7 +29,6 @@ export class EmailService {
     const html = this.loadTemplate('verify-email-template', {
       name: registerForm.name?.trim() || 'there',
       verificationUrl,
-      unsubscribeUrl: verificationUrl,
     });
 
     if (!this.resend) {
@@ -67,12 +57,7 @@ export class EmailService {
 
   private loadTemplate(name: string, vars: Record<string, string>): string {
     const fileName = name.endsWith('.html') ? name : `${name}.html`;
-    const file = path.join(
-      __dirname,
-      'assets',
-      'email-templates',
-      fileName,
-    );
+    const file = path.join(__dirname, 'assets', 'email-templates', fileName);
     let html = fs.readFileSync(file, 'utf-8');
     for (const [key, val] of Object.entries(vars)) {
       html = html.replace(new RegExp(`{{${key}}}`, 'g'), val);

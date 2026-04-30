@@ -1,5 +1,6 @@
 import { LoginFormModel, RegisterFormModel } from '@garage-bet/models';
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -7,10 +8,12 @@ import {
   HttpException,
   Post,
   Query,
+  Req,
   Res,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { buildEmailVerifiedAppDeepLink } from '../config/deep-link';
+import { publicApiBaseUrlFromRequest } from '../config/public-request-url';
 import { AuthService } from './auth.service';
 import { verifyEmailErrorPage } from './verify-email-browser';
 
@@ -21,8 +24,14 @@ export class AuthController {
   constructor(private readonly service: AuthService) {}
 
   @Post('register')
-  register(@Body() dto: RegisterFormModel) {
-    return this.service.register(dto);
+  register(@Body() dto: RegisterFormModel, @Req() req: Request) {
+    const requestPublicBaseUrl = publicApiBaseUrlFromRequest(req);
+    if (!requestPublicBaseUrl) {
+      throw new BadRequestException(
+        'Cannot determine this API public URL from the request (missing Host).',
+      );
+    }
+    return this.service.register(dto, { requestPublicBaseUrl });
   }
 
   @Post('login')
