@@ -1,4 +1,4 @@
-import { RegisterFormModel } from '@garage-bet/models';
+import { RegisterModel } from '@garage-bet/models';
 import { Injectable, Logger } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -62,7 +62,7 @@ export class EmailService {
   }
 
   async sendVerificationEmail(
-    registerForm: RegisterFormModel,
+    registerForm: RegisterModel,
     token: string,
   ): Promise<void> {
     const verificationUrl = this.buildEmailVerificationLink(token);

@@ -1,4 +1,4 @@
-import { LoginFormModel, RegisterFormModel } from '@garage-bet/models';
+import { LoginFormModel, RegisterModel } from '@garage-bet/models';
 import {
   BadRequestException,
   ConflictException,
@@ -240,7 +240,7 @@ export class AuthService {
     };
   }
 
-  async register(dto: RegisterFormModel) {
+  async register(dto: RegisterModel) {
     if (!dto.deviceId) {
       throw new BadRequestException('Device ID is required');
     }
@@ -447,7 +447,9 @@ export class AuthService {
     }
 
     if (!user.emailVerifiedAt) {
-      throw new ForbiddenException('Please verify your email before logging in');
+      throw new ForbiddenException(
+        'Please verify your email before logging in',
+      );
     }
 
     if (dto.deviceId) {
