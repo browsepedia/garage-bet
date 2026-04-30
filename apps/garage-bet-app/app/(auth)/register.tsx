@@ -1,67 +1,39 @@
-import { RegisterSchema } from '@garage-bet/models';
+import { RegisterFormModel, RegisterFormSchema } from '@garage-bet/models';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { TouchableOpacity, View } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { Button } from '../../components/Button';
 import { Screen } from '../../components/Screen';
 import { ThemedInput } from '../../components/ThemedInput';
 import { useRegisterMutation } from '../../mutations/register.mutation';
 import { ApiError } from '../../utils/http-client';
-import { useDeviceId } from '../../utils/use-device-id.hook';
 
 export default function Register() {
-  const [displayName, setDisplayName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
 
-  const theme = useTheme();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useRegisterForm();
 
-  const { mutateAsync: register, isPending } = useRegisterMutation();
-  const { deviceId, isDeviceIdReady } = useDeviceId();
-
-  const canSubmit =
-    isDeviceIdReady &&
-    Boolean(deviceId) &&
-    Boolean(email.trim()) &&
-    Boolean(password) &&
-    password === confirmPassword;
-
-  const onRegister = async () => {
+  const handleRegister = handleSubmit(async (data: RegisterFormModel) => {
     setFormError(null);
-
-    const parsed = RegisterSchema.safeParse({
-      name: displayName.trim(),
-      email: email.trim(),
-      password,
-      deviceId,
-    });
-
-    if (!parsed.success) {
-      const first = parsed.error.issues[0];
-      setFormError(first?.message ?? 'Invalid input');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setFormError('Passwords do not match');
-      return;
-    }
-
     try {
-      await register(parsed.data);
+      await register(data);
     } catch (e: unknown) {
       if (e instanceof ApiError) {
         setFormError(e.message);
       } else {
-        setFormError(
-          'Registration failed. Try again or use a different email.',
-        );
+        setFormError('Registration failed. Try again.');
       }
     }
-  };
+  });
+
+  const { mutateAsync: register, isPending } = useRegisterMutation();
 
   return (
     <Screen
@@ -73,60 +45,103 @@ export default function Register() {
         <Text variant="headlineLarge" style={{ fontWeight: 'bold' }}>
           Register
         </Text>
-
-        <ThemedInput
-          placeholder="Display Name"
-          value={displayName}
-          onChangeText={setDisplayName}
-          autoCapitalize="none"
+        <Controller
+          control={control}
+          name="name"
+          render={({ field: { value, onChange, onBlur } }) => (
+            <ThemedInput
+              placeholder="Display Name"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              autoCapitalize="none"
+            />
+          )}
         />
 
-        <ThemedInput
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
+        <Controller
+          control={control}
+          name="email"
+          render={({ field: { value, onChange, onBlur } }) => (
+            <ThemedInput
+              placeholder="Email"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
+          )}
         />
 
-        <ThemedInput
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
+        <Controller
+          control={control}
+          name="password"
+          render={({ field: { value, onChange, onBlur } }) => (
+            <ThemedInput
+              placeholder="Password"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              secureTextEntry
+            />
+          )}
         />
 
-        <ThemedInput
-          placeholder="Confirm Password"
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          secureTextEntry
+        <Controller
+          control={control}
+          name="confirmPassword"
+          render={({ field: { value, onChange, onBlur } }) => (
+            <ThemedInput
+              placeholder="Confirm Password"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              secureTextEntry
+            />
+          )}
         />
+
+        {Object.keys(errors).length > 0 && (
+          <View>
+            {Object.keys(errors).map((key) => (
+              <View
+                key={key}
+                style={{
+                  padding: 8,
+                  paddingHorizontal: 16,
+                  backgroundColor: '#7f1d1d',
+                }}
+              >
+                <Text style={{ color: '#fca5a5' }}>
+                  {errors[key as keyof typeof errors]?.message}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
 
         {formError ? (
           <View
             style={{
               padding: 8,
               paddingHorizontal: 16,
-              backgroundColor: theme.colors.errorContainer,
+              backgroundColor: '#7f1d1d',
             }}
           >
-            <Text style={{ color: theme.colors.onErrorContainer }}>
-              {formError}
-            </Text>
+            <Text style={{ color: '#fca5a5' }}>{formError}</Text>
           </View>
         ) : null}
 
-        <View style={{ justifyContent: 'center', gap: 16 }}>
-          <Button
-            mode="contained"
-            disabled={!canSubmit || isPending}
-            onPress={onRegister}
-            style={{ backgroundColor: theme.colors.primary }}
-          >
-            Register
-          </Button>
-        </View>
+        <Button
+          mode="contained"
+          onPress={handleRegister}
+          backgroundColor="#EA580C"
+          color="#ffffff"
+          loading={isPending}
+        >
+          Register
+        </Button>
 
         <View style={{ alignItems: 'center', gap: 16 }}>
           <Text>Already have an account?</Text>
@@ -149,3 +164,15 @@ export default function Register() {
     </Screen>
   );
 }
+
+const useRegisterForm = () =>
+  useForm<RegisterFormModel>({
+    resolver: zodResolver(RegisterFormSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+      confirmPassword: '',
+      name: '',
+    },
+    mode: 'onSubmit',
+  });

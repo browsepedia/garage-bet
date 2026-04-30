@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import { UserStatsScreenContent } from '../components/UserStatsScreenContent';
 import { useUserStatsQuery } from '../queries/user-stats.query';
 
 export default function MyStatsScreen() {
+  const [seasonId, setSeasonId] = useState<string | 'all'>('all');
+
   const { data, isPending, isRefetching, isError, error, refetch } =
-    useUserStatsQuery();
+    useUserStatsQuery(seasonId);
 
   return (
     <UserStatsScreenContent
@@ -14,6 +17,8 @@ export default function MyStatsScreen() {
       isError={isError}
       error={error}
       refetch={refetch}
+      seasonId={seasonId}
+      setSeasonId={setSeasonId}
     />
   );
 }

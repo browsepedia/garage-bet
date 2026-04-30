@@ -1,4 +1,5 @@
 import { useLocalSearchParams } from 'expo-router';
+import { useState } from 'react';
 import { UserStatsCompareScreenContent } from '../../components/UserStatsCompareScreenContent';
 import {
   useUserStatsByUserIdQuery,
@@ -10,7 +11,9 @@ export default function StatsCompareScreen() {
   const safeId = typeof userId === 'string' ? userId : userId?.[0];
   const missingUser = !safeId;
 
-  const meQuery = useUserStatsQuery();
+  const [seasonId, setSeasonId] = useState<string | 'all'>('all');
+
+  const meQuery = useUserStatsQuery(seasonId);
   const otherQuery = useUserStatsByUserIdQuery(safeId);
 
   const refetch = () => Promise.all([meQuery.refetch(), otherQuery.refetch()]);
@@ -43,6 +46,8 @@ export default function StatsCompareScreen() {
       isError={isError}
       error={error}
       refetch={refetch}
+      seasonId={seasonId}
+      setSeasonId={setSeasonId}
     />
   );
 }

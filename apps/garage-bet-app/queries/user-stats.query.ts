@@ -2,10 +2,11 @@ import { UserStats } from '@garage-bet/models';
 import { useQuery } from '@tanstack/react-query';
 import { apiJson } from '../utils/http-client';
 
-export function useUserStatsQuery() {
+export function useUserStatsQuery(seasonId: string | 'all') {
   return useQuery({
-    queryKey: ['leaderboard', 'me', 'stats'],
-    queryFn: () => apiJson<UserStats>('/leaderboard/me/stats'),
+    queryKey: ['leaderboard', 'me', 'stats', seasonId],
+    queryFn: () =>
+      apiJson<UserStats>(`/leaderboard/me/stats?seasonId=${seasonId}`),
   });
 }
 

@@ -11,11 +11,12 @@ import {
   View,
 } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
-import { Button } from './Button';
-import { RadarCompareChart } from './RadarCompareChart';
-import { Screen } from './Screen';
 import type { AppTheme } from '../theme';
 import { buildRadarAxes } from '../utils/user-stats-radar';
+import { Button } from './Button';
+import ChampionshipSeasonSelect from './ChampionshipSeasonSelect';
+import { RadarCompareChart } from './RadarCompareChart';
+import { Screen } from './Screen';
 
 const MUTED = '#a1a1aa';
 const BORDER = '#273042';
@@ -96,6 +97,8 @@ type UserStatsCompareScreenContentProps = {
   isError: boolean;
   error: unknown;
   refetch: () => void;
+  seasonId: string | 'all';
+  setSeasonId: (value: string | 'all') => void;
 };
 
 export function UserStatsCompareScreenContent({
@@ -109,6 +112,8 @@ export function UserStatsCompareScreenContent({
   isError,
   error,
   refetch,
+  seasonId,
+  setSeasonId,
 }: UserStatsCompareScreenContentProps) {
   const theme = useTheme<AppTheme>();
   const { width } = useWindowDimensions();
@@ -159,6 +164,17 @@ export function UserStatsCompareScreenContent({
         <Text variant="headlineSmall" style={{ flex: 1, fontWeight: '700' }}>
           {title}
         </Text>
+      </View>
+
+      <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
+        <ChampionshipSeasonSelect
+          useAllSeasons
+          label="Championship"
+          value={seasonId}
+          onChange={setSeasonId}
+          placeholder="Select championship"
+          emptyMessage="No championships available"
+        />
       </View>
 
       {isPending ? (

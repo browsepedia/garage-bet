@@ -17,18 +17,20 @@ export class LeaderboardController {
   @Get()
   async getLeaderboard(
     @Query('page') page?: string,
+    @Query('seasonId') seasonId?: string,
   ): Promise<LeaderboardEntry[]> {
     const parsedPage = page ? Number.parseInt(page, 10) : 0;
-    return this.leaderboardService.getLeaderboard(parsedPage);
+    return this.leaderboardService.getLeaderboard(parsedPage, seasonId);
   }
 
   /** Full stats for the authenticated user including rank and max points. */
   @Get('me/stats')
   async getMyStats(
     @Headers('authorization') authorization?: string,
+    @Query('seasonId') seasonId?: string,
   ): Promise<UserStats> {
     const user = await this.authService.me(authorization);
-    return this.leaderboardService.getUserStats(user.id);
+    return this.leaderboardService.getUserStats(user.id, seasonId);
   }
 
   /** Same body as `GET user/:userId`, but user id comes from the bearer token. */
@@ -49,9 +51,7 @@ export class LeaderboardController {
 
   /** Full stats for any user (same shape as `GET me/stats`). */
   @Get('user/:userId/stats')
-  async getUserStats(
-    @Param('userId') userId: string,
-  ): Promise<UserStats> {
+  async getUserStats(@Param('userId') userId: string): Promise<UserStats> {
     return this.leaderboardService.getUserStats(userId);
   }
 }

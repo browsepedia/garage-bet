@@ -4,12 +4,14 @@ import { apiJson } from '../utils/http-client';
 
 const PAGE_SIZE = 50;
 
-export function useLeaderboardQuery() {
+export function useLeaderboardQuery(seasonId: string | 'all') {
   return useInfiniteQuery({
-    queryKey: ['leaderboard'],
+    queryKey: ['leaderboard', 'season', seasonId],
     initialPageParam: 0,
     queryFn: async ({ pageParam }) => {
-      return apiJson<LeaderboardEntry[]>(`/leaderboard?page=${pageParam}`);
+      return apiJson<LeaderboardEntry[]>(
+        `/leaderboard?page=${pageParam}&seasonId=${seasonId}`,
+      );
     },
     getNextPageParam: (lastPage, allPages) => {
       if (lastPage.length < PAGE_SIZE) {

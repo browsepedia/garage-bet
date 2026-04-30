@@ -18,7 +18,10 @@ export default function ChangePassword() {
   const { mutateAsync: resetPassword, isPending } = useResetPasswordMutation();
 
   const canSubmit =
-    Boolean(password.trim()) && Boolean(confirmPassword.trim()) && !isPending;
+    Boolean(password.trim()) &&
+    Boolean(confirmPassword.trim()) &&
+    password === confirmPassword &&
+    !isPending;
 
   const onSubmit = async () => {
     setFormError(null);

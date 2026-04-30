@@ -8,7 +8,7 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query';
-import { router, Stack, usePathname } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import { AppState, Platform, StatusBar, View } from 'react-native';
@@ -21,12 +21,6 @@ import { darkTheme } from '../theme';
 
 export default function RootLayout() {
   const [queryClient] = useState(() => makeQueryClient());
-
-  const pathname = usePathname();
-
-  useEffect(() => {
-    console.log('pathname', pathname);
-  }, [pathname]);
 
   // React Query focus handling for RN
   useEffect(() => {
@@ -102,9 +96,15 @@ function Content() {
         />
         <Stack.Screen name="(app)" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />
-        <Stack.Screen name="compare/[userId]" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="compare/[userId]"
+          options={{ headerShown: false }}
+        />
         <Stack.Screen name="my-stats" options={{ headerShown: false }} />
-        <Stack.Screen name="player-stats/[userId]" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="player-stats/[userId]"
+          options={{ headerShown: false }}
+        />
       </Stack>
     </View>
   );

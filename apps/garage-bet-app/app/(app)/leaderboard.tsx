@@ -1,7 +1,7 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { LeaderboardEntry } from '@garage-bet/models';
 import { router } from 'expo-router';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -14,6 +14,7 @@ import {
   View,
 } from 'react-native';
 import { Text } from 'react-native-paper';
+import ChampionshipSeasonSelect from '../../components/ChampionshipSeasonSelect';
 import { Screen } from '../../components/Screen';
 import { useLeaderboardQuery } from '../../queries/leaderboard.query';
 import { useUserProfileQuery } from '../../queries/user-profile.query';
@@ -53,6 +54,8 @@ const headerTextStyle = {
 
 export default function Leaderboard() {
   const { data: me } = useUserProfileQuery();
+  const [seasonId, setSeasonId] = useState<string | 'all'>('all');
+
   const {
     data,
     isLoading,
@@ -62,7 +65,7 @@ export default function Leaderboard() {
     fetchNextPage,
     refetch,
     error,
-  } = useLeaderboardQuery();
+  } = useLeaderboardQuery(seasonId);
 
   const entries = useMemo(
     () => (data?.pages ?? []).flatMap((page) => page),
@@ -232,6 +235,16 @@ export default function Leaderboard() {
 
   return (
     <Screen style={{ paddingHorizontal: 0 }}>
+      <View style={{ paddingHorizontal: 16 }}>
+        <ChampionshipSeasonSelect
+          useAllSeasons
+          label="Championship"
+          value={seasonId}
+          onChange={setSeasonId}
+          placeholder="Select championship"
+          emptyMessage="No championships available"
+        />
+      </View>
       <View style={{ flex: 1, paddingTop: 8 }}>
         {isLoading ? (
           <View
@@ -378,7 +391,13 @@ export default function Leaderboard() {
             </ScrollView>
 
             {/* Pinned compare column */}
-            <View style={{ width: COL_COMPARE, borderLeftWidth: 1, borderLeftColor: '#273042' }}>
+            <View
+              style={{
+                width: COL_COMPARE,
+                borderLeftWidth: 1,
+                borderLeftColor: '#273042',
+              }}
+            >
               <View
                 style={{
                   flexDirection: 'row',

@@ -1,81 +1,29 @@
-import type { MatchData, SeasonListItem } from '@garage-bet/models';
-import { useFocusEffect } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { MatchData } from '@garage-bet/models';
+import { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { Divider, Text } from 'react-native-paper';
-import { LabeledSelectMenu } from '../../../components/LabeledSelectMenu';
+import ChampionshipSeasonSelect from '../../../components/ChampionshipSeasonSelect';
 import { MatchesSectionList } from '../../../components/MatchesSectionList';
 import PressableCheckbox from '../../../components/PressableCheckbox';
 import { Screen } from '../../../components/Screen';
 import SetMatchBetDialog from '../../../components/SetMatchBetDialog';
 import UpdateMatchScoreDialog from '../../../components/UpdateMatchScoreDialog';
-import { useMatchesBySeasonQuery } from '../../../queries/matches-by-season.query';
-import { useSeasonsQuery } from '../../../queries/seasons.query';
+import { useMatchesQuery } from '../../../queries/matches.query';
 import { useUserProfileQuery } from '../../../queries/user-profile.query';
-
-type ChampionshipSeasonOption = {
-  id: string;
-  season: SeasonListItem;
-};
-
-function championshipSeasonLabel(opt: ChampionshipSeasonOption) {
-  const s = opt.season;
-  const seasonPart = s.year != null ? `${s.name}` : s.name;
-  return `${s.competition.name} - ${seasonPart}`;
-}
 
 export default function Matches() {
   const { data: me } = useUserProfileQuery();
-  const {
-    data: seasons,
-    isPending: seasonsPending,
-    refetch: refetchSeasons,
-  } = useSeasonsQuery();
 
-  const [seasonId, setSeasonId] = useState<string | null>(null);
+  const [seasonId, setSeasonId] = useState<string | 'all'>('all');
   const [hideEndedMatches, setHideEndedMatches] = useState(true);
   const [groupByDate, setGroupByDate] = useState(true);
-
-  const championshipSeasonOptions = useMemo((): ChampionshipSeasonOption[] => {
-    const list = [...(seasons ?? [])];
-    list.sort((a, b) => {
-      const byComp = a.competition.name.localeCompare(
-        b.competition.name,
-        undefined,
-        { sensitivity: 'base' },
-      );
-      if (byComp !== 0) return byComp;
-      return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
-    });
-    return list.map((s) => ({ id: s.id, season: s }));
-  }, [seasons]);
-
-  useEffect(() => {
-    if (!championshipSeasonOptions.length) {
-      setSeasonId(null);
-      return;
-    }
-    if (
-      !seasonId ||
-      !championshipSeasonOptions.some((o) => o.id === seasonId)
-    ) {
-      setSeasonId(championshipSeasonOptions[0].id);
-    }
-  }, [championshipSeasonOptions, seasonId]);
 
   const {
     data: seasonMatches,
     isRefetching,
     refetch: refetchSeasonMatches,
     isPending: matchesPending,
-  } = useMatchesBySeasonQuery(seasonId);
-
-  useFocusEffect(
-    useCallback(() => {
-      void refetchSeasons();
-      void refetchSeasonMatches();
-    }, [refetchSeasons, refetchSeasonMatches]),
-  );
+  } = useMatchesQuery(seasonId);
 
   const matches = useMemo(() => {
     if (!seasonMatches) return [];
@@ -121,18 +69,6 @@ export default function Matches() {
     );
   }, [seasonId, matchesPending]);
 
-  if (seasonsPending || matchesPending) {
-    return (
-      <Screen>
-        <View
-          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-        >
-          <ActivityIndicator />
-        </View>
-      </Screen>
-    );
-  }
-
   return (
     <Screen style={{ paddingHorizontal: 0 }}>
       <View style={{ flex: 1 }}>
@@ -141,15 +77,15 @@ export default function Matches() {
             paddingHorizontal: 16,
           }}
         >
-          <LabeledSelectMenu
-            label="Championship & season"
-            options={championshipSeasonOptions}
+          <ChampionshipSeasonSelect
+            useAllSeasons
+            label="Championship"
             value={seasonId}
-            onSelect={setSeasonId}
-            getOptionLabel={championshipSeasonLabel}
+            onChange={setSeasonId}
             placeholder="Select championship and season"
             emptyMessage="No seasons available"
           />
+
           <View
             style={{
               flexDirection: 'row',

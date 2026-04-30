@@ -17,9 +17,12 @@ type LeaderboardAccumulator = Omit<LeaderboardEntry, 'winRate'>;
 export class LeaderboardService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getLeaderboard(page = 0): Promise<LeaderboardEntry[]> {
+  async getLeaderboard(
+    page = 0,
+    seasonId?: string,
+  ): Promise<LeaderboardEntry[]> {
     const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 0;
-    const full = await this.computeFullLeaderboard();
+    const full = await this.computeFullLeaderboard(seasonId);
     const start = safePage * PAGE_SIZE;
     const end = start + PAGE_SIZE;
     return full.slice(start, end);
@@ -36,9 +39,9 @@ export class LeaderboardService {
     return { ...full[index], rank: index + 1 };
   }
 
-  async getUserStats(userId: string): Promise<UserStats> {
+  async getUserStats(userId: string, seasonId?: string): Promise<UserStats> {
     const [full, totalFinishedMatches] = await Promise.all([
-      this.computeFullLeaderboard(),
+      this.computeFullLeaderboard(seasonId),
       this.prisma.match.count({ where: { status: MatchStatus.FINISHED } }),
     ]);
 
@@ -64,7 +67,9 @@ export class LeaderboardService {
     };
   }
 
-  private async computeFullLeaderboard(): Promise<LeaderboardEntry[]> {
+  private async computeFullLeaderboard(
+    seasonId?: string,
+  ): Promise<LeaderboardEntry[]> {
     const users = await this.prisma.user.findMany({
       select: {
         id: true,
@@ -72,6 +77,13 @@ export class LeaderboardService {
         avatarUrl: true,
         email: true,
         bets: {
+          where: seasonId
+            ? {
+                match: {
+                  seasonId,
+                },
+              }
+            : undefined,
           select: {
             homeScore: true,
             awayScore: true,
