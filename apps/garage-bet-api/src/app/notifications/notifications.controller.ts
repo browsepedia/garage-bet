@@ -18,8 +18,8 @@ export class NotificationsController {
   ) {
     try {
       await this.notificationsService.saveToken(
-        body.expoPushToken,
         authorization,
+        body.expoPushToken,
       );
     } catch (error) {
       throw new BadRequestException(error.message);

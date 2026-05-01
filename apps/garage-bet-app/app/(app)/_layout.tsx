@@ -1,6 +1,5 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useQuery } from '@tanstack/react-query';
-import { registerPushToken } from 'apps/garage-bet-app/push-notifications';
 import { Redirect, router, Tabs, usePathname, useSegments } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
@@ -8,6 +7,7 @@ import { Text, useTheme } from 'react-native-paper';
 import { Button } from '../../components/Button';
 import { ExpoPushTokenSync } from '../../components/ExpoPushTokenSync';
 import Header from '../../components/Header';
+import { registerPushToken } from '../../push-notifications';
 import {
   clearTokens,
   getAccessToken,
