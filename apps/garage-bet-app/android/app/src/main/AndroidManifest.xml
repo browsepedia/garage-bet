@@ -30,6 +30,7 @@
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="garage-bet-app"/>
+        <data android:scheme="exp+garage-bet"/>
       </intent-filter>
     </activity>
   </application>

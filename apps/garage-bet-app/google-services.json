@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "200002192231",
+    "project_id": "garage-bet-5b4e7",
+    "storage_bucket": "garage-bet-5b4e7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:200002192231:android:033108235936507b3ba5c2",
+        "android_client_info": {
+          "package_name": "com.browsepedia.garagebet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVbXSW6x3m01qcBLfmiTKSVlG1HCRc6Co"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

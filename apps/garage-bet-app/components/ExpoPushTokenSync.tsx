@@ -30,6 +30,7 @@ export function ExpoPushTokenSync({ enabled }: Props) {
       syncing.current = true;
       try {
         const token = await getExpoPushTokenOrNull();
+        console.log('token', token);
         if (cancelled || !token) {
           return;
         }

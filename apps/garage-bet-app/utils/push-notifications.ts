@@ -1,5 +1,4 @@
 import Constants from 'expo-constants';
-import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
@@ -42,12 +41,12 @@ export async function getExpoPushTokenOrNull(): Promise<string | null> {
     return null;
   }
 
-  if (!Device.isDevice) {
-    if (__DEV__) {
-      console.info('[push] Skipping push token: not a physical device');
-    }
-    return null;
-  }
+  // if (!Device.isDevice) {
+  //   if (__DEV__) {
+  //     console.info('[push] Skipping push token: not a physical device');
+  //   }
+  //   return null;
+  // }
 
   await ensureAndroidNotificationChannel();
 
