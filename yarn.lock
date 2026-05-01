@@ -8668,6 +8668,15 @@ expo-secure-store@~15.0.8:
   resolved "https://registry.yarnpkg.com/expo-secure-store/-/expo-secure-store-15.0.8.tgz#678065599bb76061b5a85b15b9426bf7a11089ae"
   integrity sha512-lHnzvRajBu4u+P99+0GEMijQMFCOYpWRO4dWsXSuMt77+THPIGjzNvVKrGSl6mMrLsfVaKL8BpwYZLGlgA+zAw==
 
+expo-server-sdk@^6.1.0:
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/expo-server-sdk/-/expo-server-sdk-6.1.0.tgz#0bd6b2296a7f6d7e48fff9fc0e193e3e905ceca0"
+  integrity sha512-ISuax1AQ7cpM5RAqcu8gVcoLL0ZKskJ5OLoMWmdITBe9nYjTucjdGyBq817YkIvTcj1pAUwx+9toUT7l/V7thA==
+  dependencies:
+    promise-limit "^2.7.0"
+    promise-retry "^2.0.1"
+    undici "^7.2.0"
+
 expo-server@^1.0.5:
   version "1.0.5"
   resolved "https://registry.npmjs.org/expo-server/-/expo-server-1.0.5.tgz"
@@ -13696,12 +13705,12 @@ progress@^2.0.3:
   resolved "https://registry.npmjs.org/progress/-/progress-2.0.3.tgz"
   integrity sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==
 
-promise-limit@2.7.0:
+promise-limit@2.7.0, promise-limit@^2.7.0:
   version "2.7.0"
   resolved "https://registry.npmjs.org/promise-limit/-/promise-limit-2.7.0.tgz"
   integrity sha512-7nJ6v5lnJsXwGprnGXga4wx6d1POjvi5Qmf1ivTRxTjH4Z/9Czja/UCMLVmB9N93GeWOU93XaFaEt6jbuoagNw==
 
-promise-retry@2.0.1:
+promise-retry@2.0.1, promise-retry@^2.0.1:
   version "2.0.1"
   resolved "https://registry.npmjs.org/promise-retry/-/promise-retry-2.0.1.tgz"
   integrity sha512-y+WKFlBR8BGXnsNlIHFGPZmyDf3DFMoLhaflAnyZgV6rG6xu+JwesTo2Q9R6XwYmtmwAFCkAk3e35jEdoeh/3g==
@@ -16154,6 +16163,11 @@ undici@^6.18.2:
   version "6.23.0"
   resolved "https://registry.npmjs.org/undici/-/undici-6.23.0.tgz"
   integrity sha512-VfQPToRA5FZs/qJxLIinmU59u0r7LXqoJkCzinq3ckNJp3vKEh7jTWN589YQ5+aoAC/TGRLyJLCPKcLQbM8r9g==
+
+undici@^7.2.0:
+  version "7.25.0"
+  resolved "https://registry.yarnpkg.com/undici/-/undici-7.25.0.tgz#7d72fc429a0421769ca2966fd07cac875c85b781"
+  integrity sha512-xXnp4kTyor2Zq+J1FfPI6Eq3ew5h6Vl0F/8d9XU5zZQf1tX9s2Su1/3PiMmUANFULpmksxkClamIZcaUqryHsQ==
 
 unicode-canonical-property-names-ecmascript@^2.0.0:
   version "2.0.1"

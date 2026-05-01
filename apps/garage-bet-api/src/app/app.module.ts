@@ -6,6 +6,7 @@ import { BetsModule } from './bets/bets.module';
 import { FinalBetsModule } from './final-bets/final-bets.module';
 import { LeaderboardModule } from './leaderboard/leaderboard.module';
 import { MatchesModule } from './matches/matches.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { MatchesModule } from './matches/matches.module';
     BetsModule,
     FinalBetsModule,
     LeaderboardModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

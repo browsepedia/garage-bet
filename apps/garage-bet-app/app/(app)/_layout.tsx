@@ -1,5 +1,6 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useQuery } from '@tanstack/react-query';
+import { registerPushToken } from 'apps/garage-bet-app/push-notifications';
 import { Redirect, router, Tabs, usePathname, useSegments } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
@@ -29,6 +30,10 @@ export default function AppLayout() {
   const appBackground = theme.colors.background;
 
   const pathname = usePathname();
+
+  useEffect(() => {
+    registerPushToken();
+  }, []);
 
   useEffect(() => {
     (async () => {
