@@ -5,7 +5,7 @@ import {
   Headers,
   Post,
 } from '@nestjs/common';
-import { NotificationsService } from './notifications.service';
+import { NotificationsService } from '../services/notifications.service';
 
 @Controller('notifications')
 export class NotificationsController {

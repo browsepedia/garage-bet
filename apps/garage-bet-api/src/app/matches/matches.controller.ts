@@ -1,10 +1,22 @@
 import { UpdateMatchScorePayload } from '@garage-bet/models';
-import { Body, Controller, Get, Headers, Param, Patch, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  Param,
+  Patch,
+  Query,
+} from '@nestjs/common';
+import { NotificationsService } from '../services/notifications.service';
 import { MatchesService } from './matches.service';
 
 @Controller('matches')
 export class MatchesController {
-  constructor(private readonly matchesService: MatchesService) {}
+  constructor(
+    private readonly matchesService: MatchesService,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   @Get()
   getMatches(@Headers('authorization') authorization?: string) {
@@ -41,11 +53,40 @@ export class MatchesController {
   }
 
   @Patch(':matchId/score')
-  updateMatchScore(
+  async updateMatchScore(
     @Param('matchId') matchId: string,
     @Body() body: UpdateMatchScorePayload,
     @Headers('authorization') authorization?: string,
   ) {
-    return this.matchesService.updateMatchScore(matchId, body, authorization);
+    const result = await this.matchesService.updateMatchScore(
+      matchId,
+      body,
+      authorization,
+    );
+
+    if (result.ok && body.isEnded) {
+      const bets =
+        await this.matchesService.getBetsForEndOfMatchNotifications(matchId);
+
+      for (const bet of bets) {
+        if (bet.expoPushTokens.length > 0) {
+          const title =
+            bet.betStatus === 'WON'
+              ? 'You got the exact score right!'
+              : bet.betStatus === 'LOST'
+                ? 'You got the exact score wrong!'
+                : 'You got the outcome correct!';
+          await this.notificationsService.sendNotification(
+            bet.expoPushTokens,
+            title,
+            `The match ${bet.homeTeamName} vs ${bet.awayTeamName} has ended with score ${bet.matchHomeScore} - ${bet.matchAwayScore}`,
+            {
+              matchId,
+              type: 'match-ended',
+            },
+          );
+        }
+      }
+    }
   }
 }

@@ -8,6 +8,9 @@ import { FinalBetsModule } from './final-bets/final-bets.module';
 import { LeaderboardModule } from './leaderboard/leaderboard.module';
 import { MatchesModule } from './matches/matches.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { NotificationsScheduleService } from './services/notifications-schedule.service';
+import { NotificationsService } from './services/notifications.service';
+import { PrismaService } from './services/prisma-service';
 
 @Module({
   imports: [
@@ -20,6 +23,11 @@ import { NotificationsModule } from './notifications/notifications.module';
     ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    NotificationsScheduleService,
+    PrismaService,
+    NotificationsService,
+  ],
 })
 export class AppModule {}

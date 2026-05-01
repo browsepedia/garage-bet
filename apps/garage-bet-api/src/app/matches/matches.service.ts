@@ -208,7 +208,9 @@ export class MatchesService {
     const bets = await this.prisma.bet.findMany({
       where: { matchId },
       include: {
-        user: { select: { id: true, name: true, email: true, avatarUrl: true } },
+        user: {
+          select: { id: true, name: true, email: true, avatarUrl: true },
+        },
       },
     });
 
@@ -278,6 +280,58 @@ export class MatchesService {
     });
 
     return { ok: true as const };
+  }
+
+  async getBetsForEndOfMatchNotifications(matchId: string) {
+    const match = await this.prisma.match.findUnique({
+      where: { id: matchId },
+      select: {
+        id: true,
+        status: true,
+        homeScore: true,
+        awayScore: true,
+        bets: {
+          include: {
+            user: {
+              select: {
+                devices: {
+                  select: {
+                    expoPushToken: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        homeTeam: {
+          select: {
+            name: true,
+          },
+        },
+        awayTeam: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    return match.bets.map((bet) => {
+      return {
+        userId: bet.userId,
+        homeScore: bet.homeScore,
+        awayScore: bet.awayScore,
+        matchHomeScore: match.homeScore ?? 0,
+        matchAwayScore: match.awayScore ?? 0,
+        betStatus: getBetStatus(match.status, bet, {
+          homeScore: match.homeScore ?? 0,
+          awayScore: match.awayScore ?? 0,
+        }),
+        homeTeamName: match.homeTeam.name,
+        awayTeamName: match.awayTeam.name,
+        expoPushTokens: bet.user.devices.map((device) => device.expoPushToken),
+      };
+    });
   }
 }
 
