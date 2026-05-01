@@ -22,8 +22,8 @@ export default function PressableCheckbox({
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 4,
-        marginLeft: -8,
+        marginTop: theme.spacing(0.5),
+        marginLeft: -theme.spacing(1),
       }}
     >
       <View pointerEvents="none">
@@ -33,7 +33,7 @@ export default function PressableCheckbox({
           uncheckedColor={theme.colors.onSurfaceVariant}
         />
       </View>
-      <Text variant="bodyLarge" style={{ marginLeft: 8 }}>
+      <Text variant="bodyLarge" style={{ marginLeft: theme.spacing(1) }}>
         {label}
       </Text>
     </Pressable>

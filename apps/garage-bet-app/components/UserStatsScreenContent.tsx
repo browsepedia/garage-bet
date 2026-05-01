@@ -136,7 +136,7 @@ export function UserStatsScreenContent({
             color={theme.colors.onSurface}
           />
         </TouchableOpacity>
-        <Text variant="headlineSmall" style={{ flex: 1, fontWeight: '700' }}>
+        <Text variant="bodyLarge" style={{ flex: 1, fontWeight: '700' }}>
           {title}
         </Text>
       </View>
@@ -198,7 +198,7 @@ export function UserStatsScreenContent({
               flexDirection: 'row',
               alignItems: 'center',
               gap: theme.spacing(1),
-              marginBottom: 20,
+              marginBottom: theme.spacing(2),
               padding: theme.spacing(2),
               borderRadius: theme.roundness,
               borderWidth: 1,
@@ -239,7 +239,7 @@ export function UserStatsScreenContent({
               variant="labelMedium"
               style={{
                 color: MUTED,
-                marginBottom: theme.spacing(0.75),
+                marginBottom: theme.spacing(2),
                 alignSelf: 'flex-start',
               }}
             >

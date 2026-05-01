@@ -32,22 +32,22 @@ function sortByDisplayName(a: MatchBetListItem, b: MatchBetListItem) {
   });
 }
 
-const matchVsRowStyle = {
+const matchVsRowStyle = (theme: AppTheme) => ({
   flexDirection: 'row' as const,
   alignItems: 'center' as const,
-  gap: 8,
-};
+  gap: theme.spacing(1),
+});
 
-const vsDashStyle = {
+const vsDashStyle = (theme: AppTheme) => ({
   width: 24,
   flexShrink: 0,
   textAlign: 'center' as const,
-};
+});
 
-const vsSideStyle = {
+const vsSideStyle = (theme: AppTheme) => ({
   flex: 1,
   minWidth: 0,
-};
+});
 
 /** Section order when grouping: Won first, Results second, Lost last; Pending before Lost. */
 const OUTCOME_SECTIONS: {
@@ -141,24 +141,24 @@ export default function MatchDetailScreen() {
       <View
         style={{ paddingHorizontal: theme.spacing(2), position: 'relative' }}
       >
-        <View style={matchVsRowStyle}>
+        <View style={matchVsRowStyle(theme)}>
           <Text
             variant="bodyLarge"
-            style={{ ...vsSideStyle, textAlign: 'right' }}
+            style={{ ...vsSideStyle(theme), textAlign: 'right' }}
           >
             {match.homeTeam}
           </Text>
-          <Text style={{ ...vsDashStyle, opacity: 0.7 }}>—</Text>
+          <Text style={{ ...vsDashStyle(theme), opacity: 0.7 }}>—</Text>
           <Text
             variant="bodyLarge"
-            style={{ ...vsSideStyle, textAlign: 'left' }}
+            style={{ ...vsSideStyle(theme), textAlign: 'left' }}
           >
             {match.awayTeam}
           </Text>
         </View>
 
         <View style={{ marginTop: theme.spacing(1) }}>
-          <View style={matchVsRowStyle}>
+          <View style={matchVsRowStyle(theme)}>
             <Text
               variant="bodyLarge"
               style={{ ...vsSideStyle, textAlign: 'right' }}
@@ -201,7 +201,7 @@ export default function MatchDetailScreen() {
                   {match.betStatus}
                 </Text>
               </View>
-              <View style={matchVsRowStyle}>
+              <View style={matchVsRowStyle(theme)}>
                 <Text
                   variant="titleMedium"
                   style={{

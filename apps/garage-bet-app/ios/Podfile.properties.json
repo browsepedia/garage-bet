@@ -4,5 +4,5 @@
   "newArchEnabled": "true",
   "ios.forceStaticLinking": "[]",
   "apple.privacyManifestAggregationEnabled": "true",
-  "ios.buildReactNativeFromSource": "true"
+  "ios.buildReactNativeFromSource": "false"
 }

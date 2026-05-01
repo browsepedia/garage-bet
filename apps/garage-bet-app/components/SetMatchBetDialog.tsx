@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { Button, Dialog, Text, useTheme } from 'react-native-paper';
 import { useSetBetMutation } from '../mutations/set-bet.mutation';
+import { AppTheme } from '../theme';
 import MatchScoreSelect from './MatchScoreSelect';
 
 export default function SetMatchBetDialog({
@@ -17,7 +18,7 @@ export default function SetMatchBetDialog({
   const [homeScore, setHomeScore] = useState(0);
   const [awayScore, setAwayScore] = useState(0);
 
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
   const { mutateAsync: setBet } = useSetBetMutation();
 
   useEffect(() => {
@@ -59,7 +60,7 @@ export default function SetMatchBetDialog({
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
-            gap: 16,
+            gap: theme.spacing(2),
             alignItems: 'center',
           }}
         >
@@ -77,8 +78,8 @@ export default function SetMatchBetDialog({
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            gap: 16,
-            marginTop: 16,
+            gap: theme.spacing(2),
+            marginTop: theme.spacing(2),
           }}
         >
           <View style={{ flex: 1, alignItems: 'flex-end' }}>

@@ -42,7 +42,7 @@ export default function Register() {
         justifyContent: 'center',
       }}
     >
-      <View style={{ gap: 16 }}>
+      <View style={{ gap: theme.spacing(2) }}>
         <Text variant="headlineLarge" style={{ fontWeight: 'bold' }}>
           Register
         </Text>

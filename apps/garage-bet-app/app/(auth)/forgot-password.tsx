@@ -52,7 +52,7 @@ export default function ForgotPassword() {
           paddingTop: Dimensions.get('window').height * 0.2,
         }}
       >
-        <View style={{ gap: 16 }}>
+        <View style={{ gap: theme.spacing(2) }}>
           <Text variant="headlineLarge" style={{ fontWeight: 'bold' }}>
             Check your email
           </Text>
@@ -64,7 +64,7 @@ export default function ForgotPassword() {
           <Button
             mode="contained"
             onPress={() => router.replace('/(auth)/login')}
-            style={{ backgroundColor: '#EA580C', marginTop: 8 }}
+            style={{ backgroundColor: '#EA580C', marginTop: theme.spacing(1) }}
           >
             Back to login
           </Button>
@@ -79,7 +79,7 @@ export default function ForgotPassword() {
         paddingTop: Dimensions.get('window').height * 0.2,
       }}
     >
-      <View style={{ gap: 16 }}>
+      <View style={{ gap: theme.spacing(2) }}>
         <Text variant="headlineLarge" style={{ fontWeight: 'bold' }}>
           Forgot password
         </Text>

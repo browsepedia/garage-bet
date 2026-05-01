@@ -48,7 +48,7 @@ function MatchCard({
     <Card
       mode="contained"
       style={{
-        marginBottom: 8,
+        marginBottom: theme.spacing(1),
         padding: theme.spacing(2),
         borderWidth: 1,
         borderColor,

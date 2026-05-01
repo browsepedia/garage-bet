@@ -1,16 +1,19 @@
 import { router } from 'expo-router';
 import { TouchableOpacity, View } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import { Screen } from '../../components/Screen';
+import { AppTheme } from '../../theme';
 
 export default function EmailVerified() {
+  const theme = useTheme<AppTheme>();
+
   return (
     <Screen
       style={{
         justifyContent: 'center',
       }}
     >
-      <View style={{ gap: 16 }}>
+      <View style={{ gap: theme.spacing(2) }}>
         <Text variant="headlineLarge" style={{ fontWeight: 'bold' }}>
           Email Verified
         </Text>
@@ -19,7 +22,7 @@ export default function EmailVerified() {
           Your email has been verified successfully. Please login to continue.
         </Text>
 
-        <View style={{ alignItems: 'center', gap: 16 }}>
+        <View style={{ alignItems: 'center', gap: theme.spacing(2) }}>
           <TouchableOpacity
             activeOpacity={0.7}
             hitSlop={12}

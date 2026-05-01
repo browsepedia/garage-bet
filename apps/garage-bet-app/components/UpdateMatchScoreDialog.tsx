@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { Button, Dialog, Text, useTheme } from 'react-native-paper';
 import { useUpdateMatchScoreMutation } from '../mutations/update-match-score.mutation';
+import { AppTheme } from '../theme';
 import MatchScoreSelect from './MatchScoreSelect';
 import PressableCheckbox from './PressableCheckbox';
 
@@ -19,7 +20,7 @@ export default function UpdateMatchScoreDialog({
   const [awayScore, setAwayScore] = useState(0);
   const [isEnded, setIsEnded] = useState(false);
 
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
   const { mutateAsync: updateScore } = useUpdateMatchScoreMutation();
 
   useEffect(() => {
@@ -63,7 +64,7 @@ export default function UpdateMatchScoreDialog({
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
-            gap: 16,
+            gap: theme.spacing(2),
             alignItems: 'center',
           }}
         >
@@ -81,8 +82,8 @@ export default function UpdateMatchScoreDialog({
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            gap: 16,
-            marginTop: 16,
+            gap: theme.spacing(2),
+            marginTop: theme.spacing(2),
           }}
         >
           <View style={{ flex: 1, alignItems: 'flex-end' }}>

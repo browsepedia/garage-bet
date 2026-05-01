@@ -1,17 +1,20 @@
 import { router } from 'expo-router';
 import { Dimensions, TouchableOpacity, View } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import { Button } from '../../components/Button';
 import { Screen } from '../../components/Screen';
+import { AppTheme } from '../../theme';
 
 export default function EmailVerificationError() {
+  const theme = useTheme<AppTheme>();
+
   return (
     <Screen
       style={{
         paddingTop: Dimensions.get('window').height * 0.2,
       }}
     >
-      <View style={{ gap: 16 }}>
+      <View style={{ gap: theme.spacing(2) }}>
         <Text variant="headlineLarge" style={{ fontWeight: 'bold' }}>
           Link expired
         </Text>
@@ -23,7 +26,7 @@ export default function EmailVerificationError() {
         <Button
           mode="contained"
           onPress={() => router.replace('/(auth)/register')}
-          style={{ backgroundColor: '#EA580C', marginTop: 8 }}
+          style={{ backgroundColor: '#EA580C', marginTop: theme.spacing(1) }}
         >
           Back to register
         </Button>

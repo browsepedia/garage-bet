@@ -56,17 +56,20 @@ export default function Matches() {
       return (
         <Text
           variant="bodySmall"
-          style={{ color: '#a1a1aa', marginBottom: 16 }}
+          style={{ color: '#a1a1aa', marginBottom: theme.spacing(1) }}
         >
           Select a championship / season above to see fixtures.
         </Text>
       );
     }
     if (matchesPending) {
-      return <ActivityIndicator style={{ marginBottom: 24 }} />;
+      return <ActivityIndicator style={{ marginBottom: theme.spacing(2) }} />;
     }
     return (
-      <Text variant="bodySmall" style={{ color: '#a1a1aa', marginBottom: 24 }}>
+      <Text
+        variant="bodySmall"
+        style={{ color: '#a1a1aa', marginBottom: theme.spacing(2) }}
+      >
         No matches for this season yet.
       </Text>
     );
@@ -93,7 +96,7 @@ export default function Matches() {
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              gap: 8,
+              gap: theme.spacing(1),
               justifyContent: 'space-between',
             }}
           >
@@ -111,7 +114,7 @@ export default function Matches() {
           </View>
         </View>
 
-        <Divider style={{ marginBottom: 8 }} />
+        <Divider style={{ marginBottom: theme.spacing(1) }} />
 
         <MatchesSectionList
           matches={matches}

@@ -41,7 +41,12 @@ function ProfileAvatarButton({ style }: { style?: ViewStyle }) {
 }
 
 export function HeaderAvatar() {
-  return <ProfileAvatarButton style={{ marginLeft: 8 }} />;
+  const theme = useTheme<AppTheme>();
+  return (
+    <View style={{ marginLeft: theme.spacing(1) }}>
+      <ProfileAvatarButton />
+    </View>
+  );
 }
 
 export default function Header() {

@@ -60,7 +60,7 @@ export default function ChangePassword() {
         paddingTop: Dimensions.get('window').height * 0.2,
       }}
     >
-      <View style={{ gap: 16 }}>
+      <View style={{ gap: theme.spacing(2) }}>
         <Text variant="headlineLarge" style={{ fontWeight: 'bold' }}>
           New password
         </Text>

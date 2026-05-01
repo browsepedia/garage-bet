@@ -34,7 +34,13 @@ export default function BetCard({
         style={{ width: 32, height: 32, borderRadius: 16 }}
       />
       <View style={{ flex: 1, minWidth: 0 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: theme.spacing(1),
+          }}
+        >
           <Text
             variant="titleSmall"
             numberOfLines={1}
@@ -48,7 +54,10 @@ export default function BetCard({
             </Text>
           ) : null}
         </View>
-        <Text variant="bodySmall" style={{ color: '#e4e4e7', marginTop: 4 }}>
+        <Text
+          variant="bodySmall"
+          style={{ color: '#e4e4e7', marginTop: theme.spacing(0.5) }}
+        >
           {item.homeScore} — {item.awayScore}
         </Text>
       </View>

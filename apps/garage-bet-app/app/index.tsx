@@ -1,11 +1,14 @@
 import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { ActivityIndicator } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import { Screen } from '../components/Screen';
 import { getAccessToken, getRefreshToken } from '../storage/token-storage';
+import { AppTheme } from '../theme';
 
 export default function Home() {
+  const theme = useTheme<AppTheme>();
+
   useEffect(() => {
     let active = true;
 
@@ -40,7 +43,7 @@ export default function Home() {
       }}
     >
       <ActivityIndicator size="large" color="#EA580C" />
-      <Text style={{ marginTop: 12 }}>Checking session...</Text>
+      <Text style={{ marginTop: theme.spacing(1) }}>Checking session...</Text>
     </Screen>
   );
 }

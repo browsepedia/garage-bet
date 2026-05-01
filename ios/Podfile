@@ -20,7 +20,7 @@ platform :ios, podfile_properties['ios.deploymentTarget'] || '15.1'
 
 prepare_react_native_project!
 
-target 'GarageBet' do
+target 'garagebetsource' do
   use_expo_modules!
 
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
@@ -59,27 +59,5 @@ target 'GarageBet' do
       :mac_catalyst_enabled => false,
       :ccache_enabled => ccache_enabled?(podfile_properties),
     )
-
-    # Yoga.podspec only adds HEADER_SEARCH_PATHS when USE_FRAMEWORKS is set. Without it,
-    # building React Native from source fails on includes like <yoga/numeric/Comparison.h>.
-    yoga_root = File.join(config[:reactNativePath], 'ReactCommon', 'yoga')
-    installer.pods_project.targets.each do |target|
-      next unless target.name == 'Yoga'
-
-      target.build_configurations.each do |cfg|
-        next if cfg.build_settings['HEADER_SEARCH_PATHS'].to_s.include?(yoga_root)
-
-        hs = cfg.build_settings['HEADER_SEARCH_PATHS']
-        quoted = "\"#{yoga_root}\""
-        cfg.build_settings['HEADER_SEARCH_PATHS'] =
-          if hs.is_a?(Array)
-            hs + [quoted]
-          elsif hs.to_s.strip.empty?
-            "$(inherited) #{quoted}"
-          else
-            "#{hs} #{quoted}"
-          end
-      end
-    end
   end
 end

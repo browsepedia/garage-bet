@@ -138,7 +138,7 @@ export function UserStatsCompareScreenContent({
           alignItems: 'center',
           paddingHorizontal: theme.spacing(2),
           paddingBottom: theme.spacing(1),
-          gap: 8,
+          gap: theme.spacing(1),
         }}
       >
         <TouchableOpacity
@@ -292,7 +292,7 @@ export function UserStatsCompareScreenContent({
           <View
             style={{
               alignItems: 'center',
-              marginBottom: 20,
+              marginBottom: theme.spacing(2),
               paddingHorizontal: theme.spacing(2),
               paddingVertical: theme.spacing(1),
               borderRadius: theme.roundness,
@@ -305,7 +305,7 @@ export function UserStatsCompareScreenContent({
               variant="labelMedium"
               style={{
                 color: MUTED,
-                marginBottom: 6,
+                marginBottom: theme.spacing(0.5),
                 alignSelf: 'flex-start',
               }}
             >
@@ -325,12 +325,16 @@ export function UserStatsCompareScreenContent({
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 20,
-                marginTop: 10,
+                gap: theme.spacing(2),
+                marginTop: theme.spacing(1),
               }}
             >
               <View
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: theme.spacing(1),
+                }}
               >
                 <View
                   style={{
@@ -345,7 +349,11 @@ export function UserStatsCompareScreenContent({
                 </Text>
               </View>
               <View
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: theme.spacing(1),
+                }}
               >
                 <View
                   style={{

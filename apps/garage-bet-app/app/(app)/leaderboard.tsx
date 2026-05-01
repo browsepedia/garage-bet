@@ -41,8 +41,8 @@ const HIGHLIGHT_BG = 'rgba(234, 88, 12, 0.15)';
  * Use the same on every synced column so rubber-banding stays aligned during pull.
  */
 const FLAT_LIST_SCROLL_PROPS = {
-  bounces: true,
-  alwaysBounceVertical: true,
+  bounces: false,
+  alwaysBounceVertical: false,
   /** Allows Android overscroll so pull-to-refresh can activate. */
   overScrollMode: 'auto' as const,
 };

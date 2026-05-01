@@ -12,6 +12,7 @@ import {
   getAccessToken,
   getRefreshToken,
 } from '../../storage/token-storage';
+import { AppTheme } from '../../theme';
 import { ApiError, apiJson } from '../../utils/http-client';
 
 type MeDto = { id: string; email: string };
@@ -25,7 +26,7 @@ export default function AppLayout() {
   const segments = useSegments();
   const [bootstrapped, setBootstrapped] = useState(false);
   const [tokenHint, setTokenHint] = useState(false);
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
   const appBackground = theme.colors.background;
 
   const pathname = usePathname();
@@ -51,7 +52,7 @@ export default function AppLayout() {
           flex: 1,
           alignItems: 'center',
           justifyContent: 'center',
-          gap: 12,
+          gap: theme.spacing(1.5),
           backgroundColor: appBackground,
         }}
       >
@@ -87,7 +88,13 @@ export default function AppLayout() {
           backgroundColor: appBackground,
         }}
       >
-        <View style={{ alignItems: 'center', maxWidth: 320, gap: 12 }}>
+        <View
+          style={{
+            alignItems: 'center',
+            maxWidth: 320,
+            gap: theme.spacing(1.5),
+          }}
+        >
           <Text variant="headlineSmall" style={{ fontWeight: '700' }}>
             Could not load session
           </Text>
