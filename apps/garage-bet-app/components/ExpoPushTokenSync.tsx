@@ -30,12 +30,18 @@ export function ExpoPushTokenSync({ enabled }: Props) {
       syncing.current = true;
       try {
         const token = await getExpoPushTokenOrNull();
-        if (cancelled || !token) return;
+        if (cancelled || !token) {
+          return;
+        }
 
         const deviceId = await getOrCreateDeviceId();
         const signature = `${deviceId}:${token}`;
         const last = await getLastSyncedExpoPushSignature();
-        if (last === signature) return;
+        if (last === signature) {
+          return;
+        }
+
+        console.log('syncing push token', signature, deviceId, token);
 
         const res = await apiFetch('/me/push-token', {
           method: 'POST',

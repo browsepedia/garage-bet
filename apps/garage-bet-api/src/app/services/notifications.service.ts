@@ -5,10 +5,11 @@ import { PrismaService } from './prisma-service';
 
 @Injectable()
 export class NotificationsService {
+  private readonly logger = new Logger(NotificationsService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly authService: AuthService,
-    private readonly logger: Logger,
   ) {}
 
   private readonly expo = new Expo();

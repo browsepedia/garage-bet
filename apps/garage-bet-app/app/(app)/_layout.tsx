@@ -7,7 +7,6 @@ import { Text, useTheme } from 'react-native-paper';
 import { Button } from '../../components/Button';
 import { ExpoPushTokenSync } from '../../components/ExpoPushTokenSync';
 import Header from '../../components/Header';
-import { registerPushToken } from '../../push-notifications';
 import {
   clearTokens,
   getAccessToken,
@@ -30,10 +29,6 @@ export default function AppLayout() {
   const appBackground = theme.colors.background;
 
   const pathname = usePathname();
-
-  useEffect(() => {
-    registerPushToken();
-  }, []);
 
   useEffect(() => {
     (async () => {
