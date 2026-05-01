@@ -19,7 +19,7 @@ export function getDeviceIanaTimeZone(): string {
 }
 
 /** Calendar date `yyyy-MM-dd` for “now” in the given IANA zone (defaults to device). */
-export function getTodayYyyyMmDdInTimeZone(
+export function getTodayYYYYMMDDInTimeZone(
   timeZone = getDeviceIanaTimeZone(),
 ): string {
   return formatInUserTimezone(new Date().toISOString(), 'yyyy-MM-dd', timeZone);

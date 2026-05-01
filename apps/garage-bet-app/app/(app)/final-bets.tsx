@@ -5,8 +5,8 @@ import type {
 } from '@garage-bet/models';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, View } from 'react-native';
-import { Avatar, Text, useTheme } from 'react-native-paper';
+import { ActivityIndicator, Image, ScrollView, View } from 'react-native';
+import { Text, useTheme } from 'react-native-paper';
 import { Button } from '../../components/Button';
 import { EditFinalBetDialog } from '../../components/EditFinalBetDialog';
 import { LabeledSelectMenu } from '../../components/LabeledSelectMenu';
@@ -15,6 +15,7 @@ import { useFinalBetsListQuery } from '../../queries/final-bets-list.query';
 import { useMatchesQuery } from '../../queries/matches.query';
 import { useSeasonsQuery } from '../../queries/seasons.query';
 import { useUserProfileQuery } from '../../queries/user-profile.query';
+import { AppTheme } from '../../theme';
 
 type ChampionshipSeasonOption = {
   id: string;
@@ -50,23 +51,27 @@ function FinalBetRow({
   isCurrentUser: boolean;
   onEditPick?: () => void;
 }) {
+  const theme = useTheme<AppTheme>();
   return (
     <View
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
-        paddingVertical: 12,
-        paddingHorizontal: 12,
-        marginBottom: 8,
-        borderRadius: 8,
+        gap: theme.spacing(1),
+        paddingVertical: theme.spacing(1),
+        paddingHorizontal: theme.spacing(1),
+        marginBottom: theme.spacing(1),
+        borderRadius: theme.roundness,
         borderWidth: 1,
         borderColor: isCurrentUser ? '#EA580C' : '#3f3f46',
         backgroundColor: isCurrentUser ? '#2a1510' : '#13161a',
       }}
     >
       <View style={{ justifyContent: 'center' }}>
-        <Avatar.Image size={40} source={{ uri: item.avatarUrl }} />
+        <Image
+          source={{ uri: item.avatarUrl }}
+          style={{ width: 32, height: 32, borderRadius: 16 }}
+        />
       </View>
       <View style={{ flex: 1, minWidth: 0 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -105,7 +110,7 @@ function FinalBetRow({
 }
 
 export default function FinalBetsScreen() {
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
   const { data: me } = useUserProfileQuery();
   const {
     data: seasons,
@@ -156,7 +161,7 @@ export default function FinalBetsScreen() {
     useFinalBetsListQuery(seasonId);
 
   const { data: matchesList, isSuccess: matchesQuerySuccess } =
-    useMatchesQuery();
+    useMatchesQuery('all');
 
   const seasonHasStartedMatch = useMemo(() => {
     if (!seasonId || !matchesList) {
@@ -207,7 +212,7 @@ export default function FinalBetsScreen() {
         : 'Could not load seasons.';
     return (
       <Screen>
-        <View style={{ padding: 16, gap: 12 }}>
+        <View style={{ padding: theme.spacing(1), gap: theme.spacing(1) }}>
           <Text variant="titleMedium">Couldn’t load seasons</Text>
           <Text style={{ color: '#fca5a5' }}>{message}</Text>
           <Button mode="contained" onPress={() => void refetchSeasons()}>
@@ -221,7 +226,7 @@ export default function FinalBetsScreen() {
   if (!seasons?.length) {
     return (
       <Screen>
-        <View style={{ padding: 16, gap: 12 }}>
+        <View style={{ padding: theme.spacing(1), gap: theme.spacing(1) }}>
           <Text>No seasons available yet.</Text>
           <Button mode="outlined" onPress={() => void refetchSeasons()}>
             Refresh
@@ -238,9 +243,9 @@ export default function FinalBetsScreen() {
       <View style={{ flex: 1 }}>
         <View
           style={{
-            paddingHorizontal: 16,
+            paddingHorizontal: theme.spacing(2),
             paddingTop: 4,
-            paddingBottom: 12,
+            paddingBottom: theme.spacing(1),
             backgroundColor: stickyBg,
             borderBottomWidth: 1,
             borderBottomColor: '#27272a',
@@ -263,37 +268,37 @@ export default function FinalBetsScreen() {
         <ScrollView
           style={{ flex: 1 }}
           contentContainerStyle={{
-            paddingHorizontal: 16,
-            paddingTop: 16,
-            paddingBottom: 32,
+            paddingHorizontal: theme.spacing(2),
+            paddingTop: theme.spacing(2),
+            paddingBottom: theme.spacing(4),
           }}
         >
           <Text
             variant="bodySmall"
-            style={{ color: '#a1a1aa', marginBottom: 16 }}
+            style={{ color: '#a1a1aa', marginBottom: theme.spacing(2) }}
           >
             Everyone’s final picks for the season you selected. Edit yours from
             your row or “Set your final bet” (one per season). Points: 2 / 5 / 7
             / 10 when the result is known.
           </Text>
 
-          <Text variant="titleSmall" style={{ marginBottom: 8 }}>
+          <Text variant="titleSmall" style={{ marginBottom: theme.spacing(1) }}>
             All picks
             {list && list.length > 0 ? ` (${list.length})` : ''}
           </Text>
 
           {!seasonId ? (
-            <Text style={{ color: '#a1a1aa', marginBottom: 16 }}>
+            <Text style={{ color: '#a1a1aa', marginBottom: theme.spacing(2) }}>
               Select a championship / season above to see picks.
             </Text>
           ) : listLoading ? (
-            <ActivityIndicator style={{ marginBottom: 24 }} />
+            <ActivityIndicator style={{ marginBottom: theme.spacing(3) }} />
           ) : !list?.length ? (
-            <Text style={{ color: '#a1a1aa', marginBottom: 24 }}>
+            <Text style={{ color: '#a1a1aa', marginBottom: theme.spacing(3) }}>
               No final bets yet for this season.
             </Text>
           ) : (
-            <View style={{ marginBottom: 24 }}>
+            <View style={{ marginBottom: theme.spacing(3) }}>
               {list.map((item) => (
                 <FinalBetRow
                   key={item.userId}
@@ -314,7 +319,7 @@ export default function FinalBetsScreen() {
           !currentUserInList &&
           !listLoading &&
           canEditFinalPickBySchedule ? (
-            <View style={{ marginBottom: 24 }}>
+            <View style={{ marginBottom: theme.spacing(3) }}>
               <Button mode="contained" onPress={openFinalBetDialog}>
                 Set your final bet
               </Button>

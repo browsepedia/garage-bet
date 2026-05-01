@@ -48,10 +48,10 @@ function CompareStatRow({
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 12,
+        paddingVertical: theme.spacing(1),
         borderBottomWidth: 1,
         borderBottomColor: BORDER,
-        gap: 8,
+        gap: theme.spacing(1),
       }}
     >
       <MaterialCommunityIcons name={icon} size={20} color={iconTint} />
@@ -136,8 +136,8 @@ export function UserStatsCompareScreenContent({
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          paddingHorizontal: 16,
-          paddingBottom: 12,
+          paddingHorizontal: theme.spacing(2),
+          paddingBottom: theme.spacing(1),
           gap: 8,
         }}
       >
@@ -161,12 +161,17 @@ export function UserStatsCompareScreenContent({
             color={theme.colors.onSurface}
           />
         </TouchableOpacity>
-        <Text variant="headlineSmall" style={{ flex: 1, fontWeight: '700' }}>
+        <Text variant="bodyLarge" style={{ flex: 1, fontWeight: '700' }}>
           {title}
         </Text>
       </View>
 
-      <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
+      <View
+        style={{
+          paddingHorizontal: theme.spacing(2),
+          marginBottom: theme.spacing(2),
+        }}
+      >
         <ChampionshipSeasonSelect
           useAllSeasons
           label="Championship"
@@ -187,9 +192,9 @@ export function UserStatsCompareScreenContent({
         <View
           style={{
             flex: 1,
-            paddingHorizontal: 16,
+            paddingHorizontal: theme.spacing(2),
             justifyContent: 'center',
-            gap: 12,
+            gap: theme.spacing(1),
           }}
         >
           <Text variant="bodyLarge" style={{ textAlign: 'center' }}>
@@ -201,7 +206,10 @@ export function UserStatsCompareScreenContent({
         </View>
       ) : me && other ? (
         <ScrollView
-          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}
+          contentContainerStyle={{
+            paddingHorizontal: theme.spacing(2),
+            paddingBottom: theme.spacing(4),
+          }}
           refreshControl={
             <RefreshControl
               refreshing={isRefetching && !isPending}
@@ -213,8 +221,8 @@ export function UserStatsCompareScreenContent({
           <View
             style={{
               flexDirection: 'row',
-              gap: 10,
-              marginBottom: 16,
+              gap: theme.spacing(1),
+              marginBottom: theme.spacing(2),
             }}
           >
             <View
@@ -222,9 +230,9 @@ export function UserStatsCompareScreenContent({
                 flex: 1,
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap: 10,
-                padding: 12,
-                borderRadius: 12,
+                gap: theme.spacing(1),
+                padding: theme.spacing(1),
+                borderRadius: theme.roundness,
                 borderWidth: 1,
                 borderColor: BORDER,
                 backgroundColor: CARD_BG,
@@ -233,7 +241,7 @@ export function UserStatsCompareScreenContent({
             >
               <Image
                 source={{ uri: me.avatarUrl }}
-                style={{ width: 36, height: 36, borderRadius: 18 }}
+                style={{ width: 36, height: 36, borderRadius: 20 }}
               />
               <View style={{ flex: 1, minWidth: 0 }}>
                 <Text variant="titleSmall" numberOfLines={2}>
@@ -241,7 +249,7 @@ export function UserStatsCompareScreenContent({
                 </Text>
                 <Text
                   variant="bodySmall"
-                  style={{ color: MUTED, marginTop: 2 }}
+                  style={{ color: MUTED, marginTop: theme.spacing(0.25) }}
                   numberOfLines={1}
                 >
                   {primaryLabel} · #{me.rank} · {me.points} pts
@@ -253,9 +261,9 @@ export function UserStatsCompareScreenContent({
                 flex: 1,
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap: 10,
-                padding: 12,
-                borderRadius: 12,
+                gap: theme.spacing(1),
+                padding: theme.spacing(1),
+                borderRadius: theme.roundness,
                 borderWidth: 1,
                 borderColor: BORDER,
                 backgroundColor: CARD_BG,
@@ -264,7 +272,7 @@ export function UserStatsCompareScreenContent({
             >
               <Image
                 source={{ uri: other.avatarUrl }}
-                style={{ width: 36, height: 36, borderRadius: 18 }}
+                style={{ width: 36, height: 36, borderRadius: 20 }}
               />
               <View style={{ flex: 1, minWidth: 0 }}>
                 <Text variant="titleSmall" numberOfLines={2}>
@@ -272,7 +280,7 @@ export function UserStatsCompareScreenContent({
                 </Text>
                 <Text
                   variant="bodySmall"
-                  style={{ color: MUTED, marginTop: 2 }}
+                  style={{ color: MUTED, marginTop: theme.spacing(0.25) }}
                   numberOfLines={1}
                 >
                   {secondaryLabel} · #{other.rank} · {other.points} pts
@@ -285,9 +293,9 @@ export function UserStatsCompareScreenContent({
             style={{
               alignItems: 'center',
               marginBottom: 20,
-              paddingHorizontal: 14,
-              paddingVertical: 12,
-              borderRadius: 12,
+              paddingHorizontal: theme.spacing(2),
+              paddingVertical: theme.spacing(1),
+              borderRadius: theme.roundness,
               borderWidth: 1,
               borderColor: BORDER,
               backgroundColor: CARD_BG,
@@ -356,23 +364,23 @@ export function UserStatsCompareScreenContent({
 
           <View
             style={{
-              borderRadius: 12,
+              borderRadius: theme.roundness,
               borderWidth: 1,
               borderColor: BORDER,
               backgroundColor: CARD_BG,
-              paddingHorizontal: 12,
-              marginBottom: 16,
+              paddingHorizontal: theme.spacing(1),
+              marginBottom: theme.spacing(2),
             }}
           >
             <View
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                paddingVertical: 10,
-                paddingLeft: 28,
+                paddingVertical: theme.spacing(1),
+                paddingLeft: theme.spacing(3.5),
                 borderBottomWidth: 1,
                 borderBottomColor: BORDER,
-                gap: 8,
+                gap: theme.spacing(1),
               }}
             >
               <View style={{ flex: 1 }} />
@@ -466,10 +474,10 @@ export function UserStatsCompareScreenContent({
             />
             <View
               style={{
-                paddingVertical: 12,
+                paddingVertical: theme.spacing(1),
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap: 8,
+                gap: theme.spacing(1),
               }}
             >
               <MaterialCommunityIcons
@@ -514,9 +522,9 @@ export function UserStatsCompareScreenContent({
           <TouchableOpacity
             onPress={() => router.push('/leaderboard')}
             style={{
-              paddingVertical: 14,
+              paddingVertical: theme.spacing(2),
               alignItems: 'center',
-              borderRadius: 12,
+              borderRadius: theme.roundness,
               borderWidth: 1,
               borderColor: theme.colors.primary,
             }}

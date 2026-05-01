@@ -14,7 +14,7 @@ export function buildRadarAxes(s: UserStats): RadarAxis[] {
     { label: 'PP', value: safe(s.points / maxPts) },
     { label: 'Exact', value: safe(s.wins / bets) },
     { label: 'Result', value: safe(s.results / bets) },
-    { label: 'No loss', value: safe(1 - s.losses / bets) },
+    { label: 'Lost', value: safe(s.losses / bets) },
     { label: 'Coverage', value: safe(s.bets / totalFinished) },
   ];
 }

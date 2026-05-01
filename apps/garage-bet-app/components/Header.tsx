@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { TouchableOpacity, View, ViewStyle } from 'react-native';
 import { Avatar, IconButton, useTheme } from 'react-native-paper';
 import { useUserProfileQuery } from '../queries/user-profile.query';
+import { AppTheme } from '../theme';
 
 function useDisplayNameAndAvatar() {
   const { data: user } = useUserProfileQuery();
@@ -44,15 +45,15 @@ export function HeaderAvatar() {
 }
 
 export default function Header() {
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
   const appBackground = theme.colors.background;
 
   return (
     <View
       style={{
         backgroundColor: appBackground,
-        paddingBottom: 16,
-        paddingHorizontal: 16,
+        paddingBottom: theme.spacing(2),
+        paddingHorizontal: theme.spacing(2),
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',

@@ -6,6 +6,7 @@ import { Button } from '../../components/Button';
 import { Screen } from '../../components/Screen';
 import { ThemedInput } from '../../components/ThemedInput';
 import { useResetPasswordMutation } from '../../mutations/reset-password.mutation';
+import { AppTheme } from '../../theme';
 import { ApiError } from '../../utils/http-client';
 
 export default function ChangePassword() {
@@ -14,7 +15,7 @@ export default function ChangePassword() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
 
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
   const { mutateAsync: resetPassword, isPending } = useResetPasswordMutation();
 
   const canSubmit =
@@ -86,8 +87,8 @@ export default function ChangePassword() {
         {formError ? (
           <View
             style={{
-              padding: 8,
-              paddingHorizontal: 16,
+              padding: theme.spacing(1),
+              paddingHorizontal: theme.spacing(2),
               backgroundColor: theme.colors.errorContainer,
             }}
           >

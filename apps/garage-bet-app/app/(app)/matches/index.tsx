@@ -1,7 +1,7 @@
 import type { MatchData } from '@garage-bet/models';
 import { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import { Divider, Text } from 'react-native-paper';
+import { Divider, Text, useTheme } from 'react-native-paper';
 import ChampionshipSeasonSelect from '../../../components/ChampionshipSeasonSelect';
 import { MatchesSectionList } from '../../../components/MatchesSectionList';
 import PressableCheckbox from '../../../components/PressableCheckbox';
@@ -10,6 +10,7 @@ import SetMatchBetDialog from '../../../components/SetMatchBetDialog';
 import UpdateMatchScoreDialog from '../../../components/UpdateMatchScoreDialog';
 import { useMatchesQuery } from '../../../queries/matches.query';
 import { useUserProfileQuery } from '../../../queries/user-profile.query';
+import { AppTheme } from '../../../theme';
 
 export default function Matches() {
   const { data: me } = useUserProfileQuery();
@@ -17,6 +18,8 @@ export default function Matches() {
   const [seasonId, setSeasonId] = useState<string | 'all'>('all');
   const [hideEndedMatches, setHideEndedMatches] = useState(true);
   const [groupByDate, setGroupByDate] = useState(true);
+
+  const theme = useTheme<AppTheme>();
 
   const {
     data: seasonMatches,
@@ -74,7 +77,7 @@ export default function Matches() {
       <View style={{ flex: 1 }}>
         <View
           style={{
-            paddingHorizontal: 16,
+            paddingHorizontal: theme.spacing(2),
           }}
         >
           <ChampionshipSeasonSelect

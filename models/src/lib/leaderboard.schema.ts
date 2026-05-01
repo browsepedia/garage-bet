@@ -5,8 +5,11 @@ export const LeaderboardEntrySchema = zod.object({
   name: zod.string(),
   avatarUrl: zod.string(),
   totalPoints: zod.number(),
+  /** Total bets in which the prediction equals the match score */
   totalWins: zod.number(),
+  /** Total bets in which the prediction is incorrect and the outcome is also incorrect */
   totalLosses: zod.number(),
+  /** Total bets in which the prediction is incorrect and the outcome is correct */
   totalResults: zod.number(),
   /** Bets on matches with status FINISHED (same set used for wins / results / losses). */
   betCount: zod.number(),

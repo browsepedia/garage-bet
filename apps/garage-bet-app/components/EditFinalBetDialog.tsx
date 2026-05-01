@@ -9,9 +9,10 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
-import { Button, Dialog, Text } from 'react-native-paper';
+import { Button, Dialog, Text, useTheme } from 'react-native-paper';
 import { useUpsertFinalBetMutation } from '../mutations/final-bet.mutation';
 import { useFinalBetQuery } from '../queries/final-bet.query';
+import { AppTheme } from '../theme';
 import { LabeledSelectMenu } from './LabeledSelectMenu';
 import MatchScoreSelect from './MatchScoreSelect';
 
@@ -48,6 +49,7 @@ type Props = {
 };
 
 export function EditFinalBetDialog({ open, onOpenChange, seasonId }: Props) {
+  const theme = useTheme<AppTheme>();
   const { height: windowHeight } = useWindowDimensions();
   const dialogMaxHeight = Math.round(windowHeight * 0.9);
 
@@ -145,7 +147,7 @@ export function EditFinalBetDialog({ open, onOpenChange, seasonId }: Props) {
         <Dialog.Content
           style={{
             paddingHorizontal: 0,
-            paddingBottom: 8,
+            paddingBottom: theme.spacing(1),
             flexGrow: 1,
             flexShrink: 1,
             minHeight: 0,
@@ -155,13 +157,18 @@ export function EditFinalBetDialog({ open, onOpenChange, seasonId }: Props) {
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
             style={{ flexGrow: 1 }}
-            contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 8 }}
+            contentContainerStyle={{
+              paddingHorizontal: theme.spacing(3),
+              paddingBottom: theme.spacing(1),
+            }}
           >
             {isLoading || !finalBet ? (
-              <ActivityIndicator style={{ marginVertical: 24 }} />
+              <ActivityIndicator style={{ marginVertical: theme.spacing(3) }} />
             ) : (
               <>
-                <Text style={{ color: '#a1a1aa', marginBottom: 16 }}>
+                <Text
+                  style={{ color: '#a1a1aa', marginBottom: theme.spacing(2) }}
+                >
                   {!finalBet.finalBettingOpen ? 'Betting closed · ' : ''}
                   {finalBet.competitionName} — {finalBet.seasonName}
                 </Text>
@@ -169,15 +176,18 @@ export function EditFinalBetDialog({ open, onOpenChange, seasonId }: Props) {
                 {finalBet.actual ? (
                   <View
                     style={{
-                      padding: 12,
-                      marginBottom: 16,
+                      padding: theme.spacing(1),
+                      marginBottom: theme.spacing(2),
                       borderWidth: 1,
                       borderColor: '#3f3f46',
                       borderRadius: 8,
                       backgroundColor: '#13161a',
                     }}
                   >
-                    <Text variant="titleSmall" style={{ marginBottom: 8 }}>
+                    <Text
+                      variant="titleSmall"
+                      style={{ marginBottom: theme.spacing(1) }}
+                    >
                       Actual final
                     </Text>
                     <Text>
@@ -187,15 +197,20 @@ export function EditFinalBetDialog({ open, onOpenChange, seasonId }: Props) {
                       {finalBet.actual.awayTeamName}
                     </Text>
                     {finalBet.awardedPoints !== null ? (
-                      <Text style={{ marginTop: 8, color: '#EA580C' }}>
+                      <Text
+                        style={{
+                          marginTop: theme.spacing(1),
+                          color: '#EA580C',
+                        }}
+                      >
                         Your points: {finalBet.awardedPoints}
                       </Text>
                     ) : null}
                   </View>
                 ) : null}
 
-                <View style={{ gap: 16 }}>
-                  <View style={{ flexDirection: 'row', gap: 16 }}>
+                <View style={{ gap: theme.spacing(2) }}>
+                  <View style={{ flexDirection: 'row', gap: theme.spacing(2) }}>
                     <View style={{ flex: 1 }}>
                       <TeamMenu
                         label="Home team"
@@ -220,7 +235,7 @@ export function EditFinalBetDialog({ open, onOpenChange, seasonId }: Props) {
                   <View
                     style={{
                       flexDirection: 'row',
-                      gap: 16,
+                      gap: theme.spacing(2),
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}
@@ -237,13 +252,17 @@ export function EditFinalBetDialog({ open, onOpenChange, seasonId }: Props) {
                 </View>
 
                 {error ? (
-                  <Text style={{ color: '#fca5a5', marginBottom: 12 }}>
+                  <Text
+                    style={{ color: '#fca5a5', marginBottom: theme.spacing(1) }}
+                  >
                     {error}
                   </Text>
                 ) : null}
 
                 {!canEdit ? (
-                  <Text style={{ color: '#a1a1aa', marginBottom: 8 }}>
+                  <Text
+                    style={{ color: '#a1a1aa', marginBottom: theme.spacing(1) }}
+                  >
                     You cannot change this pick while betting is closed.
                   </Text>
                 ) : null}
@@ -256,8 +275,8 @@ export function EditFinalBetDialog({ open, onOpenChange, seasonId }: Props) {
             justifyContent: 'space-between',
             alignItems: 'center',
             flexWrap: 'wrap',
-            gap: 8,
-            paddingBottom: 12,
+            gap: theme.spacing(1),
+            paddingBottom: theme.spacing(1),
           }}
         >
           <Button onPress={() => onOpenChange(false)} mode="text">

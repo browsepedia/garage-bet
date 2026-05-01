@@ -3,17 +3,18 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import { Divider, Text } from 'react-native-paper';
+import { Divider, Text, useTheme } from 'react-native-paper';
 import { MatchesSectionList } from '../../components/MatchesSectionList';
 import { Screen } from '../../components/Screen';
 import SetMatchBetDialog from '../../components/SetMatchBetDialog';
 import UpdateMatchScoreDialog from '../../components/UpdateMatchScoreDialog';
 import { useMatchesByDayQuery } from '../../queries/matches-by-day.query';
 import { useUserProfileQuery } from '../../queries/user-profile.query';
+import { AppTheme } from '../../theme';
 import {
   formatInUserTimezone,
   getDeviceIanaTimeZone,
-  getTodayYyyyMmDdInTimeZone,
+  getTodayYYYYMMDDInTimeZone,
 } from '../../utils/format-date';
 
 export default function TodayScreen() {
@@ -21,9 +22,9 @@ export default function TodayScreen() {
   const queryClient = useQueryClient();
   const timeZone = useMemo(() => getDeviceIanaTimeZone(), []);
   const [calendarDay, setCalendarDay] = useState(() =>
-    getTodayYyyyMmDdInTimeZone(timeZone),
+    getTodayYYYYMMDDInTimeZone(timeZone),
   );
-
+  const theme = useTheme<AppTheme>();
   const {
     data: dayMatches,
     isPending,
@@ -33,7 +34,7 @@ export default function TodayScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      setCalendarDay(getTodayYyyyMmDdInTimeZone(timeZone));
+      setCalendarDay(getTodayYYYYMMDDInTimeZone(timeZone));
       void queryClient.invalidateQueries({ queryKey: ['matches', 'day'] });
     }, [timeZone, queryClient]),
   );
@@ -60,10 +61,18 @@ export default function TodayScreen() {
 
   const renderListEmpty = useCallback(() => {
     if (isPending) {
-      return <ActivityIndicator style={{ marginBottom: 24 }} />;
+      return <ActivityIndicator style={{ marginBottom: theme.spacing(3) }} />;
     }
     return (
-      <Text variant="bodySmall" style={{ color: '#a1a1aa', marginBottom: 24 }}>
+      <Text
+        variant="bodySmall"
+        style={{
+          color: '#a1a1aa',
+          marginBottom: theme.spacing(3),
+          textAlign: 'center',
+          paddingTop: theme.spacing(3),
+        }}
+      >
         No matches scheduled for this day.
       </Text>
     );
@@ -84,14 +93,19 @@ export default function TodayScreen() {
   return (
     <Screen style={{ paddingHorizontal: 0 }}>
       <View style={{ flex: 1 }}>
-        <View style={{ paddingHorizontal: 16, paddingBottom: 8 }}>
+        <View
+          style={{
+            paddingHorizontal: theme.spacing(2),
+            paddingBottom: theme.spacing(1),
+          }}
+        >
           <Text variant="headlineSmall">Today</Text>
           <Text variant="bodyMedium" style={{ color: '#a1a1aa', marginTop: 4 }}>
             {subtitle}
           </Text>
         </View>
 
-        <Divider style={{ marginBottom: 8 }} />
+        <Divider style={{ marginBottom: theme.spacing(1) }} />
 
         <MatchesSectionList
           matches={dayMatches ?? []}

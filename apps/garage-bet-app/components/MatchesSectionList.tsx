@@ -9,6 +9,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
+import { AppTheme } from '../theme';
 import {
   groupMatches,
   groupMatchesByChampionship,
@@ -48,7 +49,7 @@ export function MatchesSectionList({
   showChampionship = true,
   showOnlyStartTime = false,
 }: MatchesSectionListProps) {
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
 
   const sections = useMemo((): MatchSection[] => {
     const grouped = groupByChampionship
@@ -74,8 +75,8 @@ export function MatchesSectionList({
       }
       contentContainerStyle={[
         {
-          paddingHorizontal: 16,
-          paddingBottom: 32,
+          paddingHorizontal: theme.spacing(2),
+          paddingBottom: theme.spacing(4),
           flexGrow: 1,
         },
         contentContainerStyle,
@@ -94,7 +95,7 @@ export function MatchesSectionList({
         <View
           style={{
             backgroundColor: theme.colors.background,
-            paddingBottom: 8,
+            paddingBottom: theme.spacing(1),
           }}
         >
           <Text variant="titleSmall" style={{ color: '#a1a1aa' }}>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
-import { Menu, Text } from 'react-native-paper';
+import { Menu, Text, useTheme } from 'react-native-paper';
+import { AppTheme } from '../theme';
 
 export type LabeledSelectMenuProps<
   TEntityId extends string | number = string,
@@ -35,6 +36,7 @@ export function LabeledSelectMenu<
   const [open, setOpen] = useState(false);
   const [anchorWidth, setAnchorWidth] = useState<number | null>(null);
   const selected = options.find((o) => o.id === value);
+  const theme = useTheme<AppTheme>();
 
   const triggerDisabled = disabled || options.length === 0;
 
@@ -52,7 +54,10 @@ export function LabeledSelectMenu<
   return (
     <View style={{ flex }}>
       {label && (
-        <Text variant="labelLarge" style={{ marginBottom: 6 }}>
+        <Text
+          variant="labelLarge"
+          style={{ marginBottom: theme.spacing(0.75) }}
+        >
           {label}
         </Text>
       )}
@@ -66,10 +71,10 @@ export function LabeledSelectMenu<
             onPress={() => !triggerDisabled && setOpen(true)}
             onLayout={(e) => setAnchorWidth(e.nativeEvent.layout.width)}
             style={{
-              padding: 12,
+              padding: theme.spacing(1),
               borderWidth: 1,
               borderColor: '#3f3f46',
-              borderRadius: 4,
+              borderRadius: theme.roundness,
               backgroundColor: triggerDisabled ? '#1a1d22' : '#13161a',
             }}
           >

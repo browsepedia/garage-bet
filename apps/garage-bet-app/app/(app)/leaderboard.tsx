@@ -13,11 +13,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import ChampionshipSeasonSelect from '../../components/ChampionshipSeasonSelect';
 import { Screen } from '../../components/Screen';
 import { useLeaderboardQuery } from '../../queries/leaderboard.query';
 import { useUserProfileQuery } from '../../queries/user-profile.query';
+import { AppTheme } from '../../theme';
 
 const COL_POS = 40;
 const COL_PLAYER = 168;
@@ -35,12 +36,33 @@ const FOOTER_HEIGHT = 48;
 
 const HIGHLIGHT_BG = 'rgba(234, 88, 12, 0.15)';
 
-/** Same on both lists so synced scrolling does not rubber-band on only one side (iOS/Android). */
+/**
+ * FlatLists need vertical bounce / overscroll for RefreshControl pull-to-refresh.
+ * Use the same on every synced column so rubber-banding stays aligned during pull.
+ */
 const FLAT_LIST_SCROLL_PROPS = {
-  bounces: false,
-  alwaysBounceVertical: false,
-  overScrollMode: 'never' as const,
+  bounces: true,
+  alwaysBounceVertical: true,
+  /** Allows Android overscroll so pull-to-refresh can activate. */
+  overScrollMode: 'auto' as const,
 };
+
+/**
+ * One native RefreshControl per list = stacked spinners. Only the stats FlatList
+ * mounts it; # / Player / compare lists stay bounce-synced via scroll offsets.
+ */
+const leaderboardRefreshControl = (props: {
+  refreshing: boolean;
+  onRefresh: () => void;
+}) => (
+  <RefreshControl
+    {...props}
+    progressViewOffset={0}
+    progressBackgroundColor="#1e293b"
+    tintColor="#ea580c"
+    colors={['#ea580c']}
+  />
+);
 
 const headerTextStyle = {
   color: '#94a3b8',
@@ -55,6 +77,7 @@ const headerTextStyle = {
 export default function Leaderboard() {
   const { data: me } = useUserProfileQuery();
   const [seasonId, setSeasonId] = useState<string | 'all'>('all');
+  const theme = useTheme<AppTheme>();
 
   const {
     data,
@@ -124,7 +147,13 @@ export default function Leaderboard() {
             backgroundColor: isMe ? HIGHLIGHT_BG : 'transparent',
           }}
         >
-          <Text style={{ width: COL_POS, fontWeight: '700', paddingLeft: 8 }}>
+          <Text
+            style={{
+              width: COL_POS,
+              fontWeight: '700',
+              paddingLeft: theme.spacing(1),
+            }}
+          >
             {index + 1}
           </Text>
           <TouchableOpacity
@@ -138,7 +167,7 @@ export default function Leaderboard() {
               width: COL_PLAYER,
               flexDirection: 'row',
               alignItems: 'center',
-              gap: 8,
+              gap: theme.spacing(1),
             }}
           >
             <Image
@@ -235,7 +264,7 @@ export default function Leaderboard() {
 
   return (
     <Screen style={{ paddingHorizontal: 0 }}>
-      <View style={{ paddingHorizontal: 16 }}>
+      <View style={{ paddingHorizontal: theme.spacing(2) }}>
         <ChampionshipSeasonSelect
           useAllSeasons
           label="Championship"
@@ -245,7 +274,7 @@ export default function Leaderboard() {
           emptyMessage="No championships available"
         />
       </View>
-      <View style={{ flex: 1, paddingTop: 8 }}>
+      <View style={{ flex: 1, paddingTop: theme.spacing(1) }}>
         {isLoading ? (
           <View
             style={{
@@ -283,7 +312,7 @@ export default function Leaderboard() {
                   style={{
                     ...headerTextStyle,
                     width: COL_POS,
-                    paddingLeft: 8,
+                    paddingLeft: theme.spacing(1),
                   }}
                 >
                   #
@@ -307,12 +336,6 @@ export default function Leaderboard() {
                 }}
                 onScroll={handleFixedScroll}
                 showsVerticalScrollIndicator={false}
-                refreshControl={
-                  <RefreshControl
-                    refreshing={Boolean(isRefetching) && !isLoading}
-                    onRefresh={refetch}
-                  />
-                }
                 onEndReached={() => {
                   if (hasNextPage && !isFetchingNextPage) {
                     fetchNextPage();
@@ -323,7 +346,7 @@ export default function Leaderboard() {
                   isFetchingNextPage ? (
                     <View
                       style={{
-                        paddingVertical: 12,
+                        paddingVertical: theme.spacing(1.5),
                         height: FOOTER_HEIGHT,
                       }}
                     >
@@ -381,6 +404,10 @@ export default function Leaderboard() {
                   onScroll={handleScrollableScroll}
                   showsVerticalScrollIndicator={false}
                   nestedScrollEnabled
+                  refreshControl={leaderboardRefreshControl({
+                    refreshing: Boolean(isRefetching) && !isLoading,
+                    onRefresh: refetch,
+                  })}
                   ListFooterComponent={
                     isFetchingNextPage ? (
                       <View style={{ height: FOOTER_HEIGHT }} />

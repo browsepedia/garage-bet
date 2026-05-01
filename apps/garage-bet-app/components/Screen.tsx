@@ -1,6 +1,7 @@
 import type { StyleProp, ViewStyle } from 'react-native';
 import { View } from 'react-native';
 import { useTheme } from 'react-native-paper';
+import { AppTheme } from '../theme';
 
 type ScreenProps = {
   children: React.ReactNode;
@@ -8,7 +9,7 @@ type ScreenProps = {
 };
 
 export const Screen = ({ children, style }: ScreenProps) => {
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
 
   return (
     <View
@@ -16,7 +17,7 @@ export const Screen = ({ children, style }: ScreenProps) => {
         {
           flex: 1,
           backgroundColor: theme.colors.background,
-          paddingHorizontal: 16,
+          paddingHorizontal: theme.spacing(2),
         },
         style,
       ]}

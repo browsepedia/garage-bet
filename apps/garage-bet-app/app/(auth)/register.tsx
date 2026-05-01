@@ -4,16 +4,17 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { TouchableOpacity, View } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import { Button } from '../../components/Button';
 import { Screen } from '../../components/Screen';
 import { ThemedInput } from '../../components/ThemedInput';
 import { useRegisterMutation } from '../../mutations/register.mutation';
+import { AppTheme } from '../../theme';
 import { ApiError } from '../../utils/http-client';
 
 export default function Register() {
   const [formError, setFormError] = useState<string | null>(null);
-
+  const theme = useTheme<AppTheme>();
   const {
     control,
     handleSubmit,
@@ -108,8 +109,8 @@ export default function Register() {
               <View
                 key={key}
                 style={{
-                  padding: 8,
-                  paddingHorizontal: 16,
+                  padding: theme.spacing(1),
+                  paddingHorizontal: theme.spacing(2),
                   backgroundColor: '#7f1d1d',
                 }}
               >
@@ -124,8 +125,8 @@ export default function Register() {
         {formError ? (
           <View
             style={{
-              padding: 8,
-              paddingHorizontal: 16,
+              padding: theme.spacing(1),
+              paddingHorizontal: theme.spacing(2),
               backgroundColor: '#7f1d1d',
             }}
           >

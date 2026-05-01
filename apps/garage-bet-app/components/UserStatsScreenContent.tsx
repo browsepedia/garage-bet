@@ -41,10 +41,10 @@ function StatRow({
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 12,
+        paddingVertical: theme.spacing(1),
         borderBottomWidth: 1,
         borderBottomColor: BORDER,
-        gap: 12,
+        gap: theme.spacing(1),
       }}
     >
       <MaterialCommunityIcons
@@ -111,9 +111,9 @@ export function UserStatsScreenContent({
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          paddingHorizontal: 16,
-          paddingBottom: 12,
-          gap: 8,
+          paddingHorizontal: theme.spacing(2),
+          paddingBottom: theme.spacing(1),
+          gap: theme.spacing(1),
         }}
       >
         <TouchableOpacity
@@ -141,7 +141,12 @@ export function UserStatsScreenContent({
         </Text>
       </View>
 
-      <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
+      <View
+        style={{
+          paddingHorizontal: theme.spacing(2),
+          marginBottom: theme.spacing(2),
+        }}
+      >
         <ChampionshipSeasonSelect
           useAllSeasons
           label="Championship"
@@ -162,9 +167,9 @@ export function UserStatsScreenContent({
         <View
           style={{
             flex: 1,
-            paddingHorizontal: 16,
+            paddingHorizontal: theme.spacing(2),
             justifyContent: 'center',
-            gap: 12,
+            gap: theme.spacing(1),
           }}
         >
           <Text variant="bodyLarge" style={{ textAlign: 'center' }}>
@@ -176,7 +181,10 @@ export function UserStatsScreenContent({
         </View>
       ) : data ? (
         <ScrollView
-          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}
+          contentContainerStyle={{
+            paddingHorizontal: theme.spacing(2),
+            paddingBottom: theme.spacing(4),
+          }}
           refreshControl={
             <RefreshControl
               refreshing={isRefetching && !isPending}
@@ -189,10 +197,10 @@ export function UserStatsScreenContent({
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              gap: 14,
+              gap: theme.spacing(1),
               marginBottom: 20,
-              padding: 16,
-              borderRadius: 12,
+              padding: theme.spacing(2),
+              borderRadius: theme.roundness,
               borderWidth: 1,
               borderColor: BORDER,
               backgroundColor: CARD_BG,
@@ -206,7 +214,10 @@ export function UserStatsScreenContent({
               <Text variant="titleMedium" numberOfLines={2}>
                 {data.name}
               </Text>
-              <Text variant="bodySmall" style={{ color: MUTED, marginTop: 4 }}>
+              <Text
+                variant="bodySmall"
+                style={{ color: MUTED, marginTop: theme.spacing(0.5) }}
+              >
                 Rank #{data.rank} of {data.totalPlayers} · {data.points} pts
               </Text>
             </View>
@@ -215,10 +226,10 @@ export function UserStatsScreenContent({
           <View
             style={{
               alignItems: 'center',
-              marginBottom: 20,
-              paddingHorizontal: 14,
-              paddingVertical: 12,
-              borderRadius: 12,
+              marginBottom: theme.spacing(2),
+              paddingHorizontal: theme.spacing(2),
+              paddingVertical: theme.spacing(1),
+              borderRadius: theme.roundness,
               borderWidth: 1,
               borderColor: BORDER,
               backgroundColor: CARD_BG,
@@ -228,7 +239,7 @@ export function UserStatsScreenContent({
               variant="labelMedium"
               style={{
                 color: MUTED,
-                marginBottom: 6,
+                marginBottom: theme.spacing(0.75),
                 alignSelf: 'flex-start',
               }}
             >
@@ -245,12 +256,12 @@ export function UserStatsScreenContent({
 
           <View
             style={{
-              borderRadius: 12,
+              borderRadius: theme.roundness,
               borderWidth: 1,
               borderColor: BORDER,
               backgroundColor: CARD_BG,
-              paddingHorizontal: 16,
-              marginBottom: 16,
+              paddingHorizontal: theme.spacing(2),
+              marginBottom: theme.spacing(2),
             }}
           >
             <StatRow
@@ -312,10 +323,10 @@ export function UserStatsScreenContent({
             />
             <View
               style={{
-                paddingVertical: 12,
+                paddingVertical: theme.spacing(1),
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap: 12,
+                gap: theme.spacing(1),
               }}
             >
               <MaterialCommunityIcons
@@ -341,9 +352,9 @@ export function UserStatsScreenContent({
           <TouchableOpacity
             onPress={() => router.push('/leaderboard')}
             style={{
-              paddingVertical: 14,
+              paddingVertical: theme.spacing(2),
               alignItems: 'center',
-              borderRadius: 12,
+              borderRadius: theme.roundness,
               borderWidth: 1,
               borderColor: theme.colors.primary,
             }}

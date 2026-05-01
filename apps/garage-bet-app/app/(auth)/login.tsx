@@ -10,16 +10,17 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import { Button } from '../../components/Button';
 import { Screen } from '../../components/Screen';
 import { ThemedInput } from '../../components/ThemedInput';
 import { useLoginMutation } from '../../mutations/login.mutation';
+import { AppTheme } from '../../theme';
 import { ApiError } from '../../utils/http-client';
 
 export default function Login() {
   const { mutateAsync: login, isPending: isLoading } = useLoginMutation();
-
+  const theme = useTheme<AppTheme>();
   const [formError, setFormError] = useState<string | null>(null);
 
   const {
@@ -98,8 +99,8 @@ export default function Login() {
               <View
                 key={key}
                 style={{
-                  padding: 8,
-                  paddingHorizontal: 16,
+                  padding: theme.spacing(1),
+                  paddingHorizontal: theme.spacing(2),
                   backgroundColor: '#7f1d1d',
                 }}
               >
@@ -114,8 +115,8 @@ export default function Login() {
         {formError ? (
           <View
             style={{
-              padding: 8,
-              paddingHorizontal: 16,
+              padding: theme.spacing(1),
+              paddingHorizontal: theme.spacing(2),
               backgroundColor: '#7f1d1d',
             }}
           >
@@ -135,7 +136,13 @@ export default function Login() {
           )}
         </Button>
 
-        <View style={{ alignItems: 'center', gap: 16, marginTop: 8 }}>
+        <View
+          style={{
+            alignItems: 'center',
+            gap: theme.spacing(2),
+            marginTop: theme.spacing(1),
+          }}
+        >
           <Text>Don't have an account?</Text>
 
           <TouchableOpacity

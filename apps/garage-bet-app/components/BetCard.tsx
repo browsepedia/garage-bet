@@ -1,6 +1,7 @@
 import { MatchBetListItem } from '@garage-bet/models';
-import { View } from 'react-native';
-import { Avatar, Text } from 'react-native-paper';
+import { Image, View } from 'react-native';
+import { Text, useTheme } from 'react-native-paper';
+import { AppTheme } from '../theme';
 import { useBetStatusColor } from '../utils/use-bet-status-color';
 
 export default function BetCard({
@@ -11,23 +12,27 @@ export default function BetCard({
   isCurrentUser: boolean;
 }) {
   const betStatusColor = useBetStatusColor(item.betStatus);
+  const theme = useTheme<AppTheme>();
 
   return (
     <View
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
-        paddingVertical: 12,
-        paddingHorizontal: 12,
+        gap: theme.spacing(1),
+        paddingVertical: theme.spacing(1),
+        paddingHorizontal: theme.spacing(1),
         marginBottom: 8,
-        borderRadius: 8,
+        borderRadius: theme.roundness,
         borderWidth: 1,
         borderColor: betStatusColor,
         backgroundColor: '#13161a',
       }}
     >
-      <Avatar.Image size={40} source={{ uri: item.avatarUrl }} />
+      <Image
+        source={{ uri: item.avatarUrl }}
+        style={{ width: 32, height: 32, borderRadius: 16 }}
+      />
       <View style={{ flex: 1, minWidth: 0 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <Text

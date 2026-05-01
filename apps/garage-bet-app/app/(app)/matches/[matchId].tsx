@@ -17,6 +17,7 @@ import { Screen } from '../../../components/Screen';
 import { useMatchBetsQuery } from '../../../queries/match-bets.query';
 import { useMatchesQuery } from '../../../queries/matches.query';
 import { useUserProfileQuery } from '../../../queries/user-profile.query';
+import { AppTheme } from '../../../theme';
 import { useBetStatusColor } from '../../../utils/use-bet-status-color';
 
 type BetSection = {
@@ -84,9 +85,9 @@ function buildBetSections(
 
 export default function MatchDetailScreen() {
   const { matchId } = useLocalSearchParams<{ matchId: string }>();
-  const theme = useTheme();
+  const theme = useTheme<AppTheme>();
   const { data: me } = useUserProfileQuery();
-  const { data: matches, refetch } = useMatchesQuery();
+  const { data: matches, refetch } = useMatchesQuery('all');
 
   const {
     data: matchBets,
@@ -113,7 +114,13 @@ export default function MatchDetailScreen() {
 
   if (!match) {
     return (
-      <Screen style={{ justifyContent: 'center', gap: 16, padding: 16 }}>
+      <Screen
+        style={{
+          justifyContent: 'center',
+          gap: theme.spacing(2),
+          padding: theme.spacing(2),
+        }}
+      >
         <Text variant="bodyLarge" style={{ textAlign: 'center' }}>
           Match not found. It may have been removed or the list is out of date.
         </Text>
@@ -131,7 +138,9 @@ export default function MatchDetailScreen() {
 
   return (
     <Screen style={{ paddingHorizontal: 0 }}>
-      <View style={{ paddingHorizontal: 16, position: 'relative' }}>
+      <View
+        style={{ paddingHorizontal: theme.spacing(2), position: 'relative' }}
+      >
         <View style={matchVsRowStyle}>
           <Text
             variant="bodyLarge"
@@ -148,7 +157,7 @@ export default function MatchDetailScreen() {
           </Text>
         </View>
 
-        <View style={{ marginTop: 8 }}>
+        <View style={{ marginTop: theme.spacing(1) }}>
           <View style={matchVsRowStyle}>
             <Text
               variant="bodyLarge"
@@ -166,12 +175,18 @@ export default function MatchDetailScreen() {
           </View>
 
           {match.betStatus !== 'UNSET' && (
-            <View style={{ gap: 8, position: 'relative', marginTop: 12 }}>
+            <View
+              style={{
+                gap: theme.spacing(1),
+                position: 'relative',
+                marginTop: theme.spacing(1),
+              }}
+            >
               <View
                 style={{
                   position: 'absolute',
                   top: 0,
-                  paddingHorizontal: 8,
+                  paddingHorizontal: theme.spacing(1),
                   backgroundColor: betStatusColor,
                   borderRadius: 999,
                 }}
@@ -242,7 +257,7 @@ export default function MatchDetailScreen() {
             left: 0,
             zIndex: 2,
             elevation: 4,
-            padding: 8,
+            padding: theme.spacing(1),
             width: 44,
             height: 44,
             justifyContent: 'center',
@@ -269,9 +284,9 @@ export default function MatchDetailScreen() {
             />
           }
           contentContainerStyle={{
-            paddingHorizontal: 16,
-            paddingTop: 8,
-            paddingBottom: 32,
+            paddingHorizontal: theme.spacing(2),
+            paddingTop: theme.spacing(1),
+            paddingBottom: theme.spacing(4),
             flexGrow: 1,
           }}
           renderItem={({ item }) => (
@@ -282,8 +297,8 @@ export default function MatchDetailScreen() {
               <View
                 style={{
                   backgroundColor: theme.colors.background,
-                  paddingTop: 12,
-                  paddingBottom: 8,
+                  paddingTop: theme.spacing(1),
+                  paddingBottom: theme.spacing(1),
                 }}
               >
                 <Text variant="titleSmall" style={{ color: '#a1a1aa' }}>
@@ -294,9 +309,11 @@ export default function MatchDetailScreen() {
           }
           ListEmptyComponent={
             betsPending ? (
-              <ActivityIndicator style={{ marginTop: 16 }} />
+              <ActivityIndicator style={{ marginTop: theme.spacing(2) }} />
             ) : betsError ? (
-              <View style={{ gap: 12, marginTop: 8 }}>
+              <View
+                style={{ gap: theme.spacing(1), marginTop: theme.spacing(1) }}
+              >
                 <Text variant="bodyMedium" style={{ color: '#fca5a5' }}>
                   {betsQueryError instanceof Error
                     ? betsQueryError.message

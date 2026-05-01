@@ -25,6 +25,8 @@ export type AppTheme = Omit<MD3Theme, 'colors'> & {
       labelStyle?: object;
     };
   };
+  spacing: (factor: number) => number;
+  spacingUnit: number; // 8
 };
 
 const cardBackground = '#13161a';
@@ -58,6 +60,9 @@ const darkTheme: AppTheme = {
       level3: cardBackground,
     },
   },
+  roundness: 8,
+  spacing: (factor) => factor * 8,
+  spacingUnit: 8,
 };
 
 const lightTheme: AppTheme = {
@@ -83,6 +88,9 @@ const lightTheme: AppTheme = {
     info: '#2563eb',
     backdrop: 'transparent',
   },
+  roundness: 8,
+  spacing: (factor) => factor * 8,
+  spacingUnit: 8,
 };
 
 export { darkTheme, lightTheme };

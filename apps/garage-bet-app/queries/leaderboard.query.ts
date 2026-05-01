@@ -9,9 +9,11 @@ export function useLeaderboardQuery(seasonId: string | 'all') {
     queryKey: ['leaderboard', 'season', seasonId],
     initialPageParam: 0,
     queryFn: async ({ pageParam }) => {
-      return apiJson<LeaderboardEntry[]>(
-        `/leaderboard?page=${pageParam}&seasonId=${seasonId}`,
+      const result = await apiJson<LeaderboardEntry[]>(
+        `/leaderboard?page=${pageParam}&${seasonId !== 'all' ? `seasonId=${seasonId}` : ''}`,
       );
+
+      return result;
     },
     getNextPageParam: (lastPage, allPages) => {
       if (lastPage.length < PAGE_SIZE) {

@@ -49,17 +49,18 @@ function MatchCard({
       mode="contained"
       style={{
         marginBottom: 8,
-        padding: 16,
+        padding: theme.spacing(2),
         borderWidth: 1,
         borderColor,
         backgroundColor: '#13161a',
+        borderRadius: theme.roundness,
       }}
     >
       <View
         style={{
           flexDirection: 'row',
           justifyContent: 'space-between',
-          gap: 8,
+          gap: theme.spacing(1),
           alignItems: 'center',
         }}
       >
@@ -67,7 +68,7 @@ function MatchCard({
           style={{
             flex: 1,
             alignItems: 'center',
-            gap: 8,
+            gap: theme.spacing(1),
             flexDirection: 'row',
           }}
         >
@@ -84,7 +85,7 @@ function MatchCard({
           style={{
             flex: 1,
             alignItems: 'center',
-            gap: 8,
+            gap: theme.spacing(1),
             flexDirection: 'row',
           }}
         >
@@ -105,7 +106,7 @@ function MatchCard({
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
-            gap: 8,
+            gap: theme.spacing(1),
             alignItems: 'center',
           }}
         >
@@ -124,7 +125,7 @@ function MatchCard({
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
-            gap: 8,
+            gap: theme.spacing(1),
             alignItems: 'center',
           }}
         >
@@ -164,7 +165,7 @@ function MatchCard({
         style={{
           flexDirection: 'row',
           justifyContent: 'space-between',
-          gap: 16,
+          gap: theme.spacing(2),
           alignItems: 'flex-end',
           marginTop: match.status === 'FINISHED' ? -24 : 0,
         }}
@@ -199,7 +200,7 @@ function MatchCard({
         <View
           style={{
             flexShrink: 0,
-            gap: 8,
+            gap: theme.spacing(1),
             alignItems: 'flex-end',
           }}
         >

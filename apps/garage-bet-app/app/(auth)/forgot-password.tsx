@@ -1,11 +1,17 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Dimensions, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Dimensions,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { Button } from '../../components/Button';
 import { Screen } from '../../components/Screen';
 import { ThemedInput } from '../../components/ThemedInput';
 import { useForgotPasswordMutation } from '../../mutations/forgot-password.mutation';
+import { AppTheme } from '../../theme';
 import { ApiError } from '../../utils/http-client';
 
 export default function ForgotPassword() {
@@ -13,8 +19,9 @@ export default function ForgotPassword() {
   const [formError, setFormError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
-  const theme = useTheme();
-  const { mutateAsync: forgotPassword, isPending } = useForgotPasswordMutation();
+  const theme = useTheme<AppTheme>();
+  const { mutateAsync: forgotPassword, isPending } =
+    useForgotPasswordMutation();
 
   const canSubmit = Boolean(email.trim()) && !isPending;
 
@@ -91,8 +98,8 @@ export default function ForgotPassword() {
         {formError ? (
           <View
             style={{
-              padding: 8,
-              paddingHorizontal: 16,
+              padding: theme.spacing(1),
+              paddingHorizontal: theme.spacing(2),
               backgroundColor: theme.colors.errorContainer,
             }}
           >

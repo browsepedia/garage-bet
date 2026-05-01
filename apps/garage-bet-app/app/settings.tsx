@@ -4,18 +4,21 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import { TouchableOpacity, View } from 'react-native';
-import { Avatar, Text } from 'react-native-paper';
+import { Avatar, Text, useTheme } from 'react-native-paper';
 import { Button } from '../components/Button';
 import { Screen } from '../components/Screen';
 import { ThemedInput } from '../components/ThemedInput';
 import { useLogout } from '../mutations/logout.mutation';
 import { useUserProfileQuery } from '../queries/user-profile.query';
+import { AppTheme } from '../theme';
 
 export default function Settings() {
   const { data: user } = useUserProfileQuery();
   const initialsAvatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
     user?.name?.trim() || user?.email?.split('@')[0] || 'Garage Bet',
   )}&background=EA580C&color=ffffff&bold=true`;
+
+  const theme = useTheme<AppTheme>();
 
   const { control, handleSubmit } = useForm<UserProfileModel>({
     resolver: zodResolver(UserProfileSchema),
@@ -47,7 +50,7 @@ export default function Settings() {
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          paddingHorizontal: 16,
+          paddingHorizontal: theme.spacing(1),
         }}
       >
         <TouchableOpacity
@@ -62,7 +65,7 @@ export default function Settings() {
             borderRadius: 999,
             alignItems: 'center',
             justifyContent: 'center',
-            marginLeft: -16,
+            marginLeft: theme.spacing(-2),
           }}
         >
           <MaterialCommunityIcons
@@ -78,8 +81,8 @@ export default function Settings() {
       <View
         style={{
           alignItems: 'center',
-          gap: 16,
-          paddingTop: 32,
+          gap: theme.spacing(2),
+          paddingTop: theme.spacing(4),
           flex: 1,
         }}
       >
@@ -88,7 +91,7 @@ export default function Settings() {
           source={{ uri: user?.avatarUrl || initialsAvatarUrl }}
         />
 
-        <View style={{ flex: 1, width: '100%', gap: 16 }}>
+        <View style={{ flex: 1, width: '100%', gap: theme.spacing(2) }}>
           <Controller
             control={control}
             name="name"
