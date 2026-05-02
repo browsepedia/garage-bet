@@ -51,11 +51,15 @@
       [
         "expo-build-properties",
         {
+          "android": {
+            "gradleWrapperDistributionUrl": "https://services.gradle.org/distributions/gradle-8.10.2-bin.zip"
+          },
           "ios": {
             "buildReactNativeFromSource": true
           }
         }
-      ]
+      ],
+      "./plugins/withPinnedAgp"
     ],
     "extra": {
       "eas": {
