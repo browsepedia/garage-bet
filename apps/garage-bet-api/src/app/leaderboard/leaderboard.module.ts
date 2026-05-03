@@ -8,5 +8,6 @@ import { LeaderboardService } from './leaderboard.service';
   imports: [AuthModule],
   controllers: [LeaderboardController],
   providers: [LeaderboardService, PrismaService],
+  exports: [LeaderboardService],
 })
 export class LeaderboardModule {}

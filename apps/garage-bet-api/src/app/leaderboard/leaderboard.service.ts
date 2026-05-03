@@ -15,7 +15,14 @@ type LeaderboardAccumulator = Omit<LeaderboardEntry, 'winRate'>;
 
 @Injectable()
 export class LeaderboardService {
+  private readonly cache = new Map<string, LeaderboardEntry[]>();
+
   constructor(private readonly prisma: PrismaService) {}
+
+  invalidateForSeason(seasonId: string): void {
+    this.cache.delete(seasonId);
+    this.cache.delete('__overall__');
+  }
 
   async getLeaderboard(
     page = 0,
@@ -70,6 +77,10 @@ export class LeaderboardService {
   private async computeFullLeaderboard(
     seasonId?: string,
   ): Promise<LeaderboardEntry[]> {
+    const key = seasonId ?? '__overall__';
+    const cached = this.cache.get(key);
+    if (cached) return cached;
+
     const users = await this.prisma.user.findMany({
       select: {
         id: true,
@@ -197,7 +208,7 @@ export class LeaderboardService {
       }
     }
 
-    return Array.from(byUser.values())
+    const result = Array.from(byUser.values())
       .map<LeaderboardEntry>((entry) => {
         const matchPoints = entry.totalPoints - entry.finalBetPoints;
         return {
@@ -219,5 +230,8 @@ export class LeaderboardService {
         }
         return a.name.localeCompare(b.name);
       });
+
+    this.cache.set(key, result);
+    return result;
   }
 }

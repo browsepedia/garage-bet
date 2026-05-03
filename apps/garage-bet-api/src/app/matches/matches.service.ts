@@ -7,6 +7,7 @@ import {
 import { MatchStage, MatchStatus } from '@prisma/client';
 import { toDate } from 'date-fns-tz';
 import { AuthService } from '../auth/auth.service';
+import { LeaderboardService } from '../leaderboard/leaderboard.service';
 import { PrismaService } from '../services/prisma-service';
 
 const LOCAL_DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -104,6 +105,7 @@ export class MatchesService {
   constructor(
     private readonly authService: AuthService,
     private readonly prisma: PrismaService,
+    private readonly leaderboardService: LeaderboardService,
   ) {}
 
   private userBetInclude(userId: string) {
@@ -261,7 +263,7 @@ export class MatchesService {
 
     const match = await this.prisma.match.findUnique({
       where: { id: matchId },
-      select: { id: true },
+      select: { id: true, seasonId: true },
     });
 
     if (!match) {
@@ -278,6 +280,10 @@ export class MatchesService {
         status,
       },
     });
+
+    if (payload.isEnded) {
+      this.leaderboardService.invalidateForSeason(match.seasonId);
+    }
 
     return { ok: true as const };
   }

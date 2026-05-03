@@ -13,21 +13,13 @@ export class NotificationsScheduleService {
   @Cron('0 * * * *')
   async checkMatchesStartingSoon() {
     const now = new Date();
-
-    const endOfHour = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate(),
-      now.getHours() + 1,
-      0,
-      0,
-      0,
-    );
+    const oneHourFromNow = new Date(now.getTime() + 1000 * 60 * 60);
 
     const matches = await this.prisma.match.findMany({
       where: {
         kickoffAt: {
-          lte: endOfHour,
+          gte: now,
+          lte: oneHourFromNow,
         },
       },
       select: {
