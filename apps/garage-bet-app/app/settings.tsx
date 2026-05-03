@@ -37,7 +37,7 @@ export default function Settings() {
       return;
     }
 
-    router.replace('/(app)/today');
+    router.replace('/(app)');
   };
 
   const onSave = handleSubmit(async () => {

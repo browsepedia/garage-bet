@@ -24,6 +24,16 @@ export async function getRefreshToken() {
     return null;
   }
 }
+
+/** True if either token exists (cheap session hint for routing). */
+export async function hasStoredTokens(): Promise<boolean> {
+  const [access, refresh] = await Promise.all([
+    getAccessToken(),
+    getRefreshToken(),
+  ]);
+  return Boolean(access || refresh);
+}
+
 export async function setTokens(tokens: {
   accessToken: string;
   refreshToken: string;

@@ -7,8 +7,9 @@ import {
   QueryCache,
   QueryClient,
   QueryClientProvider,
+  useQueryClient,
 } from '@tanstack/react-query';
-import { router, Stack } from 'expo-router';
+import { router, Stack, usePathname } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import { AppState, Platform, StatusBar, View } from 'react-native';
@@ -17,7 +18,40 @@ import {
   SafeAreaProvider,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
+import { hasStoredTokens } from '../storage/token-storage';
 import { darkTheme } from '../theme';
+import { apiJson } from '../utils/http-client';
+
+/** Paths handled by `app/(auth)/*` — do not force login when session is empty. */
+const AUTH_PATH_PREFIXES = [
+  '/login',
+  '/register',
+  '/register-complete',
+  '/email-verified',
+  '/change-password',
+  '/email-not-verified',
+  '/email-verification-error',
+  '/password-reset-error',
+  '/forgot-password',
+];
+
+function isAuthPath(pathname: string): boolean {
+  return AUTH_PATH_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
+}
+
+type MeDto = { id: string; email: string };
+
+let rootSplashHidden = false;
+
+async function hideRootSplashOnce() {
+  if (rootSplashHidden) {
+    return;
+  }
+  rootSplashHidden = true;
+  await SplashScreen.hideAsync();
+}
 
 export default function RootLayout() {
   const [queryClient] = useState(() => makeQueryClient());
@@ -35,11 +69,6 @@ export default function RootLayout() {
     onlineManager.setOnline(true);
   }, []);
 
-  // Hide splash screen once the app is ready
-  useEffect(() => {
-    SplashScreen.hideAsync();
-  }, []);
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <PaperProvider theme={darkTheme}>
@@ -55,6 +84,52 @@ export default function RootLayout() {
 
 function Content() {
   const insets = useSafeAreaInsets();
+  const pathname = usePathname();
+  const queryClient = useQueryClient();
+
+  // Session + optional navigation while native splash stays up (index.js: preventAutoHideAsync).
+  useEffect(() => {
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        const ok = await hasStoredTokens();
+        if (cancelled) {
+          return;
+        }
+
+        const path = pathname ?? '';
+        const atRoot = path === '/' || path === '';
+
+        if (ok) {
+          await queryClient
+            .prefetchQuery({
+              queryKey: ['me'],
+              queryFn: () => apiJson<MeDto>('/me'),
+            })
+            .catch(() => undefined);
+          if (cancelled) {
+            return;
+          }
+          // Default stack entry is `(app)` — only normalize legacy `/` opens.
+          if (atRoot) {
+            router.replace('/(app)');
+          }
+        } else if (atRoot || !isAuthPath(path)) {
+          router.replace('/(auth)/login');
+        }
+      } finally {
+        if (!cancelled) {
+          await hideRootSplashOnce();
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one-shot bootstrap; pathname from first paint only
+  }, []);
 
   return (
     <View
@@ -66,7 +141,13 @@ function Content() {
       }}
     >
       <StatusBar barStyle="light-content" />
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack
+        initialRouteName="(app)"
+        screenOptions={{
+          headerShown: false,
+          animation: 'none',
+        }}
+      >
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)/login" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)/register" options={{ headerShown: false }} />

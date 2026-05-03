@@ -22,7 +22,7 @@ export function useLoginMutation() {
       return data;
     },
     onSuccess: async () => {
-      router.replace('/(app)/today');
+      router.replace('/(app)');
       await queryClient.invalidateQueries({ queryKey: ['me'] });
       await queryClient.invalidateQueries({
         queryKey: ['deviceRegistrationStatus'],

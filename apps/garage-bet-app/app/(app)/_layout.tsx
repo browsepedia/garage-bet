@@ -1,30 +1,20 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useQuery } from '@tanstack/react-query';
-import { Redirect, router, Tabs, usePathname, useSegments } from 'expo-router';
+import { router, Tabs, usePathname } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, Image, StyleSheet, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { Button } from '../../components/Button';
 import { ExpoPushTokenSync } from '../../components/ExpoPushTokenSync';
 import Header from '../../components/Header';
-import {
-  clearTokens,
-  getAccessToken,
-  getRefreshToken,
-} from '../../storage/token-storage';
+import { clearTokens, hasStoredTokens } from '../../storage/token-storage';
 import { AppTheme } from '../../theme';
 import { ApiError, apiJson } from '../../utils/http-client';
 import { usePushNotificationDeepLink } from '../../utils/push-notifications';
 
 type MeDto = { id: string; email: string };
 
-async function hasAnyToken() {
-  const [a, r] = await Promise.all([getAccessToken(), getRefreshToken()]);
-  return Boolean(a || r);
-}
-
 export default function AppLayout() {
-  const segments = useSegments();
   const [bootstrapped, setBootstrapped] = useState(false);
   const [tokenHint, setTokenHint] = useState(false);
   const theme = useTheme<AppTheme>();
@@ -32,15 +22,19 @@ export default function AppLayout() {
 
   const pathname = usePathname();
 
-  usePushNotificationDeepLink();
-
   useEffect(() => {
-    (async () => {
-      const ok = await hasAnyToken();
-      setTokenHint(ok);
-      setBootstrapped(true);
+    let cancelled = false;
+    void (async () => {
+      const ok = await hasStoredTokens();
+      if (!cancelled) {
+        setTokenHint(ok);
+        setBootstrapped(true);
+      }
     })();
-  }, [segments]);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const meQuery = useQuery({
     queryKey: ['me'],
@@ -48,32 +42,40 @@ export default function AppLayout() {
     enabled: bootstrapped && tokenHint,
   });
 
-  if (!bootstrapped || (tokenHint && meQuery.isLoading)) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: theme.spacing(1.5),
-          backgroundColor: appBackground,
-        }}
-      >
-        <ActivityIndicator size="large" color="#EA580C" />
-        <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
-          Loading session…
-        </Text>
-      </View>
-    );
-  }
+  usePushNotificationDeepLink();
 
-  if (!tokenHint) {
-    return <Redirect href="/(auth)/login" />;
+  useEffect(() => {
+    if (bootstrapped && !tokenHint) {
+      router.replace('/(auth)/login');
+    }
+  }, [bootstrapped, tokenHint]);
+
+  useEffect(() => {
+    if (
+      meQuery.isError &&
+      meQuery.error instanceof ApiError &&
+      meQuery.error.status === 401
+    ) {
+      router.replace('/(auth)/login');
+    }
+  }, [meQuery.isError, meQuery.error]);
+
+  const showTabs = bootstrapped && tokenHint;
+
+  const sessionOverlay =
+    !bootstrapped ||
+    (showTabs &&
+      meQuery.isPending &&
+      meQuery.data === undefined &&
+      !meQuery.isError);
+
+  if (bootstrapped && !tokenHint) {
+    return null;
   }
 
   if (meQuery.isError) {
     if (meQuery.error instanceof ApiError && meQuery.error.status === 401) {
-      return <Redirect href="/(auth)/login" />;
+      return null;
     }
 
     const message =
@@ -118,90 +120,139 @@ export default function AppLayout() {
   }
 
   return (
-    <>
-      <ExpoPushTokenSync enabled={Boolean(meQuery.data?.id)} />
-      <Tabs
-        screenOptions={{
-          headerShown: pathname.includes('/matches/') ? false : true,
-          headerStyle: {
-            backgroundColor: appBackground,
-          },
-          header: () => <Header />,
-          headerShadowVisible: false,
-          sceneStyle: {
-            backgroundColor: appBackground,
-          },
-          tabBarStyle: {
-            backgroundColor: 'transparent',
-            borderTopColor: appBackground,
-            borderTopWidth: 1,
-            height: 60,
-            paddingTop: 8,
-            paddingBottom: 8,
-            marginBottom: 0,
-          },
-          tabBarBackground: () => (
-            <View style={{ flex: 1, backgroundColor: appBackground }} />
-          ),
-          tabBarActiveTintColor: '#EA580C',
-          tabBarInactiveTintColor: '#94a3b8',
-          tabBarLabelStyle: {
-            fontSize: 12,
-            fontWeight: '600',
-          },
-        }}
-      >
-        <Tabs.Screen
-          name="today"
-          options={{
-            title: 'Today',
-            tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="play" size={size} color={color} />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="matches"
-          options={{
-            title: 'Matches',
-            tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons
-                name="volleyball"
-                size={size}
-                color={color}
-              />
-            ),
-          }}
-          listeners={({ navigation }) => ({
-            tabPress: (e) => {
-              e.preventDefault();
-              navigation.navigate('matches', { screen: 'index' });
+    <View style={{ flex: 1, backgroundColor: appBackground }}>
+      {showTabs ? (
+        <>
+          <ExpoPushTokenSync enabled={Boolean(meQuery.data?.id)} />
+          <Tabs
+            screenOptions={{
+              headerShown: pathname.includes('/matches/') ? false : true,
+              headerStyle: {
+                backgroundColor: appBackground,
+              },
+              header: () => <Header />,
+              headerShadowVisible: false,
+              sceneStyle: {
+                backgroundColor: appBackground,
+              },
+              tabBarStyle: {
+                backgroundColor: 'transparent',
+                borderTopColor: appBackground,
+                borderTopWidth: 1,
+                height: 60,
+                paddingTop: 8,
+                paddingBottom: 8,
+                marginBottom: 0,
+              },
+              tabBarBackground: () => (
+                <View style={{ flex: 1, backgroundColor: appBackground }} />
+              ),
+              tabBarActiveTintColor: '#EA580C',
+              tabBarInactiveTintColor: '#94a3b8',
+              tabBarLabelStyle: {
+                fontSize: 12,
+                fontWeight: '600',
+              },
+            }}
+          >
+            <Tabs.Screen
+              name="index"
+              options={{
+                title: 'Today',
+                tabBarIcon: ({ color, size }) => (
+                  <MaterialCommunityIcons
+                    name="play"
+                    size={size}
+                    color={color}
+                  />
+                ),
+              }}
+            />
+            <Tabs.Screen
+              name="matches"
+              options={{
+                title: 'Matches',
+                tabBarIcon: ({ color, size }) => (
+                  <MaterialCommunityIcons
+                    name="volleyball"
+                    size={size}
+                    color={color}
+                  />
+                ),
+              }}
+              listeners={({ navigation }) => ({
+                tabPress: (e) => {
+                  e.preventDefault();
+                  navigation.navigate('matches', { screen: 'index' });
+                },
+              })}
+            />
+            <Tabs.Screen
+              name="leaderboard"
+              options={{
+                title: 'Leaderboard',
+                tabBarIcon: ({ color, size }) => (
+                  <MaterialCommunityIcons
+                    name="trophy"
+                    size={size}
+                    color={color}
+                  />
+                ),
+              }}
+            />
+            <Tabs.Screen
+              name="final-bets"
+              options={{
+                title: 'Final Bets',
+                tabBarIcon: ({ color, size }) => (
+                  <MaterialCommunityIcons
+                    name="flag-checkered"
+                    size={size}
+                    color={color}
+                  />
+                ),
+              }}
+            />
+          </Tabs>
+        </>
+      ) : (
+        <View style={{ flex: 1 }} />
+      )}
+      {sessionOverlay ? (
+        <View
+          pointerEvents="auto"
+          style={[
+            StyleSheet.absoluteFillObject,
+            {
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: appBackground,
             },
-          })}
-        />
-        <Tabs.Screen
-          name="leaderboard"
-          options={{
-            title: 'Leaderboard',
-            tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="trophy" size={size} color={color} />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="final-bets"
-          options={{
-            title: 'Final Bets',
-            tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons
-                name="flag-checkered"
-                size={size}
-                color={color}
-              />
-            ),
-          }}
-        />
-      </Tabs>
-    </>
+          ]}
+        >
+          <View
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: theme.spacing(1.5),
+              backgroundColor: appBackground,
+            }}
+          >
+            <Image
+              style={{ width: 200, height: 200, borderRadius: 100 }}
+              source={require('../../assets/images/icon.png')}
+            />
+            <Text
+              variant="bodyMedium"
+              style={{ color: theme.colors.onSurface }}
+            >
+              Loading...
+            </Text>
+            <ActivityIndicator size="large" color="#EA580C" />
+          </View>
+        </View>
+      ) : null}
+    </View>
   );
 }

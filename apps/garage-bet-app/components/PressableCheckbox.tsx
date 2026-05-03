@@ -33,9 +33,7 @@ export default function PressableCheckbox({
           uncheckedColor={theme.colors.onSurfaceVariant}
         />
       </View>
-      <Text variant="bodyLarge" style={{ marginLeft: theme.spacing(1) }}>
-        {label}
-      </Text>
+      <Text variant="bodyMedium">{label}</Text>
     </Pressable>
   );
 }

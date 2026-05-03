@@ -120,7 +120,7 @@ export function UserStatsScreenContent({
           accessibilityRole="button"
           accessibilityLabel="Back"
           onPress={() =>
-            router.canGoBack() ? router.back() : router.replace('/today')
+            router.canGoBack() ? router.back() : router.replace('/(app)')
           }
           hitSlop={12}
           style={{

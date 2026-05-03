@@ -2,7 +2,7 @@ import { MatchBetListItem, MatchData } from '@garage-bet/models';
 import { router } from 'expo-router';
 import { memo, useMemo } from 'react';
 import { View } from 'react-native';
-import { Card, Text, useTheme } from 'react-native-paper';
+import { Card, IconButton, Text, useTheme } from 'react-native-paper';
 import { AppTheme } from '../theme';
 import { formatInUserTimezone } from '../utils/format-date';
 import { hasMatchStarted } from '../utils/match-utils';
@@ -50,6 +50,7 @@ function MatchCard({
     <Card
       mode="contained"
       style={{
+        position: 'relative',
         marginBottom: theme.spacing(1),
         padding: theme.spacing(2),
         borderWidth: 1,
@@ -58,6 +59,16 @@ function MatchCard({
         borderRadius: theme.roundness,
       }}
     >
+      {isAdminUser && (
+        <IconButton
+          style={{ position: 'absolute', top: -16, right: -16 }}
+          size={20}
+          iconColor={theme.colors.primary}
+          icon="content-save-move"
+          onPress={() => onUpdateScoreClick?.(match)}
+        />
+      )}
+
       <View
         style={{
           flexDirection: 'row',
@@ -169,7 +180,7 @@ function MatchCard({
           justifyContent: 'space-between',
           gap: theme.spacing(2),
           alignItems: 'flex-end',
-          marginTop: match.status === 'FINISHED' ? -24 : 0,
+          marginTop: match.status === 'FINISHED' ? -12 : 0,
         }}
       >
         <View style={{ minWidth: 0 }}>
@@ -199,34 +210,14 @@ function MatchCard({
           ) : null}
         </View>
 
-        <View
-          style={{
-            flexShrink: 0,
-            gap: theme.spacing(1),
-            alignItems: 'flex-end',
-          }}
-        >
-          {match.betStatus === 'UNSET' && !started && (
-            <Button
-              mode="contained"
-              compact
-              onPress={() => onSetBetClick(match)}
-            >
-              Place bet
-            </Button>
-          )}
+        {match.betStatus === 'UNSET' && !started && (
+          <Button mode="contained" compact onPress={() => onSetBetClick(match)}>
+            Place bet
+          </Button>
+        )}
 
-          {isAdminUser && (
-            <Button
-              mode="contained"
-              compact
-              onPress={() => onUpdateScoreClick?.(match)}
-            >
-              Update score
-            </Button>
-          )}
-
-          {match.betStatus === 'SET' && !started && (
+        {match.betStatus === 'SET' && !started && (
+          <View>
             <Button
               mode="contained"
               compact
@@ -234,9 +225,11 @@ function MatchCard({
             >
               Update bet
             </Button>
-          )}
+          </View>
+        )}
 
-          {started && (
+        {started && (
+          <View>
             <Button
               mode="outlined"
               compact
@@ -244,8 +237,8 @@ function MatchCard({
             >
               See bets
             </Button>
-          )}
-        </View>
+          </View>
+        )}
       </View>
     </Card>
   );
