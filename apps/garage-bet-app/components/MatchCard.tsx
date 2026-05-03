@@ -17,6 +17,7 @@ function MatchCard({
   onSetBetClick,
   onUpdateScoreClick,
   showOnlyStartTime = false,
+  isAdminUser = false,
 }: {
   showStanding?: boolean;
   showChampionship?: boolean;
@@ -24,6 +25,7 @@ function MatchCard({
   onSetBetClick: (match: MatchData) => void;
   onUpdateScoreClick?: (match: MatchData) => void;
   showOnlyStartTime?: boolean;
+  isAdminUser?: boolean;
 }) {
   const statusColor = useBetStatusColor(
     match.betStatus as MatchBetListItem['betStatus'],
@@ -211,6 +213,16 @@ function MatchCard({
               onPress={() => onSetBetClick(match)}
             >
               Place bet
+            </Button>
+          )}
+
+          {isAdminUser && (
+            <Button
+              mode="contained"
+              compact
+              onPress={() => onUpdateScoreClick?.(match)}
+            >
+              Update score
             </Button>
           )}
 

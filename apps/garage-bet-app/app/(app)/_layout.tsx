@@ -14,6 +14,7 @@ import {
 } from '../../storage/token-storage';
 import { AppTheme } from '../../theme';
 import { ApiError, apiJson } from '../../utils/http-client';
+import { usePushNotificationDeepLink } from '../../utils/push-notifications';
 
 type MeDto = { id: string; email: string };
 
@@ -30,6 +31,8 @@ export default function AppLayout() {
   const appBackground = theme.colors.background;
 
   const pathname = usePathname();
+
+  usePushNotificationDeepLink();
 
   useEffect(() => {
     (async () => {

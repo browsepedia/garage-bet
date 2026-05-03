@@ -1,5 +1,7 @@
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
+import { useRouter } from 'expo-router';
+import { useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 
 /** Default Android channel id (must match server payloads if targeting a channel). */
@@ -17,6 +19,66 @@ Notifications.setNotificationHandler({
     shouldSetBadge: true,
   }),
 });
+
+/**
+ * Opens `/matches/[matchId]` when the user taps a notification that carries
+ * `data.matchId`. Mount once in the authenticated layout.
+ *
+ * Cold start: `getLastNotificationResponse()` (sync); while running: listener.
+ */
+export function usePushNotificationDeepLink(): void {
+  const router = useRouter();
+  const handledIdsRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    function openMatchFromNotification(
+      notification: Notifications.Notification,
+    ) {
+      const matchId = (
+        notification.request.content.data as { matchId?: unknown } | undefined
+      )?.matchId;
+      if (typeof matchId !== 'string' || matchId.trim().length === 0) {
+        return;
+      }
+
+      const id = notification.request.identifier;
+      if (handledIdsRef.current.has(id)) {
+        return;
+      }
+      handledIdsRef.current.add(id);
+
+      Notifications.clearLastNotificationResponse();
+
+      const href = `/matches/${matchId.trim()}`;
+      const go = () => router.push(href);
+      // Android: defer one tick so the root navigator is ready (Expo Router quirk).
+      if (Platform.OS === 'android') {
+        setTimeout(go, 1);
+      } else go();
+    }
+
+    const initialResponse = Notifications.getLastNotificationResponse();
+    if (
+      initialResponse &&
+      initialResponse.actionIdentifier ===
+        Notifications.DEFAULT_ACTION_IDENTIFIER
+    ) {
+      openMatchFromNotification(initialResponse.notification);
+    }
+
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        if (
+          response.actionIdentifier !== Notifications.DEFAULT_ACTION_IDENTIFIER
+        )
+          return;
+        openMatchFromNotification(response.notification);
+      },
+    );
+
+    return () => subscription.remove();
+  }, [router]);
+}
 
 export async function ensureAndroidNotificationChannel(): Promise<void> {
   if (Platform.OS !== 'android') return;

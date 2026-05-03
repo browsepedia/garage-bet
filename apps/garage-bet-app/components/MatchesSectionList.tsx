@@ -9,6 +9,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
+import { useUserProfileQuery } from '../queries/user-profile.query';
 import { AppTheme } from '../theme';
 import {
   groupMatches,
@@ -50,7 +51,7 @@ export function MatchesSectionList({
   showOnlyStartTime = false,
 }: MatchesSectionListProps) {
   const theme = useTheme<AppTheme>();
-
+  const { data: me } = useUserProfileQuery();
   const sections = useMemo((): MatchSection[] => {
     const grouped = groupByChampionship
       ? groupMatchesByChampionship(matches)
@@ -83,6 +84,7 @@ export function MatchesSectionList({
       ]}
       renderItem={({ item }) => (
         <MatchCard
+          isAdminUser={me?.isAdmin}
           match={item}
           showStanding={showStanding}
           showChampionship={showChampionship}

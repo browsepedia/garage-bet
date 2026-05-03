@@ -72,10 +72,10 @@ export class MatchesController {
         if (bet.expoPushTokens.length > 0) {
           const title =
             bet.betStatus === 'WON'
-              ? 'You got the exact score right!'
+              ? '🎯 You got the exact score right!'
               : bet.betStatus === 'LOST'
-                ? 'You got the exact score wrong!'
-                : 'You got the outcome correct!';
+                ? '❌ You got the exact score wrong!'
+                : '💙 You got the outcome correct!';
           await this.notificationsService.sendNotification(
             bet.expoPushTokens,
             title,
