@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "jsEngine": "hermes",
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.browsepedia.garagebet",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
