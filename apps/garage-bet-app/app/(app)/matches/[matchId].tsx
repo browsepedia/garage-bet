@@ -1,6 +1,5 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import type { MatchBetListItem, MatchData } from '@garage-bet/models';
-import PressableCheckbox from 'apps/garage-bet-app/components/PressableCheckbox';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import {
@@ -15,6 +14,7 @@ import { Text, useTheme } from 'react-native-paper';
 import BetCard from '../../../components/BetCard';
 import { Button } from '../../../components/Button';
 import MatchCard from '../../../components/MatchCard';
+import PressableCheckbox from '../../../components/PressableCheckbox';
 import { Screen } from '../../../components/Screen';
 import { useMatchBetsQuery } from '../../../queries/match-bets.query';
 import { useMatchesQuery } from '../../../queries/matches.query';
