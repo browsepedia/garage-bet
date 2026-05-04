@@ -1,5 +1,6 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import type { MatchBetListItem, MatchData } from '@garage-bet/models';
+import PressableCheckbox from 'apps/garage-bet-app/components/PressableCheckbox';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import {
@@ -13,7 +14,7 @@ import {
 import { Text, useTheme } from 'react-native-paper';
 import BetCard from '../../../components/BetCard';
 import { Button } from '../../../components/Button';
-import PressableCheckbox from '../../../components/PressableCheckbox';
+import MatchCard from '../../../components/MatchCard';
 import { Screen } from '../../../components/Screen';
 import { useMatchBetsQuery } from '../../../queries/match-bets.query';
 import { useMatchesQuery } from '../../../queries/matches.query';
@@ -131,111 +132,7 @@ export default function MatchDetailScreen() {
       <View
         style={{ paddingHorizontal: theme.spacing(2), position: 'relative' }}
       >
-        {match && (
-          <View
-            style={[styles.matchVsRowStyle, { marginTop: theme.spacing(1.5) }]}
-          >
-            <Text
-              variant="bodyMedium"
-              style={{ ...styles.vsSideStyle, textAlign: 'right' }}
-            >
-              {match.homeTeam}
-            </Text>
-            <Text style={{ ...styles.vsDashStyle, opacity: 0.7 }}>—</Text>
-            <Text
-              variant="bodyMedium"
-              style={{ ...styles.vsSideStyle, textAlign: 'left' }}
-            >
-              {match.awayTeam}
-            </Text>
-          </View>
-        )}
-
-        {match && (
-          <View style={{ marginTop: theme.spacing(1) }}>
-            <View style={styles.matchVsRowStyle}>
-              <Text
-                variant="bodyMedium"
-                style={{ ...styles.vsSideStyle, textAlign: 'right' }}
-              >
-                {score(match.homeScore)}
-              </Text>
-              <Text style={{ ...styles.vsDashStyle, opacity: 0.5 }}>—</Text>
-              <Text
-                variant="bodyMedium"
-                style={{ ...styles.vsSideStyle, textAlign: 'left' }}
-              >
-                {score(match.awayScore)}
-              </Text>
-            </View>
-
-            {match.betStatus !== 'UNSET' && (
-              <View
-                style={{
-                  gap: theme.spacing(1),
-                  position: 'relative',
-                  marginTop: theme.spacing(1),
-                }}
-              >
-                <View
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    paddingHorizontal: theme.spacing(1),
-                    backgroundColor: betStatusColor,
-                    borderRadius: 999,
-                  }}
-                >
-                  <Text
-                    variant="bodySmall"
-                    style={{
-                      color: theme.colors.onSurface,
-                      backgroundColor: betStatusColor,
-                    }}
-                  >
-                    {match.betStatus}
-                  </Text>
-                </View>
-                <View style={styles.matchVsRowStyle}>
-                  <Text
-                    variant="titleMedium"
-                    style={{
-                      ...styles.vsSideStyle,
-                      textAlign: 'right',
-                      color: theme.colors.onSurfaceDisabled,
-                    }}
-                  >
-                    {score(match.homeBetScore)}
-                  </Text>
-                  <Text
-                    style={{
-                      ...styles.vsDashStyle,
-                      color: theme.colors.onSurfaceDisabled,
-                    }}
-                  >
-                    —
-                  </Text>
-                  <Text
-                    variant="titleMedium"
-                    style={{
-                      ...styles.vsSideStyle,
-                      textAlign: 'left',
-                      color: theme.colors.onSurfaceDisabled,
-                    }}
-                  >
-                    {score(match.awayBetScore)}
-                  </Text>
-                </View>
-              </View>
-            )}
-
-            <PressableCheckbox
-              checked={groupByOutcome}
-              onPress={() => setGroupByOutcome((v) => !v)}
-              label="Group by outcome"
-            />
-          </View>
-        )}
+        {match && <MatchCard match={match} />}
 
         <TouchableOpacity
           accessibilityRole="button"
@@ -249,8 +146,8 @@ export default function MatchDetailScreen() {
           }}
           style={{
             position: 'absolute',
-            top: 0,
-            left: 0,
+            top: theme.spacing(1),
+            left: theme.spacing(2),
             zIndex: 2,
             elevation: 4,
             padding: theme.spacing(1),
@@ -268,6 +165,14 @@ export default function MatchDetailScreen() {
         </TouchableOpacity>
       </View>
 
+      <View style={{ paddingHorizontal: theme.spacing(2) }}>
+        <PressableCheckbox
+          checked={groupByOutcome}
+          onPress={() => setGroupByOutcome((v) => !v)}
+          label="Group by outcome"
+        />
+      </View>
+
       <View style={{ flex: 1 }}>
         <SectionList<MatchBetListItem, BetSection>
           sections={sections}
@@ -281,7 +186,6 @@ export default function MatchDetailScreen() {
           }
           contentContainerStyle={{
             paddingHorizontal: theme.spacing(2),
-            paddingTop: theme.spacing(1),
             paddingBottom: theme.spacing(4),
             flexGrow: 1,
           }}

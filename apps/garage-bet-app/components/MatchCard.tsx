@@ -22,7 +22,7 @@ function MatchCard({
   showStanding?: boolean;
   showChampionship?: boolean;
   match: MatchData;
-  onSetBetClick: (match: MatchData) => void;
+  onSetBetClick?: (match: MatchData) => void;
   onUpdateScoreClick?: (match: MatchData) => void;
   showOnlyStartTime?: boolean;
   isAdminUser?: boolean;
@@ -92,6 +92,19 @@ function MatchCard({
           {match.homeTeamLogoUrl ? (
             <TeamLogo uri={match.homeTeamLogoUrl} />
           ) : null}
+
+          <Text
+            variant="titleMedium"
+            style={{
+              flexShrink: 0,
+              textAlign: 'right',
+              marginLeft: theme.spacing(0.5),
+              opacity:
+                match.status === 'FINISHED' || match.status === 'LIVE' ? 1 : 0,
+            }}
+          >
+            {match.homeScore}
+          </Text>
         </View>
         <Text style={{ width: 16, textAlign: 'center' }}>-</Text>
         <View
@@ -102,6 +115,18 @@ function MatchCard({
             flexDirection: 'row',
           }}
         >
+          <Text
+            variant="titleMedium"
+            style={{
+              flexShrink: 0,
+              textAlign: 'left',
+              marginRight: theme.spacing(0.5),
+              opacity:
+                match.status === 'FINISHED' || match.status === 'LIVE' ? 1 : 0,
+            }}
+          >
+            {match.awayScore}
+          </Text>
           {match.awayTeamLogoUrl ? (
             <TeamLogo uri={match.awayTeamLogoUrl} />
           ) : null}
@@ -113,25 +138,6 @@ function MatchCard({
           </Text>
         </View>
       </View>
-
-      {(match.status === 'FINISHED' || match.status === 'LIVE') && (
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            gap: theme.spacing(1),
-            alignItems: 'center',
-          }}
-        >
-          <Text variant="titleSmall" style={{ flex: 1, textAlign: 'right' }}>
-            {match.homeScore}
-          </Text>
-          <Text style={{ width: 16, textAlign: 'center' }}>-</Text>
-          <Text variant="titleMedium" style={{ flex: 1, textAlign: 'left' }}>
-            {match.awayScore}
-          </Text>
-        </View>
-      )}
 
       {match.betStatus !== 'UNSET' && (
         <View
@@ -180,7 +186,6 @@ function MatchCard({
           justifyContent: 'space-between',
           gap: theme.spacing(2),
           alignItems: 'flex-end',
-          marginTop: match.status === 'FINISHED' ? -12 : 0,
         }}
       >
         <View style={{ minWidth: 0 }}>
@@ -210,13 +215,13 @@ function MatchCard({
           ) : null}
         </View>
 
-        {match.betStatus === 'UNSET' && !started && (
+        {match.betStatus === 'UNSET' && !started && onSetBetClick && (
           <Button mode="contained" compact onPress={() => onSetBetClick(match)}>
             Place bet
           </Button>
         )}
 
-        {match.betStatus === 'SET' && !started && (
+        {match.betStatus === 'SET' && !started && onSetBetClick && (
           <View>
             <Button
               mode="contained"
