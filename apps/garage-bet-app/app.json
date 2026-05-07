@@ -59,7 +59,8 @@
           }
         }
       ],
-      "./plugins/withPinnedAgp"
+      "./plugins/withPinnedAgp",
+      "./plugins/withAdiRegistration"
     ],
     "extra": {
       "eas": {

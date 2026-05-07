@@ -1,5 +1,11 @@
 {
   "build": {
+    "verify": {
+      "android": {
+        "buildType": "apk",
+        "prebuildCommand": "npx expo prebuild --platform android --clean"
+      }
+    },
     "production": {
       "ios": {
         "autoIncrement": true

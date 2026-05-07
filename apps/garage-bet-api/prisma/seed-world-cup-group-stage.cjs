@@ -1,9 +1,14 @@
 /**
  * 2026 FIFA World Cup — group stage (12 groups × 6 matches = 72).
- * Pairings and venues from the post-draw schedule (Wikipedia / FIFA).
- * `date` + `time` are local kickoff wall time; `offset` is the zone offset in June 2026
- * (e.g. -04:00 EDT, -05:00 CDT, -06:00 Mexico & MDT, -07:00 PDT).
- * `venue` is stadium and city (FIFA / Wikipedia schedule).
+ * Dates, local kickoffs, and venues match the post–Final Draw schedule (FIFA, June 11–27 2026).
+ *
+ * Each fixture uses local wall-clock `date` + `time` at the stadium and a fixed `offset` for that
+ * instant in June 2026 so `kickoffDate()` yields the correct UTC instant (stored as timestamptz).
+ * - US & Canada: daylight time — Eastern −04:00, Central −05:00, Pacific −07:00.
+ * - Mexico (Mexico City, Guadalajara, Monterrey): year-round −06:00 (no Mexican DST).
+ *
+ * Env: `dotenv/config` loads `.env` from **process.cwd()**. With `nx run ...` that is normally the monorepo
+ * root (`garage-bet/.env`), not `apps/garage-bet-api/.env`, unless cwd is overridden.
  */
 require('dotenv/config');
 const { PrismaPg } = require('@prisma/adapter-pg');
@@ -39,12 +44,26 @@ const adapter = new PrismaPg(
 );
 const prisma = new PrismaClient({ adapter });
 
+function logDatabaseTarget(urlString) {
+  try {
+    const u = new URL(urlString);
+    const db = u.pathname?.replace(/^\//, '').split('?')[0] || '(unknown)';
+    console.log(
+      `[seed-world-cup-group-stage] DB host="${u.hostname}" database="${db}" (PRISMA_DATABASE_URL or DATABASE_URL)`,
+    );
+  } catch {
+    console.warn(
+      '[seed-world-cup-group-stage] Could not parse DB URL for host/database log.',
+    );
+  }
+}
+
 const fixtures = [
   // Group A
   {
     group: 'A',
-    date: '2026-04-09',
-    time: '18:00',
+    date: '2026-06-11',
+    time: '13:00',
     offset: '-06:00',
     home: 'Mexico',
     away: 'South Africa',
@@ -54,8 +73,8 @@ const fixtures = [
   },
   {
     group: 'A',
-    date: '2026-04-09',
-    time: '21:00',
+    date: '2026-06-11',
+    time: '20:00',
     offset: '-06:00',
     home: 'South Korea',
     away: 'Czech Republic',
@@ -65,8 +84,8 @@ const fixtures = [
   },
   {
     group: 'A',
-    date: '2026-04-16',
-    time: '15:00',
+    date: '2026-06-18',
+    time: '12:00',
     offset: '-04:00',
     home: 'Czech Republic',
     away: 'South Africa',
@@ -76,8 +95,8 @@ const fixtures = [
   },
   {
     group: 'A',
-    date: '2026-04-16',
-    time: '21:00',
+    date: '2026-06-18',
+    time: '19:00',
     offset: '-06:00',
     home: 'Mexico',
     away: 'South Korea',
@@ -87,8 +106,8 @@ const fixtures = [
   },
   {
     group: 'A',
-    date: '2026-04-22',
-    time: '20:00',
+    date: '2026-06-24',
+    time: '19:00',
     offset: '-06:00',
     home: 'Czech Republic',
     away: 'Mexico',
@@ -98,8 +117,8 @@ const fixtures = [
   },
   {
     group: 'A',
-    date: '2026-04-22',
-    time: '20:00',
+    date: '2026-06-24',
+    time: '19:00',
     offset: '-06:00',
     home: 'South Africa',
     away: 'South Korea',
@@ -111,7 +130,7 @@ const fixtures = [
   // Group B
   {
     group: 'B',
-    date: '2026-04-10',
+    date: '2026-06-12',
     time: '15:00',
     offset: '-04:00',
     home: 'Canada',
@@ -122,8 +141,8 @@ const fixtures = [
   },
   {
     group: 'B',
-    date: '2026-04-11',
-    time: '15:00',
+    date: '2026-06-13',
+    time: '12:00',
     offset: '-07:00',
     home: 'Qatar',
     away: 'Switzerland',
@@ -133,8 +152,8 @@ const fixtures = [
   },
   {
     group: 'B',
-    date: '2026-04-16',
-    time: '16:00',
+    date: '2026-06-18',
+    time: '12:00',
     offset: '-07:00',
     home: 'Switzerland',
     away: 'Bosnia and Herzegovina',
@@ -144,8 +163,8 @@ const fixtures = [
   },
   {
     group: 'B',
-    date: '2026-04-16',
-    time: '13:00',
+    date: '2026-06-18',
+    time: '15:00',
     offset: '-07:00',
     home: 'Canada',
     away: 'Qatar',
@@ -155,8 +174,8 @@ const fixtures = [
   },
   {
     group: 'B',
-    date: '2026-04-22',
-    time: '13:00',
+    date: '2026-06-24',
+    time: '12:00',
     offset: '-07:00',
     home: 'Switzerland',
     away: 'Canada',
@@ -166,8 +185,8 @@ const fixtures = [
   },
   {
     group: 'B',
-    date: '2026-04-22',
-    time: '16:00',
+    date: '2026-06-24',
+    time: '12:00',
     offset: '-07:00',
     home: 'Bosnia and Herzegovina',
     away: 'Qatar',
@@ -179,7 +198,7 @@ const fixtures = [
   // Group C
   {
     group: 'C',
-    date: '2026-04-11',
+    date: '2026-06-13',
     time: '18:00',
     offset: '-04:00',
     home: 'Brazil',
@@ -190,7 +209,7 @@ const fixtures = [
   },
   {
     group: 'C',
-    date: '2026-04-11',
+    date: '2026-06-13',
     time: '21:00',
     offset: '-04:00',
     home: 'Haiti',
@@ -201,7 +220,7 @@ const fixtures = [
   },
   {
     group: 'C',
-    date: '2026-04-17',
+    date: '2026-06-19',
     time: '18:00',
     offset: '-04:00',
     home: 'Scotland',
@@ -212,8 +231,8 @@ const fixtures = [
   },
   {
     group: 'C',
-    date: '2026-04-17',
-    time: '20:30',
+    date: '2026-06-19',
+    time: '21:00',
     offset: '-04:00',
     home: 'Brazil',
     away: 'Haiti',
@@ -223,7 +242,7 @@ const fixtures = [
   },
   {
     group: 'C',
-    date: '2026-04-22',
+    date: '2026-06-24',
     time: '18:00',
     offset: '-04:00',
     home: 'Scotland',
@@ -234,7 +253,7 @@ const fixtures = [
   },
   {
     group: 'C',
-    date: '2026-04-22',
+    date: '2026-06-24',
     time: '18:00',
     offset: '-04:00',
     home: 'Morocco',
@@ -247,7 +266,7 @@ const fixtures = [
   // Group D
   {
     group: 'D',
-    date: '2026-04-10',
+    date: '2026-06-12',
     time: '18:00',
     offset: '-07:00',
     home: 'United States',
@@ -258,7 +277,7 @@ const fixtures = [
   },
   {
     group: 'D',
-    date: '2026-04-11',
+    date: '2026-06-13',
     time: '21:00',
     offset: '-07:00',
     home: 'Australia',
@@ -269,7 +288,7 @@ const fixtures = [
   },
   {
     group: 'D',
-    date: '2026-04-17',
+    date: '2026-06-19',
     time: '12:00',
     offset: '-07:00',
     home: 'United States',
@@ -280,7 +299,7 @@ const fixtures = [
   },
   {
     group: 'D',
-    date: '2026-04-17',
+    date: '2026-06-19',
     time: '20:00',
     offset: '-07:00',
     home: 'Turkey',
@@ -291,7 +310,7 @@ const fixtures = [
   },
   {
     group: 'D',
-    date: '2026-04-23',
+    date: '2026-06-25',
     time: '19:00',
     offset: '-07:00',
     home: 'Turkey',
@@ -302,7 +321,7 @@ const fixtures = [
   },
   {
     group: 'D',
-    date: '2026-04-23',
+    date: '2026-06-25',
     time: '19:00',
     offset: '-07:00',
     home: 'Paraguay',
@@ -315,8 +334,8 @@ const fixtures = [
   // Group E
   {
     group: 'E',
-    date: '2026-04-12',
-    time: '15:00',
+    date: '2026-06-14',
+    time: '12:00',
     offset: '-05:00',
     home: 'Germany',
     away: 'Curaçao',
@@ -326,8 +345,8 @@ const fixtures = [
   },
   {
     group: 'E',
-    date: '2026-04-12',
-    time: '18:00',
+    date: '2026-06-14',
+    time: '19:00',
     offset: '-04:00',
     home: 'Ivory Coast',
     away: 'Ecuador',
@@ -337,8 +356,8 @@ const fixtures = [
   },
   {
     group: 'E',
-    date: '2026-04-18',
-    time: '15:00',
+    date: '2026-06-20',
+    time: '16:00',
     offset: '-04:00',
     home: 'Germany',
     away: 'Ivory Coast',
@@ -348,7 +367,7 @@ const fixtures = [
   },
   {
     group: 'E',
-    date: '2026-04-18',
+    date: '2026-06-20',
     time: '19:00',
     offset: '-05:00',
     home: 'Ecuador',
@@ -359,8 +378,8 @@ const fixtures = [
   },
   {
     group: 'E',
-    date: '2026-04-23',
-    time: '15:00',
+    date: '2026-06-25',
+    time: '16:00',
     offset: '-04:00',
     home: 'Curaçao',
     away: 'Ivory Coast',
@@ -370,8 +389,8 @@ const fixtures = [
   },
   {
     group: 'E',
-    date: '2026-04-23',
-    time: '21:00',
+    date: '2026-06-25',
+    time: '16:00',
     offset: '-04:00',
     home: 'Ecuador',
     away: 'Germany',
@@ -383,8 +402,8 @@ const fixtures = [
   // Group F
   {
     group: 'F',
-    date: '2026-04-12',
-    time: '16:00',
+    date: '2026-06-14',
+    time: '15:00',
     offset: '-05:00',
     home: 'Netherlands',
     away: 'Japan',
@@ -394,8 +413,8 @@ const fixtures = [
   },
   {
     group: 'F',
-    date: '2026-04-12',
-    time: '19:00',
+    date: '2026-06-14',
+    time: '20:00',
     offset: '-06:00',
     home: 'Sweden',
     away: 'Tunisia',
@@ -405,8 +424,8 @@ const fixtures = [
   },
   {
     group: 'F',
-    date: '2026-04-18',
-    time: '15:00',
+    date: '2026-06-20',
+    time: '12:00',
     offset: '-05:00',
     home: 'Netherlands',
     away: 'Sweden',
@@ -416,8 +435,8 @@ const fixtures = [
   },
   {
     group: 'F',
-    date: '2026-04-18',
-    time: '19:00',
+    date: '2026-06-20',
+    time: '22:00',
     offset: '-06:00',
     home: 'Tunisia',
     away: 'Japan',
@@ -427,7 +446,7 @@ const fixtures = [
   },
   {
     group: 'F',
-    date: '2026-04-23',
+    date: '2026-06-25',
     time: '18:00',
     offset: '-05:00',
     home: 'Japan',
@@ -438,8 +457,8 @@ const fixtures = [
   },
   {
     group: 'F',
-    date: '2026-04-23',
-    time: '19:00',
+    date: '2026-06-25',
+    time: '18:00',
     offset: '-05:00',
     home: 'Tunisia',
     away: 'Netherlands',
@@ -451,7 +470,7 @@ const fixtures = [
   // Group G
   {
     group: 'G',
-    date: '2026-04-13',
+    date: '2026-06-15',
     time: '12:00',
     offset: '-07:00',
     home: 'Belgium',
@@ -462,7 +481,7 @@ const fixtures = [
   },
   {
     group: 'G',
-    date: '2026-04-13',
+    date: '2026-06-15',
     time: '18:00',
     offset: '-07:00',
     home: 'Iran',
@@ -473,7 +492,7 @@ const fixtures = [
   },
   {
     group: 'G',
-    date: '2026-04-19',
+    date: '2026-06-21',
     time: '12:00',
     offset: '-07:00',
     home: 'Belgium',
@@ -484,7 +503,7 @@ const fixtures = [
   },
   {
     group: 'G',
-    date: '2026-04-19',
+    date: '2026-06-21',
     time: '18:00',
     offset: '-07:00',
     home: 'New Zealand',
@@ -495,7 +514,7 @@ const fixtures = [
   },
   {
     group: 'G',
-    date: '2026-04-24',
+    date: '2026-06-26',
     time: '20:00',
     offset: '-07:00',
     home: 'Egypt',
@@ -506,7 +525,7 @@ const fixtures = [
   },
   {
     group: 'G',
-    date: '2026-04-24',
+    date: '2026-06-26',
     time: '20:00',
     offset: '-07:00',
     home: 'New Zealand',
@@ -519,8 +538,8 @@ const fixtures = [
   // Group H
   {
     group: 'H',
-    date: '2026-04-13',
-    time: '18:00',
+    date: '2026-06-15',
+    time: '12:00',
     offset: '-04:00',
     home: 'Spain',
     away: 'Cape Verde',
@@ -530,7 +549,7 @@ const fixtures = [
   },
   {
     group: 'H',
-    date: '2026-04-13',
+    date: '2026-06-15',
     time: '21:00',
     offset: '-04:00',
     home: 'Saudi Arabia',
@@ -541,8 +560,8 @@ const fixtures = [
   },
   {
     group: 'H',
-    date: '2026-04-19',
-    time: '18:00',
+    date: '2026-06-21',
+    time: '12:00',
     offset: '-04:00',
     home: 'Spain',
     away: 'Saudi Arabia',
@@ -552,8 +571,8 @@ const fixtures = [
   },
   {
     group: 'H',
-    date: '2026-04-19',
-    time: '21:00',
+    date: '2026-06-21',
+    time: '18:00',
     offset: '-04:00',
     home: 'Uruguay',
     away: 'Cape Verde',
@@ -563,8 +582,8 @@ const fixtures = [
   },
   {
     group: 'H',
-    date: '2026-04-24',
-    time: '15:00',
+    date: '2026-06-26',
+    time: '19:00',
     offset: '-05:00',
     home: 'Cape Verde',
     away: 'Saudi Arabia',
@@ -574,7 +593,7 @@ const fixtures = [
   },
   {
     group: 'H',
-    date: '2026-04-24',
+    date: '2026-06-26',
     time: '18:00',
     offset: '-06:00',
     home: 'Uruguay',
@@ -587,7 +606,7 @@ const fixtures = [
   // Group I
   {
     group: 'I',
-    date: '2026-04-14',
+    date: '2026-06-16',
     time: '15:00',
     offset: '-04:00',
     home: 'France',
@@ -598,7 +617,7 @@ const fixtures = [
   },
   {
     group: 'I',
-    date: '2026-04-14',
+    date: '2026-06-16',
     time: '18:00',
     offset: '-04:00',
     home: 'Iraq',
@@ -609,7 +628,7 @@ const fixtures = [
   },
   {
     group: 'I',
-    date: '2026-04-20',
+    date: '2026-06-22',
     time: '17:00',
     offset: '-04:00',
     home: 'France',
@@ -620,7 +639,7 @@ const fixtures = [
   },
   {
     group: 'I',
-    date: '2026-04-20',
+    date: '2026-06-22',
     time: '20:00',
     offset: '-04:00',
     home: 'Norway',
@@ -631,7 +650,7 @@ const fixtures = [
   },
   {
     group: 'I',
-    date: '2026-04-24',
+    date: '2026-06-26',
     time: '15:00',
     offset: '-04:00',
     home: 'Norway',
@@ -642,7 +661,7 @@ const fixtures = [
   },
   {
     group: 'I',
-    date: '2026-04-24',
+    date: '2026-06-26',
     time: '15:00',
     offset: '-04:00',
     home: 'Senegal',
@@ -655,8 +674,8 @@ const fixtures = [
   // Group J
   {
     group: 'J',
-    date: '2026-04-14',
-    time: '18:00',
+    date: '2026-06-16',
+    time: '20:00',
     offset: '-05:00',
     home: 'Argentina',
     away: 'Algeria',
@@ -666,7 +685,7 @@ const fixtures = [
   },
   {
     group: 'J',
-    date: '2026-04-14',
+    date: '2026-06-16',
     time: '21:00',
     offset: '-07:00',
     home: 'Austria',
@@ -677,8 +696,8 @@ const fixtures = [
   },
   {
     group: 'J',
-    date: '2026-04-20',
-    time: '17:00',
+    date: '2026-06-22',
+    time: '12:00',
     offset: '-05:00',
     home: 'Argentina',
     away: 'Austria',
@@ -688,7 +707,7 @@ const fixtures = [
   },
   {
     group: 'J',
-    date: '2026-04-20',
+    date: '2026-06-22',
     time: '20:00',
     offset: '-07:00',
     home: 'Jordan',
@@ -699,8 +718,8 @@ const fixtures = [
   },
   {
     group: 'J',
-    date: '2026-04-25',
-    time: '15:00',
+    date: '2026-06-27',
+    time: '21:00',
     offset: '-05:00',
     home: 'Algeria',
     away: 'Austria',
@@ -710,8 +729,8 @@ const fixtures = [
   },
   {
     group: 'J',
-    date: '2026-04-25',
-    time: '18:00',
+    date: '2026-06-27',
+    time: '21:00',
     offset: '-05:00',
     home: 'Jordan',
     away: 'Argentina',
@@ -723,8 +742,8 @@ const fixtures = [
   // Group K
   {
     group: 'K',
-    date: '2026-04-15',
-    time: '15:00',
+    date: '2026-06-17',
+    time: '12:00',
     offset: '-05:00',
     home: 'Portugal',
     away: 'DR Congo',
@@ -734,8 +753,8 @@ const fixtures = [
   },
   {
     group: 'K',
-    date: '2026-04-15',
-    time: '18:00',
+    date: '2026-06-17',
+    time: '20:00',
     offset: '-06:00',
     home: 'Uzbekistan',
     away: 'Colombia',
@@ -745,8 +764,8 @@ const fixtures = [
   },
   {
     group: 'K',
-    date: '2026-04-21',
-    time: '15:00',
+    date: '2026-06-23',
+    time: '12:00',
     offset: '-05:00',
     home: 'Portugal',
     away: 'Uzbekistan',
@@ -756,8 +775,8 @@ const fixtures = [
   },
   {
     group: 'K',
-    date: '2026-04-21',
-    time: '18:00',
+    date: '2026-06-23',
+    time: '20:00',
     offset: '-06:00',
     home: 'Colombia',
     away: 'DR Congo',
@@ -767,8 +786,8 @@ const fixtures = [
   },
   {
     group: 'K',
-    date: '2026-04-25',
-    time: '15:00',
+    date: '2026-06-27',
+    time: '19:30',
     offset: '-04:00',
     home: 'Colombia',
     away: 'Portugal',
@@ -778,8 +797,8 @@ const fixtures = [
   },
   {
     group: 'K',
-    date: '2026-04-25',
-    time: '18:00',
+    date: '2026-06-27',
+    time: '19:30',
     offset: '-04:00',
     home: 'DR Congo',
     away: 'Uzbekistan',
@@ -791,7 +810,7 @@ const fixtures = [
   // Group L
   {
     group: 'L',
-    date: '2026-04-15',
+    date: '2026-06-17',
     time: '15:00',
     offset: '-05:00',
     home: 'England',
@@ -802,8 +821,8 @@ const fixtures = [
   },
   {
     group: 'L',
-    date: '2026-04-15',
-    time: '18:00',
+    date: '2026-06-17',
+    time: '16:00',
     offset: '-04:00',
     home: 'Ghana',
     away: 'Panama',
@@ -813,8 +832,8 @@ const fixtures = [
   },
   {
     group: 'L',
-    date: '2026-04-21',
-    time: '15:00',
+    date: '2026-06-23',
+    time: '16:00',
     offset: '-04:00',
     home: 'England',
     away: 'Ghana',
@@ -824,8 +843,8 @@ const fixtures = [
   },
   {
     group: 'L',
-    date: '2026-04-21',
-    time: '18:00',
+    date: '2026-06-23',
+    time: '19:00',
     offset: '-04:00',
     home: 'Panama',
     away: 'Croatia',
@@ -835,8 +854,8 @@ const fixtures = [
   },
   {
     group: 'L',
-    date: '2026-04-25',
-    time: '15:00',
+    date: '2026-06-27',
+    time: '17:00',
     offset: '-04:00',
     home: 'Panama',
     away: 'England',
@@ -846,8 +865,8 @@ const fixtures = [
   },
   {
     group: 'L',
-    date: '2026-04-25',
-    time: '18:00',
+    date: '2026-06-27',
+    time: '17:00',
     offset: '-04:00',
     home: 'Croatia',
     away: 'Ghana',
@@ -857,6 +876,7 @@ const fixtures = [
   },
 ];
 
+/** ISO datetime with explicit offset → correct UTC instant for PostgreSQL timestamptz. */
 function kickoffDate(fixture) {
   return new Date(`${fixture.date}T${fixture.time}:00${fixture.offset}`);
 }
@@ -916,6 +936,8 @@ const teamLogoUrls = {
 };
 
 async function main() {
+  logDatabaseTarget(rawConnectionString);
+
   const competition = await prisma.competition.upsert({
     where: { slug: 'fifa-world-cup' },
     update: { name: 'FIFA World Cup' },
@@ -936,6 +958,10 @@ async function main() {
       year: 2026,
     },
   });
+
+  console.log(
+    `[seed-world-cup-group-stage] Season "${season.name}" id=${season.id} (competition id=${season.competitionId})`,
+  );
 
   const teamNames = Array.from(
     new Set(fixtures.flatMap((f) => [f.home, f.away])),
@@ -976,7 +1002,7 @@ async function main() {
   });
 
   const now = new Date();
-  await prisma.match.createMany({
+  const insertResult = await prisma.match.createMany({
     data: fixtures.map((fixture) => {
       const kickoffAt = kickoffDate(fixture);
       const hasResult = fixture.homeScore != null && fixture.awayScore != null;
@@ -995,6 +1021,15 @@ async function main() {
       };
     }),
   });
+
+  console.log(
+    `[seed-world-cup-group-stage] Match.createMany count=${insertResult.count} (fixtures=${fixtures.length}).`,
+  );
+  if (insertResult.count !== fixtures.length) {
+    console.warn(
+      `[seed-world-cup-group-stage] Inserted row count differs from fixtures — verify constraints and DATABASE_URL.`,
+    );
+  }
 
   console.log(
     `Seeded ${fixtures.length} group-stage matches (2026 FIFA World Cup, groups A–L).`,
