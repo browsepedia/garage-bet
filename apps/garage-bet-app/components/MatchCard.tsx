@@ -216,9 +216,15 @@ function MatchCard({
         </View>
 
         {match.betStatus === 'UNSET' && !started && onSetBetClick && (
-          <Button mode="contained" compact onPress={() => onSetBetClick(match)}>
-            Place bet
-          </Button>
+          <View>
+            <Button
+              mode="contained"
+              compact
+              onPress={() => onSetBetClick(match)}
+            >
+              Place bet
+            </Button>
+          </View>
         )}
 
         {match.betStatus === 'SET' && !started && onSetBetClick && (
