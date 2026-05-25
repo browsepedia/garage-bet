@@ -1,6 +1,6 @@
 import { LoginFormModel, LoginSchema } from '@garage-bet/models';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
@@ -19,7 +19,11 @@ import { AppTheme } from '../../theme';
 import { ApiError } from '../../utils/http-client';
 
 export default function Login() {
-  const { mutateAsync: login, isPending: isLoading } = useLoginMutation();
+  const {
+    mutateAsync: login,
+    isPending: isLoading,
+    isSuccess,
+  } = useLoginMutation();
   const theme = useTheme<AppTheme>();
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -45,6 +49,10 @@ export default function Login() {
       }
     }
   });
+
+  if (isSuccess) {
+    return <Redirect href="/(app)" />;
+  }
 
   return (
     <Screen

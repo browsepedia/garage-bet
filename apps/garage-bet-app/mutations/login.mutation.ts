@@ -1,6 +1,5 @@
 import { LoginFormModel, LoginResponseModel } from '@garage-bet/models';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { router } from 'expo-router';
 import { getOrCreateDeviceId, setTokens } from '../storage/token-storage';
 import { apiJson } from '../utils/http-client';
 
@@ -22,7 +21,6 @@ export function useLoginMutation() {
       return data;
     },
     onSuccess: async () => {
-      router.replace('/(app)');
       await queryClient.invalidateQueries({ queryKey: ['me'] });
       await queryClient.invalidateQueries({
         queryKey: ['deviceRegistrationStatus'],
