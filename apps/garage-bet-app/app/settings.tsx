@@ -2,12 +2,14 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { UserProfileModel, UserProfileSchema } from '@garage-bet/models';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { TouchableOpacity, View } from 'react-native';
-import { Avatar, Text, useTheme } from 'react-native-paper';
+import { Avatar, Dialog, Text, useTheme } from 'react-native-paper';
 import { Button } from '../components/Button';
 import { Screen } from '../components/Screen';
 import { ThemedInput } from '../components/ThemedInput';
+import { useDeleteAccount } from '../mutations/delete-account.mutation';
 import { useLogout } from '../mutations/logout.mutation';
 import { useUserProfileQuery } from '../queries/user-profile.query';
 import { AppTheme } from '../theme';
@@ -30,6 +32,14 @@ export default function Settings() {
   });
 
   const { mutateAsync: logout } = useLogout();
+  const { mutateAsync: deleteAccount, isPending: isDeleting } =
+    useDeleteAccount();
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+
+  const onConfirmDelete = async () => {
+    setConfirmDeleteOpen(false);
+    await deleteAccount();
+  };
 
   const onBackPress = () => {
     if (router.canGoBack()) {
@@ -138,7 +148,57 @@ export default function Settings() {
         >
           Logout
         </Button>
+
+        <Button
+          mode="contained"
+          onPress={() => setConfirmDeleteOpen(true)}
+          loading={isDeleting}
+          disabled={isDeleting}
+          style={{ width: '100%', backgroundColor: '#ef4444' }}
+          textColor="#ffffff"
+        >
+          Delete account
+        </Button>
       </View>
+
+      <Dialog
+        visible={confirmDeleteOpen}
+        onDismiss={() => setConfirmDeleteOpen(false)}
+        style={{
+          borderWidth: 1,
+          borderColor: '#3f3f46',
+        }}
+      >
+        <Dialog.Title>Delete account?</Dialog.Title>
+        <Dialog.Content>
+          <Text variant="bodyMedium">
+            This will permanently delete your account and all of your bets.
+            This action cannot be undone.
+          </Text>
+        </Dialog.Content>
+        <Dialog.Actions
+          style={{ justifyContent: 'space-between', alignItems: 'center' }}
+        >
+          <Button
+            mode="outlined"
+            compact
+            onPress={() => setConfirmDeleteOpen(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            mode="contained"
+            compact
+            onPress={onConfirmDelete}
+            loading={isDeleting}
+            disabled={isDeleting}
+            style={{ backgroundColor: '#ef4444' }}
+            textColor="#ffffff"
+          >
+            Delete
+          </Button>
+        </Dialog.Actions>
+      </Dialog>
     </Screen>
   );
 }
