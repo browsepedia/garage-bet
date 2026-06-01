@@ -75,7 +75,7 @@ export class AuthService {
 
   private getRefreshTokenExpiryDate() {
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 30);
+    expiresAt.setFullYear(expiresAt.getFullYear() + 100);
     return expiresAt;
   }
 
@@ -485,5 +485,11 @@ export class AuthService {
       throw new ForbiddenException('Admin access required');
     }
     return user;
+  }
+
+  async deleteAccount(authorizationHeader?: string) {
+    const user = await this.me(authorizationHeader);
+    await this.prisma.user.delete({ where: { id: user.id } });
+    return { ok: true as const };
   }
 }

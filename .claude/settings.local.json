@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "WebSearch"
+      "WebSearch",
+      "Bash(C:/Users/vlad/AppData/Local/Android/Sdk/platform-tools/adb -s emulator-5554 uninstall com.browsepedia.garagebet)"
     ]
   }
 }

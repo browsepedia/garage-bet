@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Headers, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 import { AuthService } from './auth/auth.service';
 
@@ -25,5 +25,10 @@ export class AppController {
     @Body() body: { deviceId: string; expoPushToken: string },
   ) {
     return this.authService.registerExpoPushToken(authorization, body);
+  }
+
+  @Delete('me')
+  deleteMe(@Headers('authorization') authorization?: string) {
+    return this.authService.deleteAccount(authorization);
   }
 }
