@@ -2,7 +2,13 @@
   "permissions": {
     "allow": [
       "WebSearch",
-      "Bash(C:/Users/vlad/AppData/Local/Android/Sdk/platform-tools/adb -s emulator-5554 uninstall com.browsepedia.garagebet)"
+      "Bash(C:/Users/vlad/AppData/Local/Android/Sdk/platform-tools/adb -s emulator-5554 uninstall com.browsepedia.garagebet)",
+      "Bash(git -C \"D:/browsepedia/garage-bet\" check-ignore \"apps/garage-bet-app/android/build/generated/autolinking/autolinking.json\")",
+      "Bash(git -C \"D:/browsepedia/garage-bet\" ls-files \"apps/garage-bet-app/android/build\")",
+      "Bash(xargs grep -ln \"react-native-config\\\\|findDependencyPaths\\\\|resolveDependency\")",
+      "Bash(git -C \"D:/browsepedia/garage-bet\" log --oneline -10 -- apps/garage-bet-app/android/)",
+      "Bash(git -C \"D:/browsepedia/garage-bet\" diff a293765 HEAD -- apps/garage-bet-app/android/settings.gradle apps/garage-bet-app/android/build.gradle apps/garage-bet-app/android/app/build.gradle)",
+      "Bash(git -C \"D:/browsepedia/garage-bet\" show --stat 995aafc)"
     ]
   }
 }

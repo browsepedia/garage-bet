@@ -8,8 +8,6 @@ import { MatchStatus } from '@prisma/client';
 import { scoreFinalBet } from '../final-bets/final-bet-scoring';
 import { PrismaService } from '../services/prisma-service';
 
-const PAGE_SIZE = 50;
-
 /** Internal mutable accumulator used while building the leaderboard. */
 type LeaderboardAccumulator = Omit<LeaderboardEntry, 'winRate'>;
 
@@ -24,15 +22,8 @@ export class LeaderboardService {
     this.cache.delete('__overall__');
   }
 
-  async getLeaderboard(
-    page = 0,
-    seasonId?: string,
-  ): Promise<LeaderboardEntry[]> {
-    const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 0;
-    const full = await this.computeFullLeaderboard(seasonId);
-    const start = safePage * PAGE_SIZE;
-    const end = start + PAGE_SIZE;
-    return full.slice(start, end);
+  async getLeaderboard(seasonId?: string): Promise<LeaderboardEntry[]> {
+    return this.computeFullLeaderboard(seasonId);
   }
 
   async getLeaderboardEntryForUser(

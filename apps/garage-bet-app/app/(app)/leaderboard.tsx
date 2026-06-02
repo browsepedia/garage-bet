@@ -79,21 +79,10 @@ export default function Leaderboard() {
   const [seasonId, setSeasonId] = useState<string | 'all'>('all');
   const theme = useTheme<AppTheme>();
 
-  const {
-    data,
-    isLoading,
-    isRefetching,
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
-    refetch,
-    error,
-  } = useLeaderboardQuery(seasonId);
+  const { data, isLoading, isRefetching, refetch, error } =
+    useLeaderboardQuery(seasonId);
 
-  const entries = useMemo(
-    () => (data?.pages ?? []).flatMap((page) => page),
-    [data?.pages],
-  );
+  const entries = useMemo(() => data ?? [], [data]);
 
   const fixedRef = useRef<FlatList>(null);
   const scrollableRef = useRef<FlatList>(null);

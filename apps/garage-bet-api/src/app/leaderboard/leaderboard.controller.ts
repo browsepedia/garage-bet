@@ -16,11 +16,9 @@ export class LeaderboardController {
 
   @Get()
   async getLeaderboard(
-    @Query('page') page?: string,
     @Query('seasonId') seasonId?: string,
   ): Promise<LeaderboardEntry[]> {
-    const parsedPage = page ? Number.parseInt(page, 10) : 0;
-    return this.leaderboardService.getLeaderboard(parsedPage, seasonId);
+    return this.leaderboardService.getLeaderboard(seasonId);
   }
 
   /** Full stats for the authenticated user including rank and max points. */
