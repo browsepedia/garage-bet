@@ -1,5 +1,6 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
+import { LeaderboardModule } from '../leaderboard/leaderboard.module';
 import { EmailService } from '../services/email-service';
 import { PrismaService } from '../services/prisma-service';
 import { AuthController } from './auth.controller';
@@ -10,6 +11,7 @@ import { AuthService } from './auth.service';
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'dev-only-change-me',
     }),
+    forwardRef(() => LeaderboardModule),
   ],
   controllers: [AuthController],
   providers: [AuthService, PrismaService, EmailService],

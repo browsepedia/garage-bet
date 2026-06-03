@@ -3,6 +3,8 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   Logger,
   UnauthorizedException,
@@ -11,6 +13,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { createHash, randomBytes, scrypt, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
+import { LeaderboardService } from '../leaderboard/leaderboard.service';
 import { EmailService } from '../services/email-service';
 import { PrismaService } from '../services/prisma-service';
 
@@ -31,6 +34,8 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
+    @Inject(forwardRef(() => LeaderboardService))
+    private readonly leaderboardService: LeaderboardService,
   ) {}
 
   private readonly userProfileSelect = {
@@ -300,6 +305,8 @@ export class AuthService {
       });
     }
 
+    this.leaderboardService.invalidateAll();
+
     const { accessToken, refreshToken } = await this.issueAuthTokens(user);
 
     void this.emailService
@@ -490,6 +497,7 @@ export class AuthService {
   async deleteAccount(authorizationHeader?: string) {
     const user = await this.me(authorizationHeader);
     await this.prisma.user.delete({ where: { id: user.id } });
+    this.leaderboardService.invalidateAll();
     return { ok: true as const };
   }
 }

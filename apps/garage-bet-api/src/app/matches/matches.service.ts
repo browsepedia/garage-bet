@@ -281,9 +281,7 @@ export class MatchesService {
       },
     });
 
-    if (payload.isEnded) {
-      this.leaderboardService.invalidateForSeason(match.seasonId);
-    }
+    this.leaderboardService.invalidateForSeason(match.seasonId);
 
     return { ok: true as const };
   }

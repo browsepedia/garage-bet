@@ -22,6 +22,10 @@ export class LeaderboardService {
     this.cache.delete('__overall__');
   }
 
+  invalidateAll(): void {
+    this.cache.clear();
+  }
+
   async getLeaderboard(seasonId?: string): Promise<LeaderboardEntry[]> {
     return this.computeFullLeaderboard(seasonId);
   }

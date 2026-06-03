@@ -32,7 +32,6 @@ const SCROLLABLE_WIDTH = COL_STAT * 5 + COL_WR + COL_STAT;
 
 const HEADER_HEIGHT = 36;
 const ROW_HEIGHT = 48;
-const FOOTER_HEIGHT = 48;
 
 const HIGHLIGHT_BG = 'rgba(234, 88, 12, 0.15)';
 
@@ -253,15 +252,45 @@ export default function Leaderboard() {
 
   return (
     <Screen style={{ paddingHorizontal: 0 }}>
-      <View style={{ paddingHorizontal: theme.spacing(2) }}>
-        <ChampionshipSeasonSelect
-          useAllSeasons
-          label="Championship"
-          value={seasonId}
-          onChange={setSeasonId}
-          placeholder="Select championship"
-          emptyMessage="No championships available"
-        />
+      <View
+        style={{
+          paddingHorizontal: theme.spacing(2),
+          paddingRight: theme.spacing(0),
+          flexDirection: 'row',
+          alignItems: 'flex-end',
+          gap: theme.spacing(1),
+        }}
+      >
+        <View style={{ flex: 1 }}>
+          <ChampionshipSeasonSelect
+            useAllSeasons
+            label="Championship"
+            value={seasonId}
+            onChange={setSeasonId}
+            placeholder="Select championship"
+            emptyMessage="No championships available"
+          />
+        </View>
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="Refresh leaderboard"
+          onPress={() => refetch()}
+          disabled={isRefetching}
+          hitSlop={8}
+          style={{
+            height: 44,
+            width: 44,
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: isRefetching ? 0.6 : 1,
+          }}
+        >
+          {isRefetching ? (
+            <ActivityIndicator size="small" color="#EA580C" />
+          ) : (
+            <MaterialCommunityIcons name="refresh" size={22} color="#EA580C" />
+          )}
+        </TouchableOpacity>
       </View>
       <View style={{ flex: 1, paddingTop: theme.spacing(1) }}>
         {isLoading ? (
@@ -325,24 +354,6 @@ export default function Leaderboard() {
                 }}
                 onScroll={handleFixedScroll}
                 showsVerticalScrollIndicator={false}
-                onEndReached={() => {
-                  if (hasNextPage && !isFetchingNextPage) {
-                    fetchNextPage();
-                  }
-                }}
-                onEndReachedThreshold={0.4}
-                ListFooterComponent={
-                  isFetchingNextPage ? (
-                    <View
-                      style={{
-                        paddingVertical: theme.spacing(1.5),
-                        height: FOOTER_HEIGHT,
-                      }}
-                    >
-                      <ActivityIndicator />
-                    </View>
-                  ) : null
-                }
               />
             </View>
 
@@ -397,11 +408,6 @@ export default function Leaderboard() {
                     refreshing: Boolean(isRefetching) && !isLoading,
                     onRefresh: refetch,
                   })}
-                  ListFooterComponent={
-                    isFetchingNextPage ? (
-                      <View style={{ height: FOOTER_HEIGHT }} />
-                    ) : null
-                  }
                 />
               </View>
             </ScrollView>
@@ -445,11 +451,6 @@ export default function Leaderboard() {
                 }}
                 onScroll={handleCompareScroll}
                 showsVerticalScrollIndicator={false}
-                ListFooterComponent={
-                  isFetchingNextPage ? (
-                    <View style={{ height: FOOTER_HEIGHT }} />
-                  ) : null
-                }
               />
             </View>
           </View>
