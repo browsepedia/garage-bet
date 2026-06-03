@@ -11,7 +11,16 @@
       "Bash(git -C \"D:/browsepedia/garage-bet\" show --stat 995aafc)",
       "Bash(git ls-remote *)",
       "Bash(npx tsc *)",
-      "PowerShell(npx tsc --noEmit -p apps/garage-bet-api/tsconfig.app.json 2>&1)"
+      "PowerShell(npx tsc --noEmit -p apps/garage-bet-api/tsconfig.app.json 2>&1)",
+      "WebFetch(domain:callstack.github.io)",
+      "WebFetch(domain:oss.callstack.com)",
+      "Bash(xargs grep -l \"compileSdk\")",
+      "Bash(npx expo *)",
+      "Bash(node -p 'require\\('\\\\''__TRACKED_VAR__/package.json'\\\\''\\).version')",
+      "Bash(yarn install *)",
+      "Bash(xargs grep -E '\"version\"|babel-plugin-codegen')",
+      "Bash(yarn add *)",
+      "Bash(npx patch-package *)"
     ]
   }
 }

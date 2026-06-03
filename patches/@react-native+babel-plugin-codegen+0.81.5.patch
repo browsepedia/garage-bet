@@ -1,0 +1,39 @@
+diff --git a/node_modules/@react-native/babel-plugin-codegen/index.js b/node_modules/@react-native/babel-plugin-codegen/index.js
+index a11ddd9..413ac3f 100644
+--- a/node_modules/@react-native/babel-plugin-codegen/index.js
++++ b/node_modules/@react-native/babel-plugin-codegen/index.js
+@@ -166,6 +166,12 @@ module.exports = function ({parse, types: t}) {
+       ExportDefaultDeclaration(path, state) {
+         if (isCodegenDeclaration(path.node.declaration)) {
+           this.defaultExport = path;
++          // Cache loc/start/end immediately; a later visitor (or a duplicate
++          // plugin instance from workspace hoisting) can null this Path's
++          // `.node` before Program.exit, which would otherwise crash below.
++          this.defaultExportLoc = path.node.loc;
++          this.defaultExportStart = path.node.start;
++          this.defaultExportEnd = path.node.end;
+         }
+       },
+ 
+@@ -187,13 +193,17 @@ module.exports = function ({parse, types: t}) {
+             // This is mostly useful when that generated code throws an error.
+             traverseCheap(ast, node => {
+               if (node?.loc) {
+-                node.loc = this.defaultExport.node.loc;
+-                node.start = this.defaultExport.node.start;
+-                node.end = this.defaultExport.node.end;
++                node.loc = this.defaultExportLoc;
++                node.start = this.defaultExportStart;
++                node.end = this.defaultExportEnd;
+               }
+             });
+ 
+-            this.defaultExport.replaceWithMultiple(ast.program.body);
++            if (this.defaultExport.node) {
++              this.defaultExport.replaceWithMultiple(ast.program.body);
++            }
++            // else: another plugin instance already replaced the export; skip
++            // silently to avoid duplicate declarations.
+ 
+             if (this.commandsExport != null) {
+               this.commandsExport.remove();
