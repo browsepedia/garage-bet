@@ -7,7 +7,7 @@ module.exports = function withPinnedAgp(config) {
   return withProjectBuildGradle(config, (config) => {
     config.modResults.contents = config.modResults.contents.replace(
       "classpath('com.android.tools.build:gradle')",
-      "classpath('com.android.tools.build:gradle:8.11.0')",
+      "classpath('com.android.tools.build:gradle:8.7.3')",
     );
     return config;
   });

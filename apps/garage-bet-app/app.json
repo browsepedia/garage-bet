@@ -52,7 +52,7 @@
         "expo-build-properties",
         {
           "android": {
-            "gradleWrapperDistributionUrl": "https://services.gradle.org/distributions/gradle-8.14.3-bin.zip"
+            "gradleWrapperDistributionUrl": "https://services.gradle.org/distributions/gradle-8.10.2-bin.zip"
           },
           "ios": {
             "buildReactNativeFromSource": true

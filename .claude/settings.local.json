@@ -20,7 +20,9 @@
       "Bash(yarn install *)",
       "Bash(xargs grep -E '\"version\"|babel-plugin-codegen')",
       "Bash(yarn add *)",
-      "Bash(npx patch-package *)"
+      "Bash(npx patch-package *)",
+      "Bash(node -e \"require\\('expo/scripts/resolveAppEntry'\\)\" \"D:/browsepedia/garage-bet/apps/garage-bet-app\" android absolute)",
+      "Bash(git checkout *)"
     ]
   }
 }
