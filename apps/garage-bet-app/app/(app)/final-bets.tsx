@@ -252,7 +252,7 @@ export default function FinalBetsScreen() {
           }}
         >
           <Text variant="headlineSmall" style={{ marginBottom: 12 }}>
-            Final bets
+            Final scores
           </Text>
           <LabeledSelectMenu
             label="Championship & season"
@@ -278,8 +278,8 @@ export default function FinalBetsScreen() {
             style={{ color: '#a1a1aa', marginBottom: theme.spacing(2) }}
           >
             Everyone’s final picks for the season you selected. Edit yours from
-            your row or “Set your final bet” (one per season). Points: 2 / 5 / 7
-            / 10 when the result is known.
+            your row or “Set your final score” (one per season). Points: 2 / 5 /
+            7 / 10 when the result is known.
           </Text>
 
           <Text variant="titleSmall" style={{ marginBottom: theme.spacing(1) }}>
@@ -295,7 +295,7 @@ export default function FinalBetsScreen() {
             <ActivityIndicator style={{ marginBottom: theme.spacing(3) }} />
           ) : !list?.length ? (
             <Text style={{ color: '#a1a1aa', marginBottom: theme.spacing(3) }}>
-              No final bets yet for this season.
+              No final scores yet for this season.
             </Text>
           ) : (
             <View style={{ marginBottom: theme.spacing(3) }}>
@@ -321,7 +321,7 @@ export default function FinalBetsScreen() {
           canEditFinalPickBySchedule ? (
             <View style={{ marginBottom: theme.spacing(3) }}>
               <Button mode="contained" onPress={openFinalBetDialog}>
-                Set your final bet
+                Set your final score
               </Button>
             </View>
           ) : null}

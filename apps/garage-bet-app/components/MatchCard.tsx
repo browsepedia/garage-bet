@@ -222,7 +222,7 @@ function MatchCard({
               compact
               onPress={() => onSetBetClick(match)}
             >
-              Place bet
+              Set score
             </Button>
           </View>
         )}
@@ -234,7 +234,7 @@ function MatchCard({
               compact
               onPress={() => onSetBetClick(match)}
             >
-              Update bet
+              Update score
             </Button>
           </View>
         )}
@@ -246,7 +246,7 @@ function MatchCard({
               compact
               onPress={() => router.push(`/matches/${match.id}`)}
             >
-              See bets
+              See scores
             </Button>
           </View>
         )}

@@ -312,13 +312,13 @@ export function UserStatsScreenContent({
             />
             <StatRow
               icon="soccer"
-              label="Bets placed on finished matches"
+              label="Scores set on finished matches"
               value={`${data.bets} / ${data.totalFinishedMatches} (${coveragePct}%)`}
             />
 
             <StatRow
               icon="flag-checkered"
-              label="Final bet bonus"
+              label="Final score bonus"
               value={`+${data.finalBetPoints} pts`}
             />
             <View

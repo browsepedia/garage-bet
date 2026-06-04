@@ -91,7 +91,11 @@ export default function Leaderboard() {
               source={{ uri: item.avatarUrl }}
               style={{ width: 32, height: 32, borderRadius: 16 }}
             />
-            <Text style={{ flex: 1 }} numberOfLines={2} ellipsizeMode="tail">
+            <Text
+              style={{ flex: 1, textTransform: 'capitalize' }}
+              numberOfLines={2}
+              ellipsizeMode="tail"
+            >
               {item.name}
             </Text>
           </TouchableOpacity>

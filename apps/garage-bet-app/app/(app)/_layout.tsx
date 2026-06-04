@@ -203,7 +203,7 @@ export default function AppLayout() {
             <Tabs.Screen
               name="final-bets"
               options={{
-                title: 'Final Bets',
+                title: 'Final Scores',
                 tabBarIcon: ({ color, size }) => (
                   <MaterialCommunityIcons
                     name="flag-checkered"

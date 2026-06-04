@@ -54,7 +54,7 @@ export default function SetMatchBetDialog({
         elevation: 8,
       }}
     >
-      <Dialog.Title>Set bet</Dialog.Title>
+      <Dialog.Title>Set score</Dialog.Title>
       <Dialog.Content>
         <View
           style={{
@@ -105,7 +105,7 @@ export default function SetMatchBetDialog({
           Cancel
         </Button>
         <Button mode="contained" compact onPress={onSetBet}>
-          Set bet
+          Set score
         </Button>
       </Dialog.Actions>
     </Dialog>

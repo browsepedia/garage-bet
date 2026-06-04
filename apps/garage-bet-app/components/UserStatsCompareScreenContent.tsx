@@ -476,7 +476,7 @@ export function UserStatsCompareScreenContent({
             />
             <CompareStatRow
               icon="flag-checkered"
-              label="Final bet bonus"
+              label="Final score bonus"
               valuePrimary={`+${me.finalBetPoints} pts`}
               valueSecondary={`+${other.finalBetPoints} pts`}
             />

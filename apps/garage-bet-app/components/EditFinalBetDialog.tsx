@@ -143,7 +143,7 @@ export function EditFinalBetDialog({ open, onOpenChange, seasonId }: Props) {
           flexShrink: 1,
         }}
       >
-        <Dialog.Title>Your final bet</Dialog.Title>
+        <Dialog.Title>Your final score</Dialog.Title>
         <Dialog.Content
           style={{
             paddingHorizontal: 0,
@@ -290,7 +290,7 @@ export function EditFinalBetDialog({ open, onOpenChange, seasonId }: Props) {
               disabled={saving || isLoading}
               loading={saving}
             >
-              Save final bet
+              Save final score
             </Button>
           ) : null}
         </Dialog.Actions>
