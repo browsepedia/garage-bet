@@ -1,5 +1,6 @@
 import { UpdateMatchScorePayload } from '@garage-bet/models';
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -64,10 +65,14 @@ export class MatchesController {
       authorization,
     );
 
-    if (result.ok && body.isEnded) {
-      const bets =
-        await this.matchesService.getBetsForEndOfMatchNotifications(matchId);
+    if (!result.ok) {
+      throw new BadRequestException('Failed to update match score');
+    }
 
+    const bets =
+      await this.matchesService.getBetsForEndOfMatchNotifications(matchId);
+
+    if (body.isEnded) {
       for (const bet of bets) {
         if (bet.expoPushTokens.length > 0) {
           const title =
@@ -76,6 +81,26 @@ export class MatchesController {
               : bet.betStatus === 'LOST'
                 ? '❌ You got the exact score wrong!'
                 : '💙 You got the outcome correct!';
+          await this.notificationsService.sendNotification(
+            bet.expoPushTokens,
+            title,
+            `The match ${bet.homeTeamName} vs ${bet.awayTeamName} has ended with score ${bet.matchHomeScore} - ${bet.matchAwayScore}`,
+            {
+              matchId,
+              type: 'match-ended',
+            },
+          );
+        }
+      }
+    } else {
+      for (const bet of bets) {
+        if (bet.expoPushTokens.length > 0) {
+          const title =
+            bet.betStatus === 'WON'
+              ? '⚽ Score changed — your prediction matches perfectly!'
+              : bet.betStatus === 'LOST'
+                ? '⚽ Score changed — your prediction does not match!'
+                : '⚽ Goal! The outcome matches your score prediction!';
           await this.notificationsService.sendNotification(
             bet.expoPushTokens,
             title,

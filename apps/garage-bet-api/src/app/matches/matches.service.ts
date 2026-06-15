@@ -281,7 +281,7 @@ export class MatchesService {
       },
     });
 
-    this.leaderboardService.invalidateForSeason(match.seasonId);
+    this.leaderboardService.invalidateAll();
 
     return { ok: true as const };
   }
