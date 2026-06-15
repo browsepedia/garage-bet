@@ -6,14 +6,26 @@ export function useUserStatsQuery(seasonId: string | 'all') {
   return useQuery({
     queryKey: ['leaderboard', 'me', 'stats', seasonId],
     queryFn: () =>
-      apiJson<UserStats>(`/leaderboard/me/stats?seasonId=${seasonId}`),
+      apiJson<UserStats>(
+        seasonId === 'all'
+          ? '/leaderboard/me/stats'
+          : `/leaderboard/me/stats?seasonId=${seasonId}`,
+      ),
   });
 }
 
-export function useUserStatsByUserIdQuery(userId: string | undefined) {
+export function useUserStatsByUserIdQuery(
+  userId: string | undefined,
+  seasonId: string | 'all' = 'all',
+) {
   return useQuery({
-    queryKey: ['leaderboard', 'user', userId, 'stats'],
-    queryFn: () => apiJson<UserStats>(`/leaderboard/user/${userId}/stats`),
+    queryKey: ['leaderboard', 'user', userId, 'stats', seasonId],
+    queryFn: () =>
+      apiJson<UserStats>(
+        seasonId === 'all'
+          ? `/leaderboard/user/${userId}/stats`
+          : `/leaderboard/user/${userId}/stats?seasonId=${seasonId}`,
+      ),
     enabled: Boolean(userId),
   });
 }

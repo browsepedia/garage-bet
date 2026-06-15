@@ -14,7 +14,7 @@ export default function StatsCompareScreen() {
   const [seasonId, setSeasonId] = useState<string | 'all'>('all');
 
   const meQuery = useUserStatsQuery(seasonId);
-  const otherQuery = useUserStatsByUserIdQuery(safeId);
+  const otherQuery = useUserStatsByUserIdQuery(safeId, seasonId);
 
   const refetch = () => Promise.all([meQuery.refetch(), otherQuery.refetch()]);
 

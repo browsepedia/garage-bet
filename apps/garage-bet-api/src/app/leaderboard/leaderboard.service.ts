@@ -42,8 +42,9 @@ export class LeaderboardService {
   }
 
   async getUserStats(userId: string, seasonId?: string): Promise<UserStats> {
+    const resolvedSeasonId = seasonId === 'all' ? undefined : seasonId;
     const [full, totalFinishedMatches] = await Promise.all([
-      this.computeFullLeaderboard(seasonId),
+      this.computeFullLeaderboard(resolvedSeasonId),
       this.prisma.match.count({ where: { status: MatchStatus.FINISHED } }),
     ]);
 

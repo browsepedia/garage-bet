@@ -49,7 +49,10 @@ export class LeaderboardController {
 
   /** Full stats for any user (same shape as `GET me/stats`). */
   @Get('user/:userId/stats')
-  async getUserStats(@Param('userId') userId: string): Promise<UserStats> {
-    return this.leaderboardService.getUserStats(userId);
+  async getUserStats(
+    @Param('userId') userId: string,
+    @Query('seasonId') seasonId?: string,
+  ): Promise<UserStats> {
+    return this.leaderboardService.getUserStats(userId, seasonId);
   }
 }
