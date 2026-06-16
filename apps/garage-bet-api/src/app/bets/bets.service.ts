@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { MatchStatus } from '@prisma/client';
 import { AuthService } from '../auth/auth.service';
 import { PrismaService } from '../services/prisma-service';
 
@@ -34,11 +35,22 @@ export class BetsService {
 
     const match = await this.prisma.match.findUnique({
       where: { id: input.matchId },
-      select: { id: true },
+      select: { id: true, kickoffAt: true, status: true },
     });
 
     if (!match) {
       throw new NotFoundException('Match not found');
+    }
+
+    const hasStarted =
+      match.kickoffAt <= new Date() ||
+      match.status === MatchStatus.LIVE ||
+      match.status === MatchStatus.FINISHED;
+
+    if (hasStarted) {
+      throw new BadRequestException(
+        'Cannot change prediction after the match has started',
+      );
     }
 
     return this.prisma.bet.upsert({
