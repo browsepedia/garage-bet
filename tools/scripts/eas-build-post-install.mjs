@@ -3,7 +3,7 @@
  *
  * 1) Ensure workspace node_modules exists (symlink to app node_modules when needed).
  * 2) Mirror hoisted packages from the workspace root into the app's node_modules when
- *    they are missing there (Yarn nohoist should make this a no-op for garage-bet-app).
+ *    they are missing there.
  *
  * Directory links: POSIX uses relative symlinks; Windows uses junctions (no admin).
  */

@@ -3,19 +3,18 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "mobile": "nx start garage-bet-app",
+    "api": "nx serve garage-bet-api",
     "prisma:generate": "prisma generate --schema apps/garage-bet-api/prisma/schema.prisma",
-    "build:api": "yarn prisma:generate && nx build garage-bet-api",
+    "build:api": "pnpm prisma:generate && nx build garage-bet-api",
     "start:api": "node dist/apps/garage-bet-api/main.js",
     "seed:world-cup-group": "node apps/garage-bet-api/prisma/seed-world-cup-group-stage.cjs",
-    "heroku-postbuild": "yarn build:api",
+    "heroku-postbuild": "pnpm build:api",
     "eas:android:apk": "cd apps/garage-bet-app && eas build --platform android --profile preview",
     "eas:android:local": "cd apps/garage-bet-app && eas build --platform android --profile preview --local"
   },
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "models"
-  ],
+  "packageManager": "pnpm@10.14.0",
   "engines": {
     "node": ">=20.x"
   },
@@ -90,5 +89,20 @@
     "resend": "^6.12.2",
     "rxjs": "^7.8.0",
     "zod": "^4.1.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "@parcel/watcher",
+      "@prisma/engines",
+      "@swc/core",
+      "detox",
+      "dtrace-provider",
+      "esbuild",
+      "less",
+      "nx",
+      "prisma",
+      "unrs-resolver"
+    ]
   }
 }

@@ -22,7 +22,27 @@
       "Bash(yarn add *)",
       "Bash(npx patch-package *)",
       "Bash(node -e \"require\\('expo/scripts/resolveAppEntry'\\)\" \"D:/browsepedia/garage-bet/apps/garage-bet-app\" android absolute)",
-      "Bash(git checkout *)"
+      "Bash(git checkout *)",
+      "Bash(pnpm --version)",
+      "Bash(npx nx *)",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const j=JSON.parse\\(d\\);console.log\\(Object.keys\\(j.targets\\)\\)}\\)\")",
+      "Bash(pnpm import *)",
+      "Bash(pnpm install *)",
+      "Bash(pnpm approve-builds *)",
+      "Bash(pnpm exec *)",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{try{const j=JSON.parse\\(d\\);console.log\\('OK, targets:', Object.keys\\(j.targets\\)\\)}catch\\(e\\){console.log\\('PARSE FAIL, raw output below'\\); console.log\\(d.slice\\(0,2000\\)\\)}}\\)\")",
+      "Bash(timeout 40 pnpm api)",
+      "Bash(pnpm api *)",
+      "Bash(echo \"started with pid $!\")",
+      "Bash(cat /tmp/pnpm-api.log)",
+      "Bash(pkill -f \"nx run garage-bet-api:serve\")",
+      "Bash(pkill -f \"dist/apps/garage-bet-api\")",
+      "Bash(lsof -ti:3000)",
+      "Bash(xargs kill -9)",
+      "Bash(kill -9 89541)",
+      "Bash(pkill -f \"nx run garage-bet-app:start\")",
+      "Bash(pkill -f \"expo start\")",
+      "Bash(lsof -ti:19000)"
     ]
   }
 }
