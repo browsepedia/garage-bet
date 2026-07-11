@@ -5,6 +5,7 @@
   "scripts": {
     "mobile": "nx start garage-bet-app",
     "api": "nx serve garage-bet-api",
+    "web": "nx serve garage-bet-web",
     "prisma:generate": "prisma generate --schema apps/garage-bet-api/prisma/schema.prisma",
     "build:api": "pnpm prisma:generate && nx build garage-bet-api",
     "start:api": "node dist/apps/garage-bet-api/main.js",

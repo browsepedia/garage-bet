@@ -1,0 +1,48 @@
+{
+  "name": "garage-bet-web",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/garage-bet-web/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "ng build",
+        "cwd": "apps/garage-bet-web"
+      },
+      "configurations": {
+        "development": {
+          "command": "ng build --configuration development"
+        },
+        "production": {
+          "command": "ng build --configuration production"
+        }
+      }
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "nx:run-commands",
+      "defaultConfiguration": "development",
+      "options": {
+        "command": "ng serve",
+        "cwd": "apps/garage-bet-web"
+      },
+      "configurations": {
+        "development": {
+          "command": "ng serve --configuration development"
+        },
+        "production": {
+          "command": "ng serve --configuration production"
+        }
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "ng test",
+        "cwd": "apps/garage-bet-web"
+      }
+    }
+  }
+}

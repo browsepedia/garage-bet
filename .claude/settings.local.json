@@ -42,7 +42,18 @@
       "Bash(kill -9 89541)",
       "Bash(pkill -f \"nx run garage-bet-app:start\")",
       "Bash(pkill -f \"expo start\")",
-      "Bash(lsof -ti:19000)"
+      "Bash(lsof -ti:19000)",
+      "Bash(npm view *)",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const v=JSON.parse\\(d\\);console.log\\(v.slice\\(-15\\)\\)}\\)\")",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const v=JSON.parse\\(d\\);console.log\\(v.filter\\(x=>x.startsWith\\('22.'\\)\\)\\)}\\)\")",
+      "Bash(pnpm add *)",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{const j=JSON.parse\\(d\\);console.log\\(JSON.stringify\\(j.peerDependencies,null,2\\)\\);console.log\\('---deps with angular---'\\);console.log\\(JSON.stringify\\(Object.fromEntries\\(Object.entries\\(j.dependencies||{}\\).filter\\(\\([k]\\)=>k.includes\\('angular'\\)\\)\\),null,2\\)\\)}\\)\")",
+      "Bash(pnpm remove *)",
+      "Bash(pnpm dlx *)",
+      "Bash(npx --yes @angular/cli@22 new --help)",
+      "Bash(npx --yes @angular/cli@22 new garage-bet-web --directory=apps/garage-bet-web --routing --style=css --skip-git --package-manager=pnpm --defaults --interactive=false)",
+      "Bash(lsof -ti:4201)",
+      "Bash(git check-ignore *)"
     ]
   }
 }

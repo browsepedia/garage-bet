@@ -5,6 +5,7 @@
   "references": [
     { "path": "./apps/garage-bet-app" },
     { "path": "./apps/garage-bet-api" },
+    { "path": "./apps/garage-bet-web" },
     { "path": "./models" }
   ]
 }
