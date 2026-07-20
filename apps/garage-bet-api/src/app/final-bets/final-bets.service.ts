@@ -5,8 +5,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { AuthService } from '../auth/auth.service';
+import { LeaderboardService } from '../leaderboard/leaderboard.service';
 import { PrismaService } from '../services/prisma-service';
 import { scoreFinalBet } from './final-bet-scoring';
+import { resolveSeasonFinals } from './season-final';
 
 export type UpsertFinalBetDto = {
   predictedHomeTeamId: string;
@@ -27,6 +29,7 @@ export class FinalBetsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly authService: AuthService,
+    private readonly leaderboardService: LeaderboardService,
   ) {}
 
   async listSeasons() {
@@ -78,13 +81,7 @@ export class FinalBetsService {
 
     const season = await this.prisma.season.findUnique({
       where: { id: seasonId },
-      select: {
-        id: true,
-        finalHomeTeamId: true,
-        finalAwayTeamId: true,
-        finalHomeScore: true,
-        finalAwayScore: true,
-      },
+      select: { id: true },
     });
 
     if (!season) {
@@ -115,19 +112,8 @@ export class FinalBetsService {
     const teamById = new Map(teams.map((t) => [t.id, t]));
 
     const actual =
-      season.finalHomeTeamId &&
-      season.finalAwayTeamId &&
-      season.finalHomeScore !== null &&
-      season.finalHomeScore !== undefined &&
-      season.finalAwayScore !== null &&
-      season.finalAwayScore !== undefined
-        ? {
-            finalHomeTeamId: season.finalHomeTeamId,
-            finalAwayTeamId: season.finalAwayTeamId,
-            finalHomeScore: season.finalHomeScore,
-            finalAwayScore: season.finalAwayScore,
-          }
-        : null;
+      (await resolveSeasonFinals(this.prisma, [seasonId])).get(seasonId) ??
+      null;
 
     const rows = bets.map((bet) => {
       const homeTeam = teamById.get(bet.predictedHomeTeamId);
@@ -189,8 +175,6 @@ export class FinalBetsService {
       where: { id: seasonId },
       include: {
         competition: true,
-        finalHomeTeam: true,
-        finalAwayTeam: true,
         teams: { include: { team: true } },
       },
     });
@@ -210,40 +194,28 @@ export class FinalBetsService {
       name: st.team.name,
       shortName: st.team.shortName,
     }));
+    const teamNameById = new Map(
+      season.teams.map((st) => [st.team.id, st.team.name]),
+    );
 
-    const actual =
-      season.finalHomeTeamId &&
-      season.finalAwayTeamId &&
-      season.finalHomeScore !== null &&
-      season.finalHomeScore !== undefined &&
-      season.finalAwayScore !== null &&
-      season.finalAwayScore !== undefined
-        ? {
-            homeTeamId: season.finalHomeTeamId,
-            awayTeamId: season.finalAwayTeamId,
-            homeTeamName: season.finalHomeTeam?.name ?? '',
-            awayTeamName: season.finalAwayTeam?.name ?? '',
-            homeScore: season.finalHomeScore,
-            awayScore: season.finalAwayScore,
-          }
-        : season.finalHomeTeamId && season.finalAwayTeamId
-          ? {
-              homeTeamId: season.finalHomeTeamId,
-              awayTeamId: season.finalAwayTeamId,
-              homeTeamName: season.finalHomeTeam?.name ?? '',
-              awayTeamName: season.finalAwayTeam?.name ?? '',
-              homeScore: null as number | null,
-              awayScore: null as number | null,
-            }
-          : null;
+    // Actual final comes from the FINAL match in the matches table once finished.
+    const resolvedFinal = (
+      await resolveSeasonFinals(this.prisma, [seasonId])
+    ).get(seasonId);
+
+    const actual = resolvedFinal
+      ? {
+          homeTeamId: resolvedFinal.finalHomeTeamId,
+          awayTeamId: resolvedFinal.finalAwayTeamId,
+          homeTeamName: teamNameById.get(resolvedFinal.finalHomeTeamId) ?? '',
+          awayTeamName: teamNameById.get(resolvedFinal.finalAwayTeamId) ?? '',
+          homeScore: resolvedFinal.finalHomeScore as number | null,
+          awayScore: resolvedFinal.finalAwayScore as number | null,
+        }
+      : null;
 
     let awardedPoints: number | null = null;
-    if (
-      myBet &&
-      actual &&
-      actual.homeScore !== null &&
-      actual.awayScore !== null
-    ) {
+    if (myBet && resolvedFinal) {
       awardedPoints = scoreFinalBet(
         {
           predictedHomeTeamId: myBet.predictedHomeTeamId,
@@ -251,12 +223,7 @@ export class FinalBetsService {
           predictedHomeScore: myBet.predictedHomeScore,
           predictedAwayScore: myBet.predictedAwayScore,
         },
-        {
-          finalHomeTeamId: actual.homeTeamId,
-          finalAwayTeamId: actual.awayTeamId,
-          finalHomeScore: actual.homeScore,
-          finalAwayScore: actual.awayScore,
-        },
+        resolvedFinal,
       );
     }
 
@@ -340,6 +307,9 @@ export class FinalBetsService {
       },
     });
 
+    // The user's final-bet points changed; drop the cached leaderboard.
+    this.leaderboardService.invalidateAll();
+
     return {
       predictedHomeTeamId: bet.predictedHomeTeamId,
       predictedAwayTeamId: bet.predictedAwayTeamId,
@@ -385,6 +355,9 @@ export class FinalBetsService {
         finalAwayScore: dto.finalAwayScore,
       },
     });
+
+    // The actual final result changed; drop the cached leaderboard.
+    this.leaderboardService.invalidateAll();
 
     return { ok: true as const };
   }

@@ -1,0 +1,107 @@
+// Include theming for Angular Material with `mat.theme()`.
+// This Sass mixin will define CSS variables that are used for styling Angular Material
+// components according to the Material 3 design spec.
+// Learn more about theming and how to use it for your application's
+// custom components at https://material.angular.dev/guide/theming
+@use '@angular/material' as mat;
+
+// Brand tokens mirrored from apps/garage-bet-app/theme.ts so the web app and the
+// mobile app read as the same product. `mat.$orange-palette` seeds the closest
+// built-in Material hue family (used for state layers, focus rings, etc. that we
+// don't override below); the `--mat-sys-*` overrides pin the exact brand hex.
+html {
+  height: 100%;
+  color-scheme: light dark;
+
+  @include mat.theme(
+    (
+      color: (
+        theme-type: light,
+        primary: mat.$orange-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+
+  --mat-sys-primary: #ea580c;
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-primary-container: #f97316;
+  --mat-sys-on-primary-container: #ffffff;
+  --mat-sys-secondary: #ea580c;
+  --mat-sys-on-secondary: #ffffff;
+  --mat-sys-tertiary: #2563eb;
+  --mat-sys-on-tertiary: #ffffff;
+  --mat-sys-surface: #ffffff;
+  --mat-sys-on-surface: #1f2937;
+  --mat-sys-surface-variant: #f3f4f6;
+  --mat-sys-on-surface-variant: #71717a;
+  --mat-sys-background: #ffffff;
+  --mat-sys-on-background: #1f2937;
+  --mat-sys-outline: #e5e7eb;
+  --mat-sys-outline-variant: #e5e7eb;
+  --mat-sys-error: #dc2626;
+  --mat-sys-on-error: #ffffff;
+  --mat-sys-error-container: #fef2f2;
+  --mat-sys-on-error-container: #dc2626;
+
+  // Semantic accents that MD3 doesn't model natively (kept in sync with
+  // AppThemeColors in apps/garage-bet-app/theme.ts).
+  --app-success: #16a34a;
+  --app-warning: #d97706;
+  --app-info: #2563eb;
+
+  @media (prefers-color-scheme: dark) {
+    @include mat.theme(
+      (
+        color: (
+          theme-type: dark,
+          primary: mat.$orange-palette,
+          tertiary: mat.$blue-palette,
+        ),
+      )
+    );
+
+    --mat-sys-primary: #ea580c;
+    --mat-sys-on-primary: #ffffff;
+    --mat-sys-primary-container: #f97316;
+    --mat-sys-on-primary-container: #ffffff;
+    --mat-sys-secondary: #ea580c;
+    --mat-sys-on-secondary: #ffffff;
+    --mat-sys-tertiary: #60a5fa;
+    --mat-sys-on-tertiary: #111418;
+    --mat-sys-surface: #111418;
+    --mat-sys-on-surface: #f1f5f9;
+    --mat-sys-surface-variant: #13161a;
+    --mat-sys-on-surface-variant: #a1a1aa;
+    --mat-sys-background: #111418;
+    --mat-sys-on-background: #f1f5f9;
+    --mat-sys-outline: #3f3f46;
+    --mat-sys-outline-variant: #3f3f46;
+    --mat-sys-error: #ef4444;
+    --mat-sys-on-error: #111418;
+    --mat-sys-error-container: #7f1d1d;
+    --mat-sys-on-error-container: #ef4444;
+
+    --app-success: #4ade80;
+    --app-warning: #fbbf24;
+    --app-info: #60a5fa;
+  }
+}
+
+body {
+  // Follow the OS color scheme preference, same as the mobile app.
+  color-scheme: light dark;
+
+  // Set a default background, font and text colors for the application using
+  // Angular Material's system-level CSS variables. Learn more about these
+  // variables at https://material.angular.dev/guide/system-variables
+  background-color: var(--mat-sys-background);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+
+  // Reset the user agent margin.
+  margin: 0;
+  height: 100%;
+}

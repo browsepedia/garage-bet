@@ -1,1 +1,19 @@
 /* You can add global styles to this file, and also import other style files */
+@import 'tailwindcss';
+
+/* Map Tailwind utilities to the same design tokens Angular Material uses
+   (defined in material-theme.scss), so `bg-brand`, `text-on-surface`, etc.
+   stay in sync with the mobile app's theme in both light and dark mode. */
+@theme {
+  --color-brand: var(--mat-sys-primary);
+  --color-brand-hover: var(--mat-sys-primary-container);
+  --color-surface: var(--mat-sys-surface);
+  --color-surface-variant: var(--mat-sys-surface-variant);
+  --color-on-surface: var(--mat-sys-on-surface);
+  --color-on-surface-variant: var(--mat-sys-on-surface-variant);
+  --color-outline: var(--mat-sys-outline);
+  --color-error: var(--mat-sys-error);
+  --color-success: var(--app-success);
+  --color-warning: var(--app-warning);
+  --color-info: var(--app-info);
+}

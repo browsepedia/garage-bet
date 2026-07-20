@@ -78,6 +78,39 @@ describe('scoreFinalBet', () => {
     ).toBe(2);
   });
 
+  it('awards team tiers before the final is scored (null scores)', () => {
+    const pending = {
+      finalHomeTeamId: 'h1',
+      finalAwayTeamId: 'a1',
+      finalHomeScore: null,
+      finalAwayScore: null,
+    };
+    // both finalists, correct slots -> 5 (score tiers not reachable yet)
+    expect(
+      scoreFinalBet(
+        {
+          predictedHomeTeamId: 'h1',
+          predictedAwayTeamId: 'a1',
+          predictedHomeScore: 2,
+          predictedAwayScore: 1,
+        },
+        pending,
+      ),
+    ).toBe(5);
+    // one finalist -> 2
+    expect(
+      scoreFinalBet(
+        {
+          predictedHomeTeamId: 'h1',
+          predictedAwayTeamId: 'x',
+          predictedHomeScore: 2,
+          predictedAwayScore: 1,
+        },
+        pending,
+      ),
+    ).toBe(2);
+  });
+
   it('returns 0 for no overlap', () => {
     expect(
       scoreFinalBet(

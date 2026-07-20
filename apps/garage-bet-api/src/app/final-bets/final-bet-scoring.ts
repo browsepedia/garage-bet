@@ -18,8 +18,9 @@ export type FinalBetPrediction = {
 export type FinalBetActual = {
   finalHomeTeamId: string;
   finalAwayTeamId: string;
-  finalHomeScore: number;
-  finalAwayScore: number;
+  /** Null until the final has been played/scored; team tiers still apply. */
+  finalHomeScore: number | null;
+  finalAwayScore: number | null;
 };
 
 function outcome(home: number, away: number): -1 | 0 | 1 {
@@ -49,17 +50,20 @@ export function scoreFinalBet(
   const orderedCorrect = ph === ah && pa === aa;
 
   if (orderedCorrect) {
-    if (
-      pred.predictedHomeScore === actual.finalHomeScore &&
-      pred.predictedAwayScore === actual.finalAwayScore
-    ) {
-      return 10;
-    }
-    if (
-      outcome(pred.predictedHomeScore, pred.predictedAwayScore) ===
-      outcome(actual.finalHomeScore, actual.finalAwayScore)
-    ) {
-      return 7;
+    // Score tiers only apply once the final has actually been scored.
+    if (actual.finalHomeScore !== null && actual.finalAwayScore !== null) {
+      if (
+        pred.predictedHomeScore === actual.finalHomeScore &&
+        pred.predictedAwayScore === actual.finalAwayScore
+      ) {
+        return 10;
+      }
+      if (
+        outcome(pred.predictedHomeScore, pred.predictedAwayScore) ===
+        outcome(actual.finalHomeScore, actual.finalAwayScore)
+      ) {
+        return 7;
+      }
     }
     return 5;
   }

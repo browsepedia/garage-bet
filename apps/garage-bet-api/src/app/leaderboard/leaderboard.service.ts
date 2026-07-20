@@ -6,6 +6,7 @@ import {
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { MatchStatus } from '@prisma/client';
 import { scoreFinalBet } from '../final-bets/final-bet-scoring';
+import { resolveSeasonFinals } from '../final-bets/season-final';
 import { PrismaService } from '../services/prisma-service';
 
 /** Internal mutable accumulator used while building the leaderboard. */
@@ -136,19 +137,27 @@ export class LeaderboardService {
     );
 
     const finalBets = await this.prisma.finalPlayerBet.findMany({
-      include: { season: true },
+      where: seasonId ? { seasonId } : undefined,
+      select: {
+        userId: true,
+        seasonId: true,
+        predictedHomeTeamId: true,
+        predictedAwayTeamId: true,
+        predictedHomeScore: true,
+        predictedAwayScore: true,
+      },
     });
 
+    // Actual finalists + score come from the FINAL match in the matches table
+    // (stage = FINAL); team tiers award as soon as the finalists are known.
+    const seasonFinals = await resolveSeasonFinals(
+      this.prisma,
+      seasonId ? [seasonId] : undefined,
+    );
+
     for (const fb of finalBets) {
-      const s = fb.season;
-      if (
-        !s.finalHomeTeamId ||
-        !s.finalAwayTeamId ||
-        s.finalHomeScore === null ||
-        s.finalHomeScore === undefined ||
-        s.finalAwayScore === null ||
-        s.finalAwayScore === undefined
-      ) {
+      const actual = seasonFinals.get(fb.seasonId);
+      if (!actual) {
         continue;
       }
       const pts = scoreFinalBet(
@@ -158,12 +167,7 @@ export class LeaderboardService {
           predictedHomeScore: fb.predictedHomeScore,
           predictedAwayScore: fb.predictedAwayScore,
         },
-        {
-          finalHomeTeamId: s.finalHomeTeamId,
-          finalAwayTeamId: s.finalAwayTeamId,
-          finalHomeScore: s.finalHomeScore,
-          finalAwayScore: s.finalAwayScore,
-        },
+        actual,
       );
       const stats = byUser.get(fb.userId);
       if (stats) {

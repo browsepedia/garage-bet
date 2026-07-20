@@ -53,7 +53,23 @@
       "Bash(npx --yes @angular/cli@22 new --help)",
       "Bash(npx --yes @angular/cli@22 new garage-bet-web --directory=apps/garage-bet-web --routing --style=css --skip-git --package-manager=pnpm --defaults --interactive=false)",
       "Bash(lsof -ti:4201)",
-      "Bash(git check-ignore *)"
+      "Bash(git check-ignore *)",
+      "Bash(npx --yes @angular/cli@22 g @angular/material:ng-add --help)",
+      "Bash(npx --yes @angular/cli@22 add @angular/material@22 --help)",
+      "Bash(npm pack *)",
+      "Bash(tar -xzf angular-material-22*.tgz)",
+      "Bash(rm -rf /private/tmp/claude-501/-Users-vlad-Projects-Browsepedia-garage-bet/954ca7c1-a7b8-4e20-9e6f-20080a57283a/scratchpad/package /private/tmp/claude-501/-Users-vlad-Projects-Browsepedia-garage-bet/954ca7c1-a7b8-4e20-9e6f-20080a57283a/scratchpad/angular-material-22*.tgz)",
+      "Bash(npx --yes @angular/cli@22 add @angular/material@22 --theme=cyan-orange --skip-confirmation --interactive=false)",
+      "Bash(grep -n \"^\\\\\\\\\\\\$[a-z-]*-palette:\" node_modules/@angular/material/core/theming/_palettes.scss)",
+      "Bash(grep -n 'theme-type\\\\|color-scheme\\\\|light-dark\\\\|$type' node_modules/@angular/material/core/tokens/_m3-tokens.scss)",
+      "Bash(sips --help)",
+      "Bash(sips -s format icns /Users/vlad/Projects/Browsepedia/garage-bet/apps/garage-bet-app/assets/images/icon.png --out /tmp/test.icns)",
+      "Bash(sips -Z 512 /Users/vlad/Projects/Browsepedia/garage-bet/apps/garage-bet-app/assets/images/icon.png --out /Users/vlad/Projects/Browsepedia/garage-bet/apps/garage-bet-web/public/logo.png)",
+      "Bash(sips -Z 96 /Users/vlad/Projects/Browsepedia/garage-bet/apps/garage-bet-app/assets/images/icon.png --out /Users/vlad/Projects/Browsepedia/garage-bet/apps/garage-bet-web/public/logo-96.png)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} %{content_type} %{size_download} bytes\\\\n\" http://localhost:4201/favicon-32.png)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} %{content_type} %{size_download} bytes\\\\n\" http://localhost:4201/logo-96.png)",
+      "Bash(git stash *)",
+      "Bash(npx jest *)"
     ]
   }
 }
