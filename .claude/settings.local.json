@@ -74,7 +74,11 @@
       "Bash(node -e \"try{const p=require\\('./apps/garage-bet-api/package.json'\\); console.log\\('deps:', p.dependencies&&p.dependencies.tslib, '| devDeps:', p.devDependencies&&p.devDependencies.tslib\\)}catch\\(e\\){console.log\\('no api package.json or', e.message\\)}\")",
       "Bash(node -e \"try{console.log\\(require\\('tslib/package.json'\\).version\\)}catch\\(e\\){console.log\\('not resolvable from root:', e.message\\)}\")",
       "Bash(awk '/^importers:/{f=1} f&&/^  \\\\.:/{g=1} g&&/^    dependencies:/{d=1} d&&/tslib/{print; found=1} g&&/^    devDependencies:/{d=0} END{if\\(!found\\)print \"tslib NOT in dependencies block\"}' pnpm-lock.yaml)",
-      "Bash(node -e \"const p=require\\('./apps/garage-bet-api/project.json'\\); console.log\\(JSON.stringify\\(p.targets&&p.targets.build,null,1\\)\\)\")"
+      "Bash(node -e \"const p=require\\('./apps/garage-bet-api/project.json'\\); console.log\\(JSON.stringify\\(p.targets&&p.targets.build,null,1\\)\\)\")",
+      "Bash(node -e \"console.log\\(JSON.stringify\\(require\\('./package.json'\\).scripts,null,1\\)\\)\")",
+      "Bash(node -e \"console.log\\('postinstall:', require\\('./package.json'\\).scripts.postinstall || '\\(none\\)'\\)\")",
+      "Bash(pnpm prisma:generate)",
+      "Bash(pnpm build:api)"
     ]
   }
 }
