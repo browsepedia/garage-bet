@@ -65,6 +65,9 @@ importers:
       rxjs:
         specifier: ^7.8.0
         version: 7.8.2
+      tslib:
+        specifier: ^2.3.0
+        version: 2.8.1
       zod:
         specifier: ^4.4.2
         version: 4.4.2
@@ -201,9 +204,6 @@ importers:
       ts-node:
         specifier: 10.9.1
         version: 10.9.1(@swc/core@1.5.29(@swc/helpers@0.5.18))(@types/node@20.19.9)(typescript@5.9.3)
-      tslib:
-        specifier: ^2.3.0
-        version: 2.8.1
       typescript:
         specifier: ~5.9.2
         version: 5.9.3
@@ -1931,7 +1931,7 @@ packages:
 
   '@expo/bunyan@4.0.1':
     resolution: {integrity: sha512-+Lla7nYSiHZirgK+U/uYzsLv/X+HaJienbD5AKX1UQZHYfWaP+9uuQluRB4GrEVWF0GZ7vEVp/jzaOT9k/SQlg==}
-    engines: {'0': node >=0.10.0}
+    engines: {node: '>=0.10.0'}
 
   '@expo/cli@54.0.23':
     resolution: {integrity: sha512-km0h72SFfQCmVycH/JtPFTVy69w6Lx1cHNDmfLfQqgKFYeeHTjx7LVDP4POHCtNxFP2UeRazrygJhlh4zz498g==}
